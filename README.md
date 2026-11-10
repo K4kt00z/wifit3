@@ -1,5 +1,5 @@
 # wifit3
-> A standalone USB Wi-Fi auditor for Linux, Windows, and macOS.
+> A standalone USB and pcie Wi-Fi auditor for Linux
 
 <p align="center">
   <img src="assets/wifit3-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
