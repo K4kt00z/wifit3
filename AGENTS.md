@@ -49,7 +49,9 @@ Tests require no hardware: all USB interactions are mocked via `pytest-mock`. `a
 
 ## Architecture Overview
 
-Wifit3 is a userland 802.11 auditing tool. It communicates directly with USB wireless devices via **PyUSB**.
+Wifit3 is an 802.11 auditing tool. For USB wireless devices it is a userland stack that communicates
+directly with the hardware via **PyUSB**. For PCIe/M.2 cards (Linux only) it instead rides the card's
+in-kernel driver through a netdev backend (`AF_PACKET` + `nl80211`/`iw`); see `chips/netdev/`.
 The TUI is built on **Textual**.
 
 ### Where things live
@@ -62,10 +64,11 @@ package. Not off-limits, but changes here stay generic: no imports from the app 
 
 ```
 dot11/   pure 802.11 / WSC spec: frame parsing and building, no device or asyncio
-device/  DeviceManager + the VID:PID map (USB scan, VID:PID → driver, read WITHOUT importing the
-         driver), DeviceWatch (plug-in / un-plug callbacks)
+device/  DeviceManager + the VID:PID map (USB scan + Linux PCIe-netdev scan via /sys/class/net,
+         VID:PID → driver, read WITHOUT importing the driver), DeviceWatch (plug-in / un-plug callbacks)
 wlan/    WlanInterface (802.11 abstraction: channel hopping, AP/Client registry)
-chips/   driver.py is the Driver ABC; one dir per chip subclasses it
+chips/   driver.py is the Driver ABC; one dir per chip subclasses it. netdev/ is the odd one out:
+         the Linux PCIe/M.2 backend that rides the in-kernel driver, not a userspace USB chip port
 ```
 
 **App layer**: wifit3 itself, built on the core engine.
@@ -114,7 +117,7 @@ The cold-vs-warm distinction is a per-driver concern: if a previous session left
 
 ### TUI Screens
 
-- **SplashView** — USB device discovery, driver progress, interface selection
+- **SplashView** — device discovery (USB + Linux PCIe/M.2), driver progress, interface selection
 - **ScannerView** — Live AP table; triggers channel hopping; leads to FocusViewV2
 - **FocusViewV2** — Single-AP focus view
 
