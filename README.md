@@ -1,13 +1,5 @@
 # wifit3
-> A standalone Wi-Fi auditor: USB adapters on Linux, Windows, and macOS, plus PCIe/M.2 cards on Linux.
-
-> **Linux-focused fork.** Development and testing happen on Linux, so that is the platform this
-> fork supports. It adds PCIe/M.2 card support (incl. MediaTek MT7922) through a `LinuxNetdevDriver`
-> that rides the in-kernel driver over `AF_PACKET` + `nl80211`/`iw` — it does **not** drive the
-> PCIe hardware directly, and the PCIe/M.2 path is **Linux only**. The cross-platform userspace USB
-> drivers are carried over from [upstream wifit3](https://github.com/derv82/wifit3) and still build
-> for Windows and macOS, but those targets are not tested here. Recover a stalled PCIe card with
-> `scripts/recover_netdev.py`.
+> A standalone USB and pcie Wi-Fi auditor for Linux
 
 <p align="center">
   <img src="assets/wifit3-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
@@ -75,6 +67,7 @@
 | Realtek RTL8822CU | 2.4 / 5 GHz | D-Link AC13U |
 | Realtek RTL8187L | 2.4 GHz | ALFA AWUS036**H** |
 | Realtek RTL8188EUS | 2.4 GHz | TP-Link TL-WN722N v2/v3, Mercusys MW150US |
+| Realtek RTL8188FTV | 2.4 GHz | Generic unbranded dongles |
 | Realtek RTL8192FU | 2.4 GHz | D-Link AN3U rev. A1 |
 | Ralink RT2570 | 2.4 GHz | Buffalo Nintendo Wi-Fi USB Controller |
 | Ralink RT3070 | 2.4 GHz | ALFA AWUS036**NH**, TP-Link TL-WN7200ND |

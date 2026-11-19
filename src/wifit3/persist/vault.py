@@ -4,25 +4,26 @@ re-scan the directory. Wraps persist.save + persist.capture_history."""
 from __future__ import annotations
 
 import logging
-import re
 import subprocess
 import sys
 import time
 import unicodedata
 import zipfile
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Dict, Iterable, List, Optional
 
 from wifit3.crack.hc22000_format import Hc22000Line
-from wifit3.crack.wpa_psk import psk_verdict
+from wifit3.crack.wpa_psk import psk_matches, psk_verdict
+from wifit3.id.ssid import strip_suffix
 from wifit3.models import WPS_CAPTURE_TYPES, CaptureType, PersistedCapture
 from wifit3.persist import ap_state, save
 from wifit3.persist.ap_state import ApState, Key, PasswordStatus, read_hashlines
 from wifit3.persist.capture_history import load_capture_index, summarize
 from wifit3.persist.common import LEGACY_CAPTURE_RE, bssid_to_dashed, safe_ssid, wps_run_state_name
 from wifit3.persist.config import Config
-from wifit3.persist.meta import meta_path, update_meta
+from wifit3.persist.meta import clear_meta_paths_cache, meta_path, update_meta
 from wifit3.persist.save import SaveResult
 from wifit3.vault.manager import JobManager
 from wifit3.wlan.sink import WlanSink
@@ -32,12 +33,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_BAND_SUFFIX_RE = re.compile(r"(?:[\s_-]+(?:2[._]?4|5|6)g(?:hz)?)$", re.IGNORECASE)
-
-
 def _ssid_family(ssid: str) -> str:
     normalized = unicodedata.normalize("NFKC", ssid).casefold().strip()
-    return _BAND_SUFFIX_RE.sub("", normalized).rstrip(" _-")
+    return strip_suffix(normalized).rstrip(" _-")
 
 
 def _related_ssids(left: str, right: str) -> bool:
@@ -103,14 +101,15 @@ class Vault:
         self._ap_states: Dict[str, ApState] = {}
         self._change_listeners: list[Callable[[Optional[str]], None]] = []
         self._probed_ssids_source: Callable[[], Iterable[str]] = lambda: ()
-        self.revision = 0   # bumped on every notify_changed; a cache key for readers
+        self._refresh_count = 0
+        self._change_counts: Dict[str, int] = {}
         self.errors: list[str] = []                       # surfaced as toasts by the app on mount
+        self._propagation_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="psk-propagation")
         try:
             self.refresh()
         except Exception as exc:
             logger.exception("Vault: failed to load the capture index")
             self._index = {}
-            self.revision += 1
             self.errors.append(f"Failed to load captures: {exc}")
         self.manager = JobManager(self)
         try:
@@ -121,6 +120,7 @@ class Vault:
 
     def refresh(self) -> None:
         """Re-scan Config.captures_dir into the cache."""
+        clear_meta_paths_cache()
         self._index = load_capture_index()
         self.notify_changed(None)
 
@@ -142,12 +142,17 @@ class Vault:
         """This session's probed SSIDs, sorted."""
         return sorted(self._probed_ssids_source())
 
+    def revision(self, bssid: str) -> tuple[int, int]:
+        """Changes whenever the AP's captures or state may have; a cache key for readers."""
+        return self._refresh_count, self._change_counts.get(bssid, 0)
+
     def notify_changed(self, bssid: Optional[str]) -> None:
-        """Drop the AP's cached state (every AP's for None) and tell the listeners."""
-        self.revision += 1
+        """Bump the AP's revision and drop its cached state (every AP's for None), then tell the listeners."""
         if bssid is None:
+            self._refresh_count += 1
             self._ap_states.clear()
         else:
+            self._change_counts[bssid] = self._change_counts.get(bssid, 0) + 1
             self._ap_states.pop(bssid, None)
         for listener in self._change_listeners:
             try:
@@ -165,13 +170,17 @@ class Vault:
         """This AP's saved captures, newest-first (empty if none)."""
         return self._index.get(bssid, [])
 
+    def cached_ap_state(self, bssid: str) -> Optional[ApState]:
+        """The cached state for ``bssid``, or ``None`` while it has not been loaded."""
+        return self._ap_states.get(bssid)
+
     def ap_state(self, bssid: str) -> ApState:
         """The AP's keys, hashlines and password status, cached until the AP changes."""
-        state = self._ap_states.get(bssid)
+        state = self.cached_ap_state(bssid)
         if state is None:
-            revision = self.revision
+            revision = self.revision(bssid)
             state = self._ap_states[bssid] = ap_state.load_ap_state(bssid, self.persisted(bssid))
-            if self.revision != revision:       # changed by another thread meanwhile
+            if self.revision(bssid) != revision:    # changed by another thread meanwhile
                 self._ap_states.pop(bssid, None)
             self._record_pcap_dates(state)
         return state
@@ -262,23 +271,31 @@ class Vault:
         return psk_verdict([psk], [line for _, line in read_hashlines(bssid, self.persisted(bssid)).values()])
 
     def propagate_verified_psk(self, source_bssid: str, source_ssid: Optional[str],
-                               psk: str) -> List[str]:
-        """Save ``psk`` for every related AP (SSID family or sibling BSSID) that holds no PSK
-        (see ``_saved_psk``) and that it verifies against; returns their BSSIDs."""
+                               psk: str) -> Future[List[str]]:
+        """Save ``psk`` for every related AP (SSID family or sibling BSSID), one propagation at a time on
+        a background thread; the future holds their BSSIDs."""
+        return self._propagation_executor.submit(self._propagate_verified_psk, source_bssid, source_ssid, psk)
+
+    def _propagate_verified_psk(self, source_bssid: str, source_ssid: Optional[str], psk: str) -> List[str]:
         matched: List[str] = []
-        for bssid in list(self._index):
-            if bssid == source_bssid:
+        for bssid, ssid in self._related_aps(source_bssid, source_ssid):
+            if psk in {key.value for key in self.ap_state(bssid).keys}:
                 continue
-            ssid = self.ssid(bssid)
-            if not ((source_ssid and ssid and _related_ssids(source_ssid, ssid))
-                    or _sibling_bssids(source_bssid, bssid)):
-                continue
-            if self._saved_psk(bssid) is not None:
-                continue
-            if self.verify_wpa_psk(bssid, psk) is True:
+            if any(psk_matches(psk, line) for _, line in read_hashlines(bssid, self.persisted(bssid)).values()):
                 self.save_wpa_psk(ssid, bssid, psk)
                 matched.append(bssid)
         return matched
+
+    def _related_aps(self, bssid: str, ssid: Optional[str]) -> List[tuple[str, Optional[str]]]:
+        """Every other saved AP in the SSID family or a sibling BSSID, with its SSID."""
+        related: List[tuple[str, Optional[str]]] = []
+        for other in list(self._index):
+            if other == bssid:
+                continue
+            other_ssid = self.ssid(other)
+            if (ssid and other_ssid and _related_ssids(ssid, other_ssid)) or _sibling_bssids(bssid, other):
+                related.append((other, other_ssid))
+        return related
 
     def has_handshake(self, ap: "AccessPoint") -> bool:
         return self._has(ap.bssid, CaptureType.HS)
@@ -331,27 +348,36 @@ class Vault:
             psks |= {psk for psk in (ap.wps_pbc_psk, ap.wps_pin_psk) if psk}
             matches_saved_psk = psk_verdict(psks, [line for _, line in new_lines.values()])
         self._insert_capture(capture)
+        if new_lines and not matches_saved_psk:
+            lines = [line for _, line in new_lines.values()]
+            related_psks = {key.value for other, _ in self._related_aps(ap.bssid, ap.ssid)
+                            for key in self.ap_state(other).keys if key.type == CaptureType.WPA_PSK}
+            for psk in related_psks - psks:
+                if any(psk_matches(psk, line) for line in lines):
+                    self.save_wpa_psk(ap.ssid, ap.bssid, psk)
+                    psks.add(psk)
+            matches_saved_psk = psk_verdict(psks, lines)
         if not matches_saved_psk:
-            self._auto_crack(ap, list(before.values()), [line for _, line in after.values()],
-                             state.status is PasswordStatus.CURRENT)
+            self._auto_crack(ap, state)
         return HashlineSaveResult(result.path, was_new=True, matches_saved_psk=matches_saved_psk)
 
-    def _auto_crack(self, ap: "AccessPoint", before: List[Hc22000Line], after: List[Hc22000Line],
-                    was_current: bool) -> None:
-        """Crack the AP's uncracked hashlines when no PSK is held (see ``_saved_psk``) and the save
-        crossed the auto-crack threshold or turned a current password stale."""
+    def _auto_crack(self, ap: "AccessPoint", before: ApState) -> None:
+        """Crack the AP's uncracked hashlines except when the password is CURRENT."""
         tool = self.manager.tools.get(Config.auto_crack) if Config.auto_crack else None
         config = tool.auto_crack_config() if tool is not None else None
-        if tool is None or config is None or self._saved_psk(ap.bssid) is not None:
+        if tool is None or config is None:
             return
-        state = self.ap_state(ap.bssid)
-        became_stale = was_current and state.status is PasswordStatus.STALE
-        if not (crosses_auto_crack_threshold(before, after) or became_stale):
+        after = self.ap_state(ap.bssid)
+        if after.status is PasswordStatus.CURRENT:  # Don't auto-crack known networks
             return
-        uncracked = [h.line for h in state.uncracked]
-        if state.hashline_capture is not None and tool.can_crack(uncracked):
-            self.manager.submit_job(tool.name, state.hashline_capture, self.add_probed_ssids(config),
-                                    auto_crack=True, hashlines=[h.raw for h in state.uncracked])
+        became_stale = before.status is PasswordStatus.CURRENT and after.status is PasswordStatus.STALE
+        if not (crosses_auto_crack_threshold([h.line for h in before.hashlines],
+                                             [h.line for h in after.hashlines]) or became_stale):
+            return
+        uncracked = [h.line for h in after.uncracked]
+        if after.hashline_capture is not None and tool.can_crack(uncracked):
+            self.manager.submit_job(tool.name, after.hashline_capture, self.add_probed_ssids(config),
+                                    auto_crack=True, hashlines=[h.raw for h in after.uncracked])
 
     def record_live_verification(self, key: Key, correct: bool) -> None:
         """Note that a live check against the AP accepted or rejected the key."""
@@ -369,6 +395,8 @@ class Vault:
             self._insert_capture(PersistedCapture(
                 type=CaptureType.WEP, timestamp=int(time.time()), path=str(result.path),
                 bssid=ap.bssid, value=key.hex(), ssid=ap.ssid))
+        elif result and not manual:
+            self._record_key_recovered_again(ap.bssid, (CaptureType.WEP, key.hex()))
         return result
 
     def save_wps_pin(self, ap: "AccessPoint", pin: str, psk: Optional[str],
@@ -383,6 +411,8 @@ class Vault:
             self._insert_capture(PersistedCapture(
                 type=CaptureType.WPS_PIN, timestamp=int(time.time()), path=str(result.path),
                 bssid=ap.bssid, value=psk, pin=pin, ssid=ap.ssid))
+        elif result and psk and not manual:
+            self._record_key_recovered_again(ap.bssid, (CaptureType.WPA_PSK, psk))
         return result
 
     def save_wps_pbc(self, ap: "AccessPoint", psk: str) -> Optional[SaveResult]:
@@ -393,7 +423,15 @@ class Vault:
             self._insert_capture(PersistedCapture(
                 type=CaptureType.WPS_PBC, timestamp=int(time.time()), path=str(result.path),
                 bssid=ap.bssid, value=psk, ssid=ap.ssid))
+        elif result:
+            self._record_key_recovered_again(ap.bssid, (CaptureType.WPA_PSK, psk))
         return result
+
+    def _record_key_recovered_again(self, bssid: str, key_id: tuple[CaptureType, str]) -> None:
+        """The AP gave up a key already saved: a correct live check, so it is CURRENT again."""
+        key = next((k for k in self.ap_state(bssid).keys if k.id == key_id), None)
+        if key is not None:
+            self.record_live_verification(key, True)
 
     def save_wpa_psk(self, ssid: Optional[str], bssid: str, psk: str, manual: bool = False) -> Optional[SaveResult]:
         """``manual``: typed in, not cracked or recovered from the AP."""

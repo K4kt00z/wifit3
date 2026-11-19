@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 def capture_ssid_variants(capture_path: str) -> list[str]:
-    """``ssid_variants`` of every ESSID in the capture's hashlines, deduped."""
-    return all_ssid_variants(line.ssid for _, line in read_hc22000(capture_path))
+    """``all_ssid_variants`` of every ESSID and BSSID in the capture's hashlines."""
+    return all_ssid_variants((line.ssid, line.bssid) for _, line in read_hc22000(capture_path))
 
 
 @dataclass
@@ -119,6 +119,8 @@ class CrackerTool(VaultTool, Generic[QueueT]):
             self._start_next_wordlist(job, queue)
             return True
         if action is JobAction.STOP:
+            if queue.stopped:
+                return True
             queue.stopped = True
             queue.write_to(job)
             if not self._request_stop(job, queue):
@@ -169,8 +171,9 @@ class CrackerTool(VaultTool, Generic[QueueT]):
                           actions=self._running_actions(queue, progress_msg))
 
     @staticmethod
-    def _cracked(key: str) -> ToolResult:
-        return ToolResult(status=ToolStatus.SUCCESS, value=f"Cracked! Key: {key}", percent=100.0, key=key)
+    def _cracked(keys: tuple[str, ...]) -> ToolResult:
+        return ToolResult(status=ToolStatus.SUCCESS, value=f"Cracked! Keys: {', '.join(keys)}", percent=100.0,
+                          keys=keys)
 
     @classmethod
     def _exhausted(cls, queue: WordlistQueue) -> ToolResult:

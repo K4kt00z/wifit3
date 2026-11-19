@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 import zipfile
 from pathlib import Path
 
@@ -14,7 +15,8 @@ import pytest
 
 from wifit3.crack import wpa_psk
 from wifit3.crack.hc22000_format import Hc22000Line
-from wifit3.dot11.wpa import derive_pmk
+from wifit3.dot11.eapol import LLC_SNAP_EAPOL, NONCE_LEN, data_header, eapol_key
+from wifit3.dot11.wpa import KCK_LEN, derive_pmk, derive_ptk, eapol_mic_hmac_md5
 from wifit3.models import AccessPoint, CaptureType, Handshake, HandshakeMessage, ToolName
 from wifit3.persist.config import Config
 from wifit3.persist.ap_state import PasswordStatus
@@ -104,16 +106,19 @@ def test_refresh_rescans_the_current_config_dir(tmp_path, monkeypatch):
 
 # ---- writes fold into the cache ---------------------------------------------
 
-def test_vault_notifies_subscribers_only_when_capture_index_changes(tmp_path):
+def test_vault_records_a_live_check_when_the_ap_gives_up_a_saved_key_again(tmp_path):
     vault = Vault()
     changes = []
-    vault.subscribe(lambda bssid: changes.append((bssid, vault.revision)))
+    vault.subscribe(lambda bssid: changes.append((bssid, vault.revision(bssid))))
     ap = AccessPoint(bssid="aa:bb:cc:dd:ee:ff", ssid="HomeNet")
 
     vault.save_wep_key(ap, b"abcde")
     vault.save_wep_key(ap, b"abcde")
+    vault.save_wep_key(ap, b"abcde", manual=True)
 
-    assert changes == [("aa:bb:cc:dd:ee:ff", 2)]
+    assert changes == [("aa:bb:cc:dd:ee:ff", (1, 1)), ("aa:bb:cc:dd:ee:ff", (1, 2))]
+    (key,) = vault.ap_state(ap.bssid).keys
+    assert [v.correct for v in key.live_verifications] == [True]
 
 
 def test_ap_state_is_cached_until_that_ap_changes(tmp_path):
@@ -132,6 +137,41 @@ def test_ap_state_is_cached_until_that_ap_changes(tmp_path):
 
     v.refresh()
     assert v.ap_state(home.bssid) is not home_state
+
+
+def test_a_change_moves_only_that_aps_revision_and_a_refresh_moves_every_aps(tmp_path):
+    v = Vault()
+    home, other = "aa:bb:cc:dd:ee:ff", "aa:bb:cc:dd:ee:01"
+    home_before, other_before = v.revision(home), v.revision(other)
+
+    v.notify_changed(home)
+    assert v.revision(home) != home_before
+    assert v.revision(other) == other_before
+
+    home_changed = v.revision(home)
+    v.refresh()
+    assert v.revision(home) != home_changed
+    assert v.revision(other) != other_before
+
+
+@pytest.mark.parametrize("changed_bssid, cached", [("aa:bb:cc:dd:ee:01", True), ("aa:bb:cc:dd:ee:ff", False)])
+def test_ap_state_is_not_cached_only_when_that_ap_changes_while_it_loads(tmp_path, monkeypatch, changed_bssid,
+                                                                        cached):
+    import wifit3.persist.ap_state as ap_state_mod
+    v = Vault()
+    home = AccessPoint(bssid="aa:bb:cc:dd:ee:ff", ssid="HomeNet")
+    v.save_wep_key(home, b"abcde")
+    load_ap_state = ap_state_mod.load_ap_state
+
+    def load_while_another_thread_saves(bssid, captures):
+        state = load_ap_state(bssid, captures)
+        v.notify_changed(changed_bssid)
+        return state
+
+    monkeypatch.setattr(ap_state_mod, "load_ap_state", load_while_another_thread_saves)
+    state = v.ap_state(home.bssid)
+    monkeypatch.setattr(ap_state_mod, "load_ap_state", load_ap_state)
+    assert (v.ap_state(home.bssid) is state) is cached
 
 
 def test_each_write_notifies_its_ap_and_a_refresh_every_ap(tmp_path):
@@ -577,6 +617,18 @@ def test_save_does_not_submit_when_a_known_psk_matches_the_capture(tmp_path, moc
     v.manager.submit_job.assert_not_called()
 
 
+def test_a_capture_a_related_aps_key_cracks_gets_that_key_and_no_auto_crack(tmp_path, mocker):
+    _write_wpa_psk(tmp_path, "02-00-00-00-00-10", ssid="HomeNet_5G", psk="knownpsk")
+    v = Vault()
+    mocker.patch.object(v.manager, "submit_job")
+
+    result = v.save_pmkid(_ap_with_pmkid_for("knownpsk"), _CLIENT)
+
+    assert result.matches_saved_psk is True
+    assert "knownpsk" in {key.value for key in v.ap_state("aa:bb:cc:dd:ee:ff").keys}
+    v.manager.submit_job.assert_not_called()
+
+
 def test_save_submits_when_no_known_psk_matches_the_capture(tmp_path, mocker):
     v = Vault()
     mocker.patch.object(v.manager, "submit_job")
@@ -608,6 +660,24 @@ def test_an_m1m2_capture_a_saved_pbc_psk_does_not_crack_changes_nothing(tmp_path
     assert [h.line.authorized for h in state.hashlines] == [False]
     assert (state.status, state.status_key.value) == (PasswordStatus.CURRENT, "pbcpsk")
     assert v.manager.jobs == {}
+
+
+@pytest.mark.parametrize(("verifications", "status", "submitted"), [
+    ([], PasswordStatus.NOT_VERIFIED, True),
+    ([(1700000002, True)], PasswordStatus.CURRENT, False),
+    ([(1700000002, True), (1700000003, False)], PasswordStatus.STALE, True),
+])
+def test_a_saved_psk_blocks_auto_crack_only_while_it_is_current(tmp_path, mocker, verifications, status, submitted):
+    _write_wpa_psk(tmp_path, "aa-bb-cc-dd-ee-ff", ssid="HomeNet", psk="oldpsk")
+    update_meta("HomeNet", "aa:bb:cc:dd:ee:ff", live_verifications=[
+        {"kind": "WPA_PSK", "key": "oldpsk", "at": at, "correct": correct} for at, correct in verifications])
+    v = Vault()
+    mocker.patch.object(v.manager, "submit_job")
+    assert v.ap_state("aa:bb:cc:dd:ee:ff").status is status
+
+    v.save_handshake(_ap_with_hs(), _CLIENT)
+
+    assert v.manager.submit_job.called is submitted
 
 
 @pytest.mark.parametrize(("already_stale", "submitted"), [(False, True), (True, False)])
@@ -715,6 +785,17 @@ def _write_pmkid_line(d, ssid: str, bssid: str, pmk: bytes) -> None:
     (d / f"{ssid}_{bssid.replace(':', '-')}.hc22000").write_text(line, encoding="utf-8")
 
 
+def _write_m1m2_line(d, ssid: str, bssid: str, psk: str) -> None:
+    """One M1+M2 hashline whose MIC ``psk`` makes, in the AP's aggregate .hc22000."""
+    aa, spa = bytes.fromhex(bssid.replace(":", "")), bytes.fromhex(_STA)
+    anonce, snonce = bytes.fromhex("a0" * 32), bytes.fromhex("5b" * 32)
+    eapol = eapol_key(key_info=0x0109, key_len=0, replay=1, nonce=snonce,
+                      key_data=bytes.fromhex("30140100000fac040100000fac040100000fac060000"))
+    mic = eapol_mic_hmac_md5(derive_ptk(derive_pmk(psk, ssid.encode()), aa, spa, anonce, snonce, KCK_LEN), eapol)
+    line = f"WPA*02*{mic.hex()}*{aa.hex()}*{spa.hex()}*{ssid.encode().hex()}*{anonce.hex()}*{eapol.hex()}*00\n"
+    (d / f"{ssid}_{bssid.replace(':', '-')}.hc22000").write_text(line, encoding="utf-8")
+
+
 def test_verify_wpa_psk_true_false_none_and_raw_pmk(tmp_path):
     pmk = derive_pmk("correct horse", b"HomeNet")
     _write_pmkid_line(tmp_path, "HomeNet", "aa:bb:cc:dd:ee:01", pmk)
@@ -739,7 +820,10 @@ def test_dates_read_from_pcaps_are_saved_so_they_are_read_once(tmp_path):
     _write_pmkid_line(tmp_path, "HomeNet", bssid, pmk)
     pmkid = wpa_psk.pmkid(pmk, bytes.fromhex(bssid.replace(":", "")), bytes.fromhex(_STA))
     pcap = tmp_path / "HomeNet_aa-bb-cc-dd-ee-01_1700000005_pmkid.pcap"
-    write_pcap(pcap, [(b"\x88\x02" + pmkid, 1_700_000_003.5)])
+    m1 = eapol_key(key_info=0x008a, key_len=16, replay=1, nonce=bytes(NONCE_LEN),
+                   key_data=bytes.fromhex("dd14000fac04") + pmkid)
+    header = data_header(to_ds=False, bssid=bytes.fromhex(bssid.replace(":", "")), client=bytes.fromhex(_STA))
+    write_pcap(pcap, [(header + LLC_SNAP_EAPOL + m1, 1_700_000_003.5)])
     v = Vault()
     assert v.ap_state(bssid).hashlines[0].captured == (1_700_000_003,)
 
@@ -794,7 +878,7 @@ def test_verify_wpa_psk_matches_beside_m1m2_lines(tmp_path):
     assert v.verify_wpa_psk("02:00:00:00:00:01", "f" * 64) is False
 
 
-def test_propagate_saves_only_related_aps_it_verifies_without_a_psk(tmp_path):
+def test_propagate_saves_only_related_aps_whose_lines_it_cracks(tmp_path):
     psk = "correct horse"
     _write_pmkid_line(tmp_path, "HomeNet", "aa:bb:cc:dd:ee:01", derive_pmk(psk, b"HomeNet"))
     _write_pmkid_line(tmp_path, "HomeNet_5G", "02:00:00:00:00:10",
@@ -805,16 +889,57 @@ def test_propagate_saves_only_related_aps_it_verifies_without_a_psk(tmp_path):
                       derive_pmk("other pass", b"HomeNet-Ext"))  # related, does not verify
     _write_pmkid_line(tmp_path, "Office", "02:00:00:00:00:30",
                       derive_pmk(psk, b"Office"))               # unrelated
-    _write_wpa_psk(tmp_path, "02-00-00-00-00-40", ssid="HomeNet", psk="kept")   # has a PSK
+    _write_wpa_psk(tmp_path, "02-00-00-00-00-40", ssid="HomeNet", psk="kept")   # no lines
     v = Vault()
 
-    matched = v.propagate_verified_psk("aa:bb:cc:dd:ee:01", "HomeNet", psk)
+    matched = v.propagate_verified_psk("aa:bb:cc:dd:ee:01", "HomeNet", psk).result(timeout=10)
 
     assert sorted(matched) == ["02:00:00:00:00:10", "aa:bb:cc:dd:ee:03"]
     assert v.known_psk(AccessPoint(bssid="02:00:00:00:00:10")) == psk
     assert v.known_psk(AccessPoint(bssid="02:00:00:00:00:20")) is None
     assert v.known_psk(AccessPoint(bssid="02:00:00:00:00:30")) is None
     assert v.known_psk(AccessPoint(bssid="02:00:00:00:00:40")) == "kept"
+
+
+def test_propagations_run_one_at_a_time_off_the_calling_thread(tmp_path):
+    psk = "correct horse"
+    _write_pmkid_line(tmp_path, "HomeNet", "aa:bb:cc:dd:ee:01", derive_pmk(psk, b"HomeNet"))
+    _write_pmkid_line(tmp_path, "HomeNet_5G", "02:00:00:00:00:10", derive_pmk(psk, b"HomeNet_5G"))
+    v = Vault()
+    first_saving, release_first = threading.Event(), threading.Event()
+    saving_threads: list[threading.Thread] = []
+
+    def on_change(bssid):
+        saving_threads.append(threading.current_thread())
+        first_saving.set()
+        assert release_first.wait(timeout=10)
+
+    v.subscribe(on_change)
+    first = v.propagate_verified_psk("aa:bb:cc:dd:ee:01", "HomeNet", psk)
+    second = v.propagate_verified_psk("aa:bb:cc:dd:ee:01", "HomeNet", psk)
+    assert first_saving.wait(timeout=10)
+    assert not second.running()
+    release_first.set()
+
+    assert first.result(timeout=10) == ["02:00:00:00:00:10"]
+    assert second.result(timeout=10) == []              # saw the first one's save: no duplicate PSK file
+    assert len(saving_threads) == 1 and saving_threads[0] is not threading.current_thread()
+
+
+@pytest.mark.parametrize("status", [PasswordStatus.NOT_VERIFIED, PasswordStatus.STALE])
+def test_propagate_saves_on_a_related_ap_whose_key_is_not_current_when_it_cracks_a_line(tmp_path, status):
+    psk, bssid = "correct horse", "02:00:00:00:00:10"
+    _write_pmkid_line(tmp_path, "HomeNet", "aa:bb:cc:dd:ee:01", derive_pmk(psk, b"HomeNet"))
+    if status is PasswordStatus.STALE:
+        _write_pmkid_line(tmp_path, "HomeNet_5G", bssid, derive_pmk(psk, b"HomeNet_5G"))
+    else:
+        _write_m1m2_line(tmp_path, "HomeNet_5G", bssid, psk)
+    _write_wpa_psk(tmp_path, "02-00-00-00-00-10", ssid="HomeNet_5G", psk="oldpsk")
+    v = Vault()
+    assert v.ap_state(bssid).status is status
+
+    assert v.propagate_verified_psk("aa:bb:cc:dd:ee:01", "HomeNet", psk).result(timeout=10) == [bssid]
+    assert psk in {key.value for key in v.ap_state(bssid).keys}
 
 
 def test_delete_ap_removes_the_meta_of_a_loaded_capture_with_a_real_ssid(tmp_path):

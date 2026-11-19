@@ -32,7 +32,7 @@ from wifit3.persist.config import Config
 from .campaign import Campaign
 from .wps import known_pins
 from .wps import pins as pinmod
-from .auth_assoc import Association, WlanTransport
+from wifit3.wlan.station import Association, WlanTransport
 from wifit3.dot11 import random_client_mac, str_to_mac
 from wifit3.dot11.wsc.assoc_ie import WPS_REQ_REGISTRAR, wps_assoc_ie
 from .wps.lock import LockTracker
@@ -324,7 +324,8 @@ class WpsCampaign(Campaign):
             self.assoc = Association(self.iface, self.bssid, self.target.ssid or "",
                                      self.channel, our_mac=self.our_mac,
                                      assoc_trailer_ies=wps_assoc_ie(WPS_REQ_REGISTRAR, self.wsc_2_0),
-                                     should_stop=lambda: self.stopped)
+                                     should_stop=lambda: self.stopped,
+                                     beacon_frame=self.target.last_beacon_frame)
             self.assoc.start()
             self.transport = WlanTransport(self.iface, str_to_mac(self.bssid), self.our_mac)
             self.transport.start()
@@ -472,6 +473,7 @@ class WpsCampaign(Campaign):
             st.p1_index = 0
             st.p2_index = 0
             st.skip_middle = None
+            st.dead_first_halves = [pin[:4]]   # earlier rejections were against the old PIN
 
     async def _loop(self) -> None:
         self.status = "running"
@@ -482,15 +484,14 @@ class WpsCampaign(Campaign):
             self.our_mac = str_to_mac(self._lease.mac)
         name = self.target.ssid or self.bssid
         logger.info("WPS campaign start on %s (mac %s)", name, self.our_mac.hex())
-        if self._oui_pin_count:
-            self.log(f"[dim]Prioritizing [bold]{self._oui_pin_count} OUI-matching "
-                     f"default PIN(s)[/bold][/dim]")
 
         # When resuming with a previously-recovered PIN, re-verify it against the AP
         if self.state.phase == "done" and self.state.found_pin is not None:
-            self.log("re-verifying PIN against the AP "
-                     "[dim](if the PSK changed, we'll catch it)[/dim]")
+            self.log("re-verifying PIN against the AP")
             self.state.phase = "verify"
+        elif self._oui_pin_count:
+            self.log(f"[dim]prioritizing [bold]{self._oui_pin_count} OUI-matching "
+                     f"default PIN(s)[/bold][/dim]")
 
         try:
             while not self.stopped:

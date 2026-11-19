@@ -450,10 +450,9 @@ class _FocusStub(Screen):
 
 
 class _ScannerHost(App):
-    SCREENS = {"focus": _FocusStub}
-
     def __init__(self, aps):
         super().__init__()
+        self.focus_view = _FocusStub()
         self.array = _StubArray(aps)
         self.pbc_enabled = False
         self.vault = Vault()
@@ -477,7 +476,7 @@ class _StubArray:
     def get_access_points(self, include_eviltwin=True):
         return list(self.access_points.values())
 
-    async def start_hopping(self, channels=None, interval=0.25):
+    async def start_hopping(self, channels=None, interval=0.25, include_dfs_channels=True):
         pass
 
     async def stop_hopping(self):
@@ -502,7 +501,6 @@ async def _scanner_app():
         # These tests drive refresh_table() themselves; leaving the 15 Hz tick running
         # just makes every pilot.pause() wait on another round of timer messages.
         app.screen._refresh_timer.stop()
-        app.screen._pbc_timer.stop()
         yield app, aps, pilot
 
 

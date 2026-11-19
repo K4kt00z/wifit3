@@ -33,7 +33,7 @@ Most drivers were ported against the single device they were tested on, so EFUSE
 (antenna count, TX power tables) sit in the code as constants. A device whose EFUSE differs then
 gets wrong values with no error raised: little or no RX/TX, or wedging.
 
-Chipsets confirmed to honor EFUSE: RTL8821AU, RTL8822BU, RTL8822CU, RTL8192FU.
+Chipsets confirmed to honor EFUSE: RTL8821AU, RTL8822BU, RTL8822CU, RTL8192FU, AR9271.
 RTL8192FU is verified only on its RFE type 5 reference card; RFE type 1 needs hardware validation.
 
 Direction: per driver, list the EFUSE fields the vendor driver reads, compare against the wifit3
@@ -138,17 +138,6 @@ candidate. Keep `check_pin_half` as-is: it is the hostapd-shaped primitive the o
 target, press `Verify`: the card retunes to that AP's channel to verify, but doesn't return to the
 Focus channel. The Focus target's beacons stay at 0 until the Vault is closed, then come back.
 
-## Vault Verify does not honor TKIP APs, labels good passwords incorrect
-
-**Problem.** On an AP offering TKIP (seen on a WPA2 AP advertising pairwise TKIP + CCMP), Verify
-rejects the correct PSK. The live check's assoc and M2 RSN IE copy every pairwise cipher the AP
-lists (a client names exactly one), and M2's MIC is always key descriptor version 2 (HMAC-SHA1).
-If the AP picks TKIP, it expects version 1 (HMAC-MD5), drops our M2 and re-sends M1, which Verify
-reads as a wrong PSK. WPA1-only APs (vendor WPA IE, descriptor type 254) get a generic RSN IE.
-
-**Direction.** One pairwise cipher in the client RSN IE (CCMP if offered); M2's key descriptor
-version and MIC follow M1's `key_info`.
-
 ## PSK-SHA384 and FT-PSK-SHA384 handshakes are not yet supported
 
 **Problem.** AKM 20 (PSK-SHA384) and AKM 19 (FT-PSK-SHA384) derive the KCK and MIC with SHA-384
@@ -170,8 +159,8 @@ AP (an Enterprise EvilTwin). Vault, the cracker and capture storage all assume `
 
 **Problem.** Without a lock, concurrent injects reach the device out of call order. Before mt7921au
 got one, the TX lab saw 42-46 of 500 flooded frames arrive out of order (rtl8822bu has a lock: 0).
-No lock in: ar9271_v2, mt76x0u, mt76x2u, mt7925au, rt2800usb, rt5572, rtl8187, rtl8822cu, rtl8922au.
-ar9271 also has a TxSlots race, and rt2800usb / rt5572 can transmit in the middle of a retune.
+No lock in: mt76x0u, mt76x2u, mt7925au, rt2800usb, rt5572, rtl8187, rtl8822cu, rtl8922au.
+rt2800usb / rt5572 can also transmit in the middle of a retune.
 
 **Direction.** A lock per driver, written in each driver (no shared base); re-run the TX lab flood
 test on each.

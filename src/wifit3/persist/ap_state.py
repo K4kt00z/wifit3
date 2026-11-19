@@ -10,6 +10,8 @@ from typing import Iterable, Mapping, Optional
 
 from wifit3.crack.hc22000_format import Hc22000Line, hashline_id, read_hc22000
 from wifit3.crack.wpa_psk import psk_matches
+from wifit3.dot11.eapol import LLC_SNAP_EAPOL, MIC_LEN, MIC_OFFSET
+from wifit3.dot11.rsn import RSN_OUI
 from wifit3.models import AP_RECOVERED_CAPTURE_TYPES, PSK_CAPTURE_TYPES, CaptureType, PersistedCapture
 from wifit3.persist.common import safe_ssid
 from wifit3.persist.exhaustion import ExhaustedWordlist, read_exhausted_wordlists
@@ -20,6 +22,8 @@ from wifit3.persist.pcap import read_pcap
 _HASHLINES_KEY = "hashlines"
 _LIVE_VERIFICATIONS_KEY = "live_verifications"
 _MANUAL_CAPTURES_KEY = "manual_captures"
+_PMKID_KDE = b"\xdd\x14" + RSN_OUI + b"\x04"      # Key Data element: id, length, OUI, data type
+_PMKID_LEN = 16
 _PASSWORD_KEY_TYPES = frozenset({CaptureType.WPA_PSK, CaptureType.WEP})
 
 
@@ -106,12 +110,23 @@ def epoch_sort_key(epoch: Optional[int]) -> tuple[bool, int]:
 
 def _pcap_dates(lines: dict[str, Hc22000Line], pcaps: Iterable[Path]) -> dict[str, set[int]]:
     """Per hashline id, the time of each pcap frame carrying its MIC or PMKID."""
-    needles = {hid: bytes.fromhex(line.pmkid_or_mic) for hid, line in lines.items()}
+    hids_by_needle: dict[bytes, list[str]] = {}
+    for hid, line in lines.items():
+        hids_by_needle.setdefault(bytes.fromhex(line.pmkid_or_mic), []).append(hid)
     found: dict[str, set[int]] = {}
     for pcap in pcaps:
         for frame, epoch in read_pcap(pcap):
-            for hid, needle in needles.items():
-                if needle in frame:
+            llc = frame.find(LLC_SNAP_EAPOL)
+            if llc == -1:
+                continue
+            mic_start = llc + len(LLC_SNAP_EAPOL) + MIC_OFFSET
+            needles = [frame[mic_start:mic_start + MIC_LEN]]
+            kde = frame.find(_PMKID_KDE, mic_start + MIC_LEN)
+            if kde != -1:
+                pmkid_start = kde + len(_PMKID_KDE)
+                needles.append(frame[pmkid_start:pmkid_start + _PMKID_LEN])
+            for needle in needles:
+                for hid in hids_by_needle.get(needle, ()):
                     found.setdefault(hid, set()).add(epoch)
     return found
 
@@ -215,18 +230,6 @@ def _matching_key(hashline: DatedHashline, keys: list[Key]) -> Optional[Key]:
     return next((k for k in keys if hashline.id in k.hashline_ids), None)
 
 
-def _evidence(hashlines: list[DatedHashline], keys: list[Key]) -> list[tuple[Optional[int], Optional[Key]]]:
-    """Each authorized hashline (with the password key matching it), correct live check and AP
-    recovery of a password key, newest first."""
-    evidence: list[tuple[Optional[int], Optional[Key]]] = [
-        (h.first_captured, _matching_key(h, keys)) for h in hashlines if h.line.authorized]
-    for key in keys:
-        evidence += [(v.at, key) for v in key.live_verifications if v.correct]
-        if (recovered_at := key.ap_recovered_at) is not None:
-            evidence.append((recovered_at, key))
-    return sorted(evidence, key=lambda e: epoch_sort_key(e[0]), reverse=True)
-
-
 def password_status(hashlines: Iterable[DatedHashline],
                     keys: Iterable[Key]) -> tuple[PasswordStatus, Optional[Key]]:
     """Judged on the newest authorized hashline, correct live check, or AP recovery of a PSK or WEP
@@ -235,15 +238,37 @@ def password_status(hashlines: Iterable[DatedHashline],
     keys = [k for k in keys if k.is_password]
     if not keys:
         return PasswordStatus.NOT_CRACKED, None
-    evidence = _evidence(hashlines, keys)
-    if not evidence:
-        newest_match = next((k for h in hashlines if (k := _matching_key(h, keys))), None)
-        return PasswordStatus.NOT_VERIFIED, newest_match or keys[0]
 
-    _, newest_key = evidence[0]
-    if newest_key is not None:
-        return PasswordStatus.CURRENT, newest_key
-    return PasswordStatus.STALE, next((key for _, key in evidence if key is not None), None)
+    proofs: list[tuple[Optional[int], Optional[Key]]] = []
+    for h in hashlines:
+        if h.line.authorized:
+            proofs.append((h.first_captured, _matching_key(h, keys)))
+    for key in keys:
+        for v in key.live_verifications:
+            if v.correct:
+                proofs.append((v.at, key))
+        if key.ap_recovered_at is not None:
+            proofs.append((key.ap_recovered_at, key))
+
+    if not proofs:
+        for h in hashlines:
+            key = _matching_key(h, keys)
+            if key is not None:
+                return PasswordStatus.NOT_VERIFIED, key
+        return PasswordStatus.NOT_VERIFIED, keys[0]
+
+    proofs.sort(key=lambda p: epoch_sort_key(p[0]), reverse=True)
+    newest_at, newest_key = proofs[0]
+    if newest_key is None:
+        for _, key in proofs:
+            if key is not None:
+                return PasswordStatus.STALE, key
+        return PasswordStatus.STALE, None
+
+    for v in newest_key.live_verifications:
+        if not v.correct and epoch_sort_key(v.at) > epoch_sort_key(newest_at):
+            return PasswordStatus.STALE, newest_key
+    return PasswordStatus.CURRENT, newest_key
 
 
 def key_statuses(keys: Iterable[Key], hashlines: Iterable[DatedHashline], status: PasswordStatus,
