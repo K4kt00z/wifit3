@@ -1,12 +1,13 @@
 # wifit3
 > A standalone Wi-Fi auditor: USB adapters on Linux, Windows, and macOS, plus PCIe/M.2 cards on Linux.
 
-> **This fork adds PCIe/M.2 support (Linux only).** Alongside the cross-platform userspace USB
-> drivers, it drives PCIe/M.2 cards (incl. MediaTek MT7922) through a `LinuxNetdevDriver` that
-> rides the in-kernel driver over `AF_PACKET` + `nl80211`/`iw` — it does **not** drive the PCIe
-> hardware directly, and this path is **Linux only**. USB adapters still work on Linux, Windows,
-> and macOS exactly as in [upstream wifit3](https://github.com/derv82/wifit3). Recover a stalled
-> PCIe card with `scripts/recover_netdev.py`.
+> **Linux-focused fork.** Development and testing happen on Linux, so that is the platform this
+> fork supports. It adds PCIe/M.2 card support (incl. MediaTek MT7922) through a `LinuxNetdevDriver`
+> that rides the in-kernel driver over `AF_PACKET` + `nl80211`/`iw` — it does **not** drive the
+> PCIe hardware directly, and the PCIe/M.2 path is **Linux only**. The cross-platform userspace USB
+> drivers are carried over from [upstream wifit3](https://github.com/derv82/wifit3) and still build
+> for Windows and macOS, but those targets are not tested here. Recover a stalled PCIe card with
+> `scripts/recover_netdev.py`.
 
 <p align="center">
   <img src="assets/wifit3-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
