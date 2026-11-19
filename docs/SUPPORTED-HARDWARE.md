@@ -13,6 +13,19 @@ live in each chip's `<CHIP>.md` (linked under its table).
 - **Stress**: 30-min channel-hopping soak, only tracks RX degradation over time.
 - **Grade**: summary/rollup of the above metrics as a final letter grade.
 
+## PCIe / M.2 cards (Linux only)
+
+PCIe and M.2 cards are **not** userspace chip ports, so they are not graded in the matrix below.
+They are driven on Linux by the `LinuxNetdevDriver` (`src/wifit3/chips/netdev/`), which rides the
+card's in-kernel driver via `nl80211`/`iw` and an `AF_PACKET` monitor socket. RX/TX quality
+therefore tracks the kernel driver, not a wifit3 register-level port.
+
+| Chipset | PCI ID | Bands | Notes |
+|---|---|---|---|
+| MediaTek MT7922 | `14c3:7922` | 2.4 / 5 GHz | 802.11ax; M.2 / soldered |
+| MediaTek MT7921E | `14c3:7961` | 2.4 / 5 GHz | 802.11ax PCIe |
+| MediaTek MT7921K | `14c3:0608` | 2.4 / 5 GHz | 802.11ax PCIe |
+
 ## Matrix
 
 | Chipset | RX | TX | ACKs | Port | Stress | Grade |
