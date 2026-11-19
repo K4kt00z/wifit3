@@ -23,8 +23,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Suffix appended to a chipset name when 2+ of the same chip are present, so a multi-card
-# list doesn't read as a wall of identical names. Flip the glyph here (e.g. "_{n}", "·{n}").
+# How a duplicated chipset is disambiguated: its per-card locator (kernel iface name, else
+# USB bus:address) in brackets, falling back to a plain ordinal when no locator is known.
+_DUP_LOCATOR = " [{loc}]"
 _DUP_SUFFIX = " #{n}"
 # A left buffer so chipset names don't butt against the list edge. Widen here for more indent.
 _LEFT_MARGIN = " "
@@ -42,7 +43,8 @@ def device_list_labels(devices) -> list:
     """One Splash interface-list label per device: ``chipset[ #n] · vendor product``. Two-axis
     alignment keeps a multi-card list scannable: the alpha prefix (RTL/MT/RT/AR) is left-padded so
     the model digits line up, and the chipset column is right-padded so the ``·`` separators line
-    up. ``#n`` shows only when 2+ cards share a chipset; the ``·`` tail only when a brand is known.
+    up. A per-card locator (``[wlo1]`` / ``[1:5]``, or ``#n`` when none is known) shows only when
+    2+ cards share a chipset; the ``·`` tail only when a brand is known.
     Alignment is relative to the cards present now, so it re-flows on plug/unplug."""
     if not devices:
         return []
@@ -57,7 +59,8 @@ def device_list_labels(devices) -> list:
         seen[dev.chipset] = seen.get(dev.chipset, 0) + 1
         head = " " * (prefix_w - len(_alpha_head(dev.chipset))) + dev.chipset
         if chip_counts[dev.chipset] > 1:
-            head += _DUP_SUFFIX.format(n=seen[dev.chipset])
+            loc = dev.locator
+            head += _DUP_LOCATOR.format(loc=loc) if loc else _DUP_SUFFIX.format(n=seen[dev.chipset])
         heads.append(head)
     head_w = max(len(h) for h in heads)
 

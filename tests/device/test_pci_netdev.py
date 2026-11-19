@@ -31,6 +31,9 @@ def test_pci_netdev_devices_enumerates_matching_cards(tmp_path: Path):
     assert dev.bus == "pci"
     assert dev.extras["iface"] == "wlp62s0"
     assert dev.extras["bus_type"] == "pci"
+    # The iface lives in extras (and so drives .locator); it is no longer inlined into product_name.
+    assert dev.locator == "wlp62s0"
+    assert "(wlp62s0)" not in (dev.product_name or "")
 
 
 def test_wlan_iface_constructs_netdev_driver():
@@ -91,3 +94,45 @@ def test_devices_includes_both_usb_and_pci():
                 all_devs = devices()
                 assert mock_usb_dev in all_devs
                 assert mock_pci_dev in all_devs
+
+
+def test_usb_iface_names_maps_busnum_devnum_to_iface(tmp_path: Path):
+    from wifit3.device.manager import _usb_iface_names
+    net_dir = tmp_path / "net"
+    wlan = net_dir / "wlan0"
+    (wlan / "wireless").mkdir(parents=True)
+    usb_device = tmp_path / "usb" / "1-5"
+    usb_iface = usb_device / "1-5:1.0"
+    usb_iface.mkdir(parents=True)
+    (usb_device / "busnum").write_text("1\n")
+    (usb_device / "devnum").write_text("5\n")
+    (wlan / "device").symlink_to(usb_iface)
+
+    assert _usb_iface_names(sysfs_net=net_dir) == {(1, 5): "wlan0"}
+
+
+def test_usb_iface_names_skips_a_device_without_busnum(tmp_path: Path):
+    from wifit3.device.manager import _usb_iface_names
+    net_dir = tmp_path / "net"
+    wlan = net_dir / "wlp62s0"
+    (wlan / "wireless").mkdir(parents=True)
+    pci_device = tmp_path / "pci" / "0000:3e:00.0"
+    pci_device.mkdir(parents=True)
+    (wlan / "device").symlink_to(pci_device)
+
+    assert _usb_iface_names(sysfs_net=net_dir) == {}
+
+
+def test_devices_attaches_kernel_iface_name_to_usb_card():
+    from types import SimpleNamespace
+    mock_usb = SimpleNamespace(idVendor=0x0E8D, idProduct=0x7961, bus=1, address=5)
+    with patch("wifit3.device.manager._require_backend", return_value=MagicMock()), \
+         patch("wifit3.device.manager._bus_devices", return_value=[mock_usb]), \
+         patch("wifit3.device.manager._pnp_only_devices", return_value=[]), \
+         patch("wifit3.device.manager._pci_netdev_devices", return_value=[]), \
+         patch("wifit3.device.manager._usb_iface_names", return_value={(1, 5): "wlan0"}):
+        found = devices()
+
+    usb = next(d for d in found if (d.vid, d.pid) == (0x0E8D, 0x7961))
+    assert usb.extras["iface"] == "wlan0"
+    assert usb.locator == "wlan0"

@@ -147,3 +147,20 @@ def test_vendor_akm_disqualifies_eap_only_and_no_passphrase():
     mixed = AccessPoint(bssid="02:00:00:00:00:02", akm_suites=[1], vendor_akm_offered=True)
     assert eap_only(enterprise) and no_passphrase(enterprise)
     assert not eap_only(mixed) and not no_passphrase(mixed)
+
+
+def test_device_id_locator_prefers_kernel_iface_over_usb_port():
+    from wifit3.models.device_id import DeviceID
+    dev = DeviceID(0x148f, 0x3070, "RT3070", bus=1, address=5, extras={"iface": "wlan0"})
+    assert dev.locator == "wlan0"
+
+
+def test_device_id_locator_falls_back_to_usb_bus_address():
+    from wifit3.models.device_id import DeviceID
+    dev = DeviceID(0x148f, 0x3070, "RT3070", bus=1, address=5)
+    assert dev.locator == "1:5"
+
+
+def test_device_id_locator_is_none_for_a_catalog_entry():
+    from wifit3.models.device_id import DeviceID
+    assert DeviceID(0x148f, 0x3070, "RT3070").locator is None
