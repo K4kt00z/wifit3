@@ -31,7 +31,7 @@ def _eapol_key(key_info: int, key_data_len: int = 0) -> bytes:
 
 
 def test_mic_failure_report_flagged_and_not_m4():
-    frame = _eapol_key(key_info=0x0400 | 0x0800 | 0x0010)
+    frame = _eapol_key(key_info=0x0400 | 0x0800 | 0x0100 | 0x0010)
     pkt = WlanFrameParser.parse_80211_frame(frame, -50)
     assert pkt.mic_failure is True
     assert pkt.msg_num == 0

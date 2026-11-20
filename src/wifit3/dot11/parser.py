@@ -384,8 +384,6 @@ class WlanFrameParser:
         error = bool(key_info & 0x0400)
 
         if error:
-            # A TKIP MIC-failure report (Error+Request) has the same ACK/MIC/INSTALL shape
-            # as M4; it is not a handshake message.
             return 0
         if ack and not mic and not install:
             return 1
