@@ -1,9 +1,5 @@
-"""TKIP per-packet key mixing (IEEE 802.11i / 802.11-2012 Annex M.6.3):
-Phase-1 mixes the Temporal Key and transmitter address with the upper 32
-bits of the TSC into the TTAK; Phase-2 mixes the TTAK and the lower 16
-bits of the TSC into the 16-byte per-packet RC4 seed, whose first 3 bytes
-double as the transmitted WEP IV.
-"""
+"""TKIP per-packet key mixing (IEEE 802.11i): Phase-1 TTAK from TK/TA/TSC-high,
+Phase-2 16-byte RC4 seed from TTAK/TK/TSC-low."""
 from __future__ import annotations
 
 _MASK16 = 0xFFFF

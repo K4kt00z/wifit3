@@ -1,8 +1,5 @@
-"""TKIP per-packet key mixing (IEEE 802.11-2012 Annex M.6.3 TKIP test
-vector): TK/TA taken from the standard, Phase-1/Phase-2 outputs and the
-TSC/IV byte layout cross-checked against hostap's wlantest reference
-implementation (wlantest/tkip.c, compiled and run directly against this
-TK/TA/TSC)."""
+"""TKIP key mixing vectors: IEEE 802.11-2012 Annex M.6.3 TK/TA, outputs from
+hostap wlantest/tkip.c."""
 from wifit3.dot11.tkip import tkip_rc4_key, tsc_to_iv
 
 _TK = bytes.fromhex("12345678901234567890123456789012")
@@ -31,9 +28,7 @@ def test_tsc_to_iv_layout_for_full_tsc():
     assert tsc_to_iv(0x0A0B0C0D0E0F) == bytes.fromhex("0e2e0f200d0c0b0a")
 
 
-def test_tsc_to_iv_prefix_matches_rc4_key_wep_seed():
-    # WEPSeed[0:3] is always the transmitted WEP IV, so it must equal the
-    # first 3 bytes of tsc_to_iv's own IV field.
+def test_rc4_key_first_three_bytes_equal_transmitted_iv():
     tsc = 0x0A0B0C0D0E0F
     assert tkip_rc4_key(_TK, _TA, tsc)[0:3] == tsc_to_iv(tsc)[0:3]
 
