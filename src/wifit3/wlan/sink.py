@@ -165,6 +165,7 @@ class WlanSink:
         vendor_akm_offered = pkt.vendor_akm_offered
         pairwise_cipher = pkt.pairwise_cipher
         group_cipher = pkt.group_cipher
+        wmm = pkt.wmm
         wpa3 = pkt.wpa3
         transition_mode = pkt.transition_mode
         pmf_capable = pkt.pmf_capable
@@ -194,6 +195,7 @@ class WlanSink:
                 vendor_akm_offered=vendor_akm_offered,
                 pairwise_cipher=pairwise_cipher,
                 group_cipher=group_cipher,
+                wmm=wmm,
                 beacons=1 if frame_type == "beacon" else 0,
                 wpa3=wpa3,
                 transition_mode=transition_mode,
@@ -245,6 +247,7 @@ class WlanSink:
                 ap.vendor_akm_offered = vendor_akm_offered
                 ap.pairwise_cipher = pairwise_cipher
                 ap.group_cipher = group_cipher
+                ap.wmm = wmm
                 ap.wpa3 = wpa3
                 ap.transition_mode = transition_mode
                 ap.pmf_capable = pmf_capable

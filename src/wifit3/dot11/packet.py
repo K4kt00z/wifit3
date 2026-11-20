@@ -69,6 +69,7 @@ class BeaconPacket(Packet):
     vendor_akm_offered: bool = False
     pairwise_cipher: Optional[str] = None
     group_cipher: Optional[str] = None
+    wmm: bool = False
     wpa3: bool = False
     transition_mode: bool = False
     pmf_capable: bool = False

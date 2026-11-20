@@ -181,6 +181,7 @@ class WlanFrameParser:
                 "beacon_protection": tags.get("beacon_protection", False),
                 "pairwise_cipher": tags.get("pairwise_cipher"),
                 "group_cipher": tags.get("group_cipher"),
+                "wmm": tags.get("wmm", False),
                 "akms": tags.get("akms", []),
                 "akm_suites": tags.get("akm_suites", []),
                 "rsn_valid": tags.get("rsn_valid", False),
@@ -653,6 +654,7 @@ class WlanFrameParser:
         # so honor only the first occurrence.
         seen_ssid = False
         wps_payloads: List[bytes] = []
+        wmm = False
 
         for tag_id, tag_data, raw_elem in iter_information_elements(frame, start=ptr):
             if tag_id == 0 and not seen_ssid: # SSID (only the first)
@@ -712,6 +714,8 @@ class WlanFrameParser:
                             has_wpa = True
                             if wpa_element is None:
                                 wpa_element = cls._parse_wpa_ie(tag_data)
+                        elif oui_type == 2: # WMM/WME
+                            wmm = True
                         elif oui_type == 4: # WPS
                             # tag_data = OUI(3) + type(1) + WPS TLVs.
                             wps_payloads.append(tag_data[4:])
@@ -752,6 +756,7 @@ class WlanFrameParser:
         parsed["beacon_protection"] = beacon_protection
         parsed["pairwise_cipher"] = pairwise_cipher
         parsed["group_cipher"] = group_cipher
+        parsed["wmm"] = wmm
         parsed["akms"] = akms
         parsed["akm_suites"] = akm_suites
         parsed["rsn_valid"] = rsn_element is not None

@@ -68,6 +68,7 @@ class AccessPoint:
     vendor_akm_offered: bool = False  # an AKM outside 00-0F-AC (DPP, OSEN, ...)
     pairwise_cipher: Optional[str] = None
     group_cipher: Optional[str] = None
+    wmm: bool = False
     beacons: int = 0
     first_seen: float = field(default_factory=time.time)
     # Most recent beacon/probe-resp timestamp.
