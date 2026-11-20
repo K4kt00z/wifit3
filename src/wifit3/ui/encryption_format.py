@@ -20,6 +20,12 @@ _NO_ATTACK_YET = "yellow"
 _OUT_OF_SCOPE = "red"
 
 
+def tkip_vulnerable(ap: AccessPoint) -> bool:
+    """Whether TKIP is the pairwise cipher or the (downgraded) group cipher: a target
+    for the Beck-Tews Michael-MIC injection attack, independent of AKM/EAP."""
+    return (ap.pairwise_cipher or "").upper() == "TKIP" or (ap.group_cipher or "").upper() == "TKIP"
+
+
 def psk_capture_supported(ap: AccessPoint) -> bool | None:
     """Whether a current AKM yields a supported PSK capture; None without AKM evidence."""
     if ap.akm_suites:
@@ -133,6 +139,7 @@ class EncryptionSummary:
     raw: str
     eap_only: bool = False
     psk_attackable: bool = False
+    tkip_attackable: bool = False
 
     @classmethod
     def from_ap(cls, ap: AccessPoint) -> "EncryptionSummary":
@@ -144,6 +151,7 @@ class EncryptionSummary:
             raw=(ap.encryption or "").upper(),
             eap_only=eap_only(ap),
             psk_attackable=psk_capture_supported(ap) is True,
+            tkip_attackable=tkip_vulnerable(ap),
         )
 
     def markup(self, detailed: bool = False, muted: str = "dim") -> str:
@@ -155,7 +163,7 @@ class EncryptionSummary:
         # WPA3 transition: the "2" tail is green only when a crackable PSK is on offer;
         # the "WPA3" head is red for SAE (out of scope), yellow for 802.1X (no attack yet).
         if self.type is EncryptionType.WPA3_TRANSITION:
-            tail = _ATTACKABLE if self.psk_attackable else _NO_ATTACK_YET
+            tail = _ATTACKABLE if (self.psk_attackable or self.tkip_attackable) else _NO_ATTACK_YET
             head_color = _NO_ATTACK_YET if self.eap_only else "bright_red"
             head = f"[{head_color}]WPA3[/{head_color}]→[{tail}]2[/{tail}]"
             return head if not detailed else head + detail
@@ -172,7 +180,7 @@ class EncryptionSummary:
         # RSN WPA2. A crackable PSK is attackable; 802.1X and the SHA384-only PSK
         # suites have no passphrase attack yet.
         if self.type is EncryptionType.WPA2:
-            color = _ATTACKABLE if self.psk_attackable else _NO_ATTACK_YET
+            color = _ATTACKABLE if (self.psk_attackable or self.tkip_attackable) else _NO_ATTACK_YET
             return f"[{color}]WPA2[/{color}]" + detail
 
         if self.type is EncryptionType.OPEN:
@@ -186,8 +194,9 @@ class EncryptionSummary:
             return head + f"[{muted}]·{_format_iv_count(self.wep_ivs)} IVs[/{muted}]"
 
         if self.type is EncryptionType.WPA1:
-            # Legacy WPA1 vendor IE; no AKMs means it was malformed. Out of scope for wifit3.
-            head = f"[{_OUT_OF_SCOPE}]WPA[/{_OUT_OF_SCOPE}]"
+            # Legacy WPA1 (always TKIP, even when no AKMs parsed): attackable via Beck-Tews.
+            color = _ATTACKABLE if (self.tkip_attackable or not self.akms) else _OUT_OF_SCOPE
+            head = f"[{color}]WPA[/{color}]"
             if self.akms:
                 return head + detail
             tail = f" [{muted}](PSK·TKIP)[/{muted}]" if detailed else f" [{muted}](PSK)[/{muted}]"

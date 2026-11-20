@@ -199,7 +199,7 @@ def test_status_footer_wpa1_has_no_pmf():
     ap = build_ap(encryption="WPA-PSK-TKIP", akms=["PSK"], akm_suites=[2], rsn_valid=False,
                   pairwise_cipher="TKIP")
     lines = fm.status_under_dash(ap, None, 0)
-    assert lines == ["[dim]Encryption:[/dim] [red]WPA[/red] [dim](PSK·TKIP)[/dim]"]
+    assert lines == ["[dim]Encryption:[/dim] [bright_green]WPA[/bright_green] [dim](PSK·TKIP)[/dim]"]
 
 
 def test_wpa1_psk_shows_deauth_but_not_pmkid_and_disables_eviltwin():

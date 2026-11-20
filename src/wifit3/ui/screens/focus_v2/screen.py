@@ -46,6 +46,7 @@ from wifit3.campaigns.pin import (EMPTY_PIN_LABEL, WpsCampaign, load_run_state,
                                   run_progress_line)
 from wifit3.campaigns.probe import probe_ap
 from wifit3.campaigns.probe.broadcom_wps import WpsImplementation, probe_wps_implementation
+from wifit3.campaigns.tkip import TkipInject
 from wifit3.campaigns.verify import VERIFY_CAMPAIGNS
 from wifit3.campaigns.verify.campaign import VerifyCampaign, VerifyOutcome
 from wifit3.campaigns.wps.registrar import PinResult
@@ -56,7 +57,7 @@ from wifit3.models import CREDENTIAL_NAMES, AccessPoint, IdSource
 from wifit3.models.access_point import eap_only, no_passphrase
 from wifit3.persist.ap_state import Key, PasswordStatus, epoch_sort_key
 from wifit3.persist.config import Config
-from wifit3.persist.save import SaveResult
+from wifit3.persist.save import SaveResult, save_tkip_capability
 from wifit3.ui import focus_model as fm, pmkid_log
 from wifit3.ui.capture_log import DECLOAK_METHOD_LABELS, saved_psk_chip, short_sta
 from wifit3.ui.eapol_aggregate import EapolAggregator
@@ -74,6 +75,7 @@ from .clients_list import ClientsList, ClientWidget, FingerprintModal
 from .decloak_modal import DecloakInputModal
 from .log_band import LogBand
 from .router_endpoint import RouterEndpoint
+from .tkip_modal import TkipModal
 from .tx_picker import TxDevicePicker
 from .verify_menu import VerifyKeyMenu
 from .packet_dashboard import PacketDashboard
@@ -105,7 +107,7 @@ _ATTACK_BUTTONS = [
     ("btn-decloak", "Decloak"), ("btn-known-decloak", "Decloak"),
     ("btn-gen-ivs", "ARP Replay"), ("btn-chop", "ChopChop"), ("btn-deauth", "AutoDeauth"),
     ("btn-pmkid", "PMKID"), ("btn-wps-pin", "WPS PIN"), ("btn-eviltwin", "EvilTwin"),
-    ("btn-verify", "Verify"), ("btn-pbc", "Stop PBC"),
+    ("btn-verify", "Verify"), ("btn-pbc", "Stop PBC"), ("btn-tkip", "TKIP"),
 ]
 
 # Static button tooltips, keyed by live label so toggled buttons get idle/run-specific tips.
@@ -121,6 +123,8 @@ _BUTTON_TIPS = {
     "Stop EvilTwin": "Tear down the twin and return clients to the AP",
     "Verify": "Connect & verify the stored credential",
     "Verify ▾": "Connect & verify stored credentials",
+    "TKIP": "Beck-Tews: recover a keystream + Michael key for injection",
+    "Stop TKIP": "Stop the TKIP keystream recovery",
 }
 
 _SHORT_BUTTON_LABELS = {
@@ -138,6 +142,7 @@ _SHORT_BUTTON_LABELS = {
     "Stop Decloak": "Stop",
     "Stop PBC": "Stop",
     "Stopping…": "Stop…",
+    "Stop TKIP": "Stop",
 }
 
 
@@ -324,6 +329,7 @@ class FocusViewV2(Screen):
             "wep": self._toggle_generate_ivs, "pmkid": self._toggle_pmkid,
             "wps": self._toggle_wps_pin, "chop": self._toggle_chop,
             "deauth": self._toggle_deauth, "decloak": self._toggle_decloak,
+            "tkip": self._toggle_tkip,
         }
         self._binding_sig: Optional[tuple] = None
         self._rspacer_w = -1                          # last-set spacer width; skip no-op relayouts
@@ -968,6 +974,8 @@ class FocusViewV2(Screen):
             self._toggle_pbc()
         elif bid == "btn-verify":
             self._verify_pressed(event.button)
+        elif bid == "btn-tkip":
+            self._toggle_tkip()
 
     def on_client_widget_deauth_requested(self, event: ClientWidget.DeauthRequested) -> None:
         self.run_worker(self._run_deauth_selected(event.mac), exclusive=True)
@@ -1351,6 +1359,43 @@ class FocusViewV2(Screen):
             self._log("[bold green]✓ Deauth provoked a crackable handshake[/bold green]")
         else:
             self._log("[bright_red bold]Deauth stopped[/]")
+
+    # ----- TKIP injection ------------------------------------------------------
+
+    def _toggle_tkip(self) -> None:
+        cur = self._controls.current
+        if cur is not None and cur.key == "tkip":
+            self._controls.request_stop()
+        else:
+            self._start_tkip()
+        self.refresh_buttons()
+
+    def _start_tkip(self) -> None:
+        ap = self._target_ap
+        array = self.app.array
+        if not ap or not array:
+            self._log("[red]✗ No target / interface. Aborting TKIP.[/red]")
+            return
+        self._log(treelog.header(f"TKIP keystream recovery on {escape(ap.bssid)}"))
+        self._controls.start(TkipInject, array, ap, log=lambda m: self._log(treelog.branch(m)))
+
+    def _finish_tkip(self, camp: TkipInject) -> None:
+        """Reap a finished recovery: persist the capability and open the injection
+        modal, or log why no capability was recovered."""
+        if camp.recovered is not None:
+            result = save_tkip_capability(
+                camp.target, camp.recovered.mic_key, camp.recovered.keystream,
+                camp.recovered.tsc, camp.direction or "", {})
+            if result is not None:
+                self._log(treelog.leaf(_save_line(result)))
+            seed_tid = camp.chop.tid if camp.chop is not None else 0
+            self.app.push_screen(TkipModal(self.app.array, camp.target, camp.recovered,
+                                           camp.direction or "", camp.client_mac,
+                                           seed_tid=seed_tid))
+        elif camp.abort_reason:
+            self._log(treelog.leaf_fail(f"[red]TKIP chop aborted[/red]: {escape(camp.abort_reason)}"))
+        else:
+            self._log("[bright_red bold]TKIP stopped[/]")
 
     # ----- EvilTwin ----------------------------------------------------------
 
