@@ -15,6 +15,7 @@ from wifit3.models import PSK_CAPTURE_TYPES, CaptureType, PersistedCapture
 from wifit3.persist.common import (
     AGGREGATED_HC22000_RE,
     LEGACY_CAPTURE_RE,
+    TKIP_MIC_KEY_HEX_RE,
     WEP_KEY_HEX_RE,
     WPS_PSK_RE,
     bssid_to_colon,
@@ -39,6 +40,12 @@ def _read_text(path: Path) -> str | None:
 def _read_wep_key(text: str) -> str | None:
     """Extract the hex WEP key from a ``_wep_key.txt`` body, or None."""
     m = WEP_KEY_HEX_RE.search(text)
+    return m.group(1).lower() if m else None
+
+
+def _read_tkip_mic_key(text: str) -> str | None:
+    """Extract the hex MIC key from a ``_tkip_inject.txt`` body, or None."""
+    m = TKIP_MIC_KEY_HEX_RE.search(text)
     return m.group(1).lower() if m else None
 
 
@@ -111,6 +118,12 @@ def _parse_file(path: Path, bssid: str) -> List[PersistedCapture]:
             return []
         return [PersistedCapture(type=CaptureType.WEP, timestamp=epoch, path=str(path),
                                  bssid=bssid, value=key, ssid=ssid)]
+    if kind == "tkip_inject" and ext == "txt":
+        mic_key = _read_tkip_mic_key(text)
+        if mic_key is None:
+            return []
+        return [PersistedCapture(type=CaptureType.TKIP_INJECT, timestamp=epoch, path=str(path),
+                                 bssid=bssid, value=mic_key, ssid=ssid)]
     if kind == "wps_pin" and ext == "txt":
         return [PersistedCapture(type=CaptureType.WPS_PIN, timestamp=epoch, path=str(path),
                                  bssid=bssid, value=_read_wps_psk(text), ssid=ssid,
@@ -156,13 +169,14 @@ def load_capture_index() -> Dict[str, List[PersistedCapture]]:
     return {b: c for b, c in index.items() if c}
 
 
-def summarize(index: Dict[str, List[PersistedCapture]]) -> tuple[int, int, int, int]:
-    """Counts of *AP*s that have (handshakes, pmkids, wep_keys, psks); max +1 per AP."""
-    hs = pmkid = wep = psk = 0
+def summarize(index: Dict[str, List[PersistedCapture]]) -> tuple[int, int, int, int, int]:
+    """Counts of *AP*s that have (handshakes, pmkids, wep_keys, psks, tkip_captures); max +1 per AP."""
+    hs = pmkid = wep = psk = tkip = 0
     for caps in index.values():
         types = {c.type for c in caps}
         hs += CaptureType.HS in types
         pmkid += CaptureType.PMKID in types
         wep += CaptureType.WEP in types
         psk += any(c.type in PSK_CAPTURE_TYPES and c.value for c in caps)
-    return hs, pmkid, wep, psk
+        tkip += CaptureType.TKIP_INJECT in types
+    return hs, pmkid, wep, psk, tkip

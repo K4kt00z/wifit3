@@ -32,12 +32,13 @@ class CaptureType(StrEnum):
     WPS_PIN = "WPS_PIN"
     WPS_PBC = "WPS_PBC"
     WPA_PSK = "WPA_PSK"           # passphrase recovered from a handshake/PMKID (e.g. hashcat)
+    TKIP_INJECT = "TKIP_INJECT"   # recovered TKIP keystream + Michael MIC key (not a passphrase)
 
 
 WPS_CAPTURE_TYPES = frozenset({CaptureType.WPS_PIN, CaptureType.WPS_PBC})
 PSK_CAPTURE_TYPES = frozenset({CaptureType.WPA_PSK, *WPS_CAPTURE_TYPES})    # value is a WPA PSK
-# A WEP key cracked from the AP's IVs, or WPS credentials the AP sent.
-AP_RECOVERED_CAPTURE_TYPES = frozenset({CaptureType.WEP, *WPS_CAPTURE_TYPES})
+# A WEP key cracked from the AP's IVs, WPS credentials the AP sent, or a TKIP injection capability.
+AP_RECOVERED_CAPTURE_TYPES = frozenset({CaptureType.WEP, CaptureType.TKIP_INJECT, *WPS_CAPTURE_TYPES})
 # A stored key's type as it reads in a sentence: ``WPS PIN 12345670``.
 CREDENTIAL_NAMES = {CaptureType.WPA_PSK: "PSK", CaptureType.WPS_PIN: "WPS PIN", CaptureType.WEP: "WEP key"}
 
@@ -49,7 +50,7 @@ class PersistedCapture:
     timestamp: int                  # epoch seconds, parsed from the filename
     path: str                       # source file under captures/
     bssid: str                      # AP this capture belongs to (colon form)
-    value: Optional[str] = None     # WEP key (hex) / WPS PSK; None for HS/PMKID
+    value: Optional[str] = None     # WEP key (hex) / WPS PSK / TKIP MIC key (hex); None for HS/PMKID
     ssid: Optional[str] = None      # parsed from the filename, for display (VAULT)
     pin: Optional[str] = None       # WPS PIN (WPS_PIN captures only)
 

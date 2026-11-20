@@ -223,7 +223,7 @@ class Vault:
     def summary(self) -> Optional[str]:
         """One-line count of every saved capture, e.g. '3 handshakes, 1 WEP key',
         or None when nothing is saved."""
-        hs, pmkid, wep, psk = summarize(self._index)
+        hs, pmkid, wep, psk, tkip = summarize(self._index)
         parts = []
         if hs:
             parts.append(f"{hs} handshake{'s' * (hs != 1)}")
@@ -233,6 +233,8 @@ class Vault:
             parts.append(f"{wep} WEP key{'s' * (wep != 1)}")
         if psk:
             parts.append(f"{psk} PSK{'s' * (psk != 1)}")
+        if tkip:
+            parts.append(f"{tkip} TKIP capture{'s' * (tkip != 1)}")
         return ", ".join(parts) or None
 
     def detailed_summary(self, ap: "AccessPoint") -> dict[str, tuple[PersistedCapture, int]]:

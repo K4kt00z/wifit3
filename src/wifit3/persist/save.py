@@ -14,6 +14,7 @@ from wifit3.crack.hc22000_format import eapol_hashlines, parse_hc22000, pmkid_ha
 from wifit3.models import AccessPoint
 from wifit3.persist.common import (
     LEGACY_CAPTURE_RE,
+    TKIP_MIC_KEY_HEX_RE,
     WEP_KEY_HEX_RE,
     WPS_PSK_RE,
     bssid_to_colon,
@@ -338,6 +339,47 @@ def save_wep_key(ap: AccessPoint, key: bytes) -> Optional[SaveResult]:
     ]
     if all(0x20 <= b < 0x7F for b in key):
         lines.append(f'WEP key (ASCII): "{key.decode("ascii")}"')
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return SaveResult(path=path, was_new=True)
+
+
+# ----- TKIP injection capability ---------------------------------------------
+
+def save_tkip_capability(
+    ap: AccessPoint,
+    mic_key: bytes,
+    keystream: bytes,
+    tsc: int,
+    direction: str,
+    tid_slots: dict[int, int],
+) -> Optional[SaveResult]:
+    """Persist a recovered TKIP keystream + Michael MIC key capability (not a passphrase).
+    Dedupes by exact MIC key value for this BSSID."""
+    captures_dir = Path(Config.captures_dir)
+    if not mic_key:
+        return None
+    mic_key_hex = mic_key.hex()
+    for p in _existing(captures_dir, ap.bssid, "_tkip_inject.txt"):
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        m = TKIP_MIC_KEY_HEX_RE.search(text)
+        if m and m.group(1).lower() == mic_key_hex:
+            return SaveResult(path=p, was_new=False)
+
+    captures_dir.mkdir(parents=True, exist_ok=True)
+    path = _fresh_path(captures_dir, ap.ssid, ap.bssid, "_tkip_inject.txt")
+    slots = ", ".join(f"TID {tid}:{count}" for tid, count in sorted(tid_slots.items()))
+    lines = [
+        f"SSID:  {ap.ssid or '<hidden>'}",
+        f"BSSID: {ap.bssid}",
+        f"MIC key (hex):   {mic_key_hex}",
+        f"Keystream (hex): {keystream.hex()}",
+        f"TSC: {tsc}",
+        f"Direction: {direction}",
+        f"TID slots: {slots}",
+    ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return SaveResult(path=path, was_new=True)
 

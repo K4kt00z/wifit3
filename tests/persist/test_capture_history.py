@@ -212,16 +212,16 @@ class TestSummarize:
         _write(tmp_path, f"TestNet_{_BSSID_DASH}_1700000001_pmkid.hc22000", _PMKID_LINE)
         _write(tmp_path, "Other_11-22-33-44-55-66_1700000002_wep_key.txt", _WEPKEY_TXT)
         _write(tmp_path, "Pbc_22-33-44-55-66-77_1700000003_wps_pbc.txt", "PSK: hunter2\n")
-        hs, pmkid, wep, wps = summarize(load_capture_index())
-        assert (hs, pmkid, wep, wps) == (1, 1, 1, 1)
+        hs, pmkid, wep, wps, tkip = summarize(load_capture_index())
+        assert (hs, pmkid, wep, wps, tkip) == (1, 1, 1, 1, 0)
 
     def test_deduped_per_ap(self, tmp_path):
         # Two handshakes for ONE ap -> counts as one handshake, not two.
         _write(tmp_path, f"TestNet_{_BSSID_DASH}_1700000000_handshake.hc22000", _HS_LINE)
         _write(tmp_path, f"TestNet_{_BSSID_DASH}_1700009999_handshake.hc22000", _HS_LINE)
-        assert summarize(load_capture_index()) == (1, 0, 0, 0)
+        assert summarize(load_capture_index()) == (1, 0, 0, 0, 0)
 
     def test_aggregated_hc22000_summarizes_both_hs_and_pmkid(self, tmp_path):
         _write(tmp_path, f"TestNet_{_BSSID_DASH}.hc22000", _HS_LINE + _PMKID_LINE)
-        hs, pmkid, wep, wps = summarize(load_capture_index())
-        assert (hs, pmkid, wep, wps) == (1, 1, 0, 0)
+        hs, pmkid, wep, wps, tkip = summarize(load_capture_index())
+        assert (hs, pmkid, wep, wps, tkip) == (1, 1, 0, 0, 0)

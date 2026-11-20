@@ -11,7 +11,7 @@ LEGACY_CAPTURE_RE = re.compile(
     r"^(?P<ssid>.+)_"
     r"(?P<bssid>[0-9a-fA-F]{2}(?:-[0-9a-fA-F]{2}){5})_"
     r"(?P<epoch>\d+)_"
-    r"(?P<kind>handshake|pmkid|wep_key|wps_pin|wps_pbc|wpa_psk)"
+    r"(?P<kind>handshake|pmkid|wep_key|wps_pin|wps_pbc|wpa_psk|tkip_inject)"
     r"\.(?P<ext>pcap|hc22000|txt)$"
 )
 
@@ -22,6 +22,7 @@ AGGREGATED_HC22000_RE = re.compile(
 )
 
 WEP_KEY_HEX_RE = re.compile(r"WEP key \(hex\):\s*([0-9a-fA-F]+)")
+TKIP_MIC_KEY_HEX_RE = re.compile(r"MIC key \(hex\):\s*([0-9a-fA-F]+)")
 WPS_PSK_RE = re.compile(r"^PSK:\s*(.+)$", re.MULTILINE)
 WPS_PIN_RE = re.compile(r"^PIN:[ \t]*(.*)$", re.MULTILINE)
 
