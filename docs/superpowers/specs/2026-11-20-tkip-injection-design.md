@@ -1,7 +1,8 @@
 # TKIP injection attacks (Beck-Tews) — design
 
-Status: proposed · Date: 2026-11-20 · Approach: A (single-radio Beck-Tews +
-group-cipher-downgrade mode; Ohigashi-Morii MITM deferred to a follow-up project)
+Status: approved (2026-11-20) · Date: 2026-11-20 · Approach: A (single-radio
+Beck-Tews + group-cipher-downgrade mode; Ohigashi-Morii MITM deferred to a
+follow-up project)
 
 ## Intent and why
 
@@ -68,6 +69,15 @@ reports the ones it *can* see (TKIP, WMM, client present) up front and discovers
 rekey-too-fast by failing, surfacing a clear reason.
 
 ## Goals
+- An **up-front vulnerability pre-check** that assesses attackability from what
+  is observable *before* committing the ~12–15 min walk, and surfaces a verdict
+  (attackable / not attackable / unknown) with the reason. It checks: TKIP
+  present as pairwise or (downgraded) group cipher; WMM/QoS advertised; at least
+  one associated client. It cannot know the rekey interval up front, so a
+  "looks attackable" verdict is explicitly best-effort — a too-fast rekey is
+  still only discovered by the walk failing, and the verdict says so. This gates
+  the campaign (feeds `visible()`/`ineligible_reason()`) and is shown to the
+  operator so they aren't surprised by a long run against a likely-futile target.
 - Native, pure-Python Michael (MIC + inverse), unit-tested offline against
   published Beck-Tews / 802.11i test vectors, matching the `crack/wep.py` ethos
   (no external aircrack).
@@ -130,6 +140,11 @@ rekey-too-fast by failing, surfacing a clear reason.
 ## The how — decided
 
 ### New / changed modules
+- Vulnerability pre-check — a pure, side-effect-free assessor (given an
+  `AccessPoint` + observed client presence → verdict + reason). Lives with the
+  campaign's eligibility logic (`campaigns/tkip/`), reusing the group-cipher and
+  WMM fields added below; drives `visible()`/`ineligible_reason()` and the status
+  surface. Unit-testable offline on synthetic `AccessPoint` fixtures.
 - `dot11/michael.py` — Michael MIC + inverse. Pure spec, no I/O. Tested offline.
 - `dot11/parser.py` — inbound EAPOL-Key is already parsed in `_parse_eapol`
   (key_info/mic/nonce/msg_num); add recognition of a **MIC-failure report**
