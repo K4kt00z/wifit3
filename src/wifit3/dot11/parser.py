@@ -311,6 +311,7 @@ class WlanFrameParser:
                     mic=frame[eapol_start + 81: eapol_start + 97],
                     key_data_len=key_data_len,
                     msg_num=msg_num,
+                    mic_failure=bool(key_info & 0x0400 and key_info & 0x0800),
                 )
                 if pdu_end == structured_pdu_end and len(frame) >= structured_pdu_end:
                     fields["payload"] = bytes(frame[eapol_start: structured_pdu_end])
@@ -376,11 +377,16 @@ class WlanFrameParser:
         M3: ACK=1, MIC=1, INSTALL=1
         M4: ACK=0, MIC=1, INSTALL=0, key data empty
         """
-        # 802.11i Key Info (16-bit BE): bit 6 = INSTALL, bit 7 = ACK, bit 8 = MIC.
+        # 802.11i Key Info (16-bit BE): bit 6 = INSTALL, bit 7 = ACK, bit 8 = MIC, bit 10 = Error.
         install = bool(key_info & 0x0040)
         ack = bool(key_info & 0x0080)
         mic = bool(key_info & 0x0100)
+        error = bool(key_info & 0x0400)
 
+        if error:
+            # A TKIP MIC-failure report (Error+Request) has the same ACK/MIC/INSTALL shape
+            # as M4; it is not a handshake message.
+            return 0
         if ack and not mic and not install:
             return 1
         if ack and mic and install:
