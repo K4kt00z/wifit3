@@ -31,10 +31,16 @@ Against a captured short known-plaintext frame (an ARP) it recovers:
    broadcast direction),
 
 by chopping the frame byte-by-byte (CRC32/ICV fix-up is linear, identical to the
-existing WEP chopchop) and using the AP's **Michael MIC-failure report** as the
-oracle: a wrong ICV is silently dropped; a correct ICV with a wrong Michael MIC
-makes the AP emit an EAPOL-Key MIC-failure report. Michael is invertible, so
-plaintext+MIC yields the MIC key.
+existing WEP chopchop) and using the **client's Michael MIC-failure report** as
+the oracle. Crucial direction note: the forged guess frame is replayed toward
+the *receiver* of the captured AP→STA (or GTK broadcast) frame — the associated
+**client**. A wrong ICV is silently dropped; a correct-ICV guess passes the ICV
+check, fails Michael, and makes the **client** emit an EAPOL-Key MIC-failure
+report **to the AP**, which the attacker sniffs (client source, AP dest, Key Info
+Error+Request+Secure). The AP does not emit it for these directions. The oracle
+is therefore a bare **boolean** (failure observed / silence), carrying no guess
+value. Michael is invertible, so recovered plaintext+MIC yields the MIC key for
+that direction.
 
 Result: the attacker can **forge a small number of short frames** (typically
 ~7–15, one per unused QoS TID whose TSC counter is behind the captured frame's),
@@ -46,7 +52,9 @@ poisoning / gratuitous ARP (gateway redirect), or a DNS response.
   CCMP-pairwise AP is the "downgrade" target mode, attacking the GTK direction.
 - **WMM/QoS** negotiated, with at least one TID queue whose TSC is usable (this
   is what bypasses the TKIP replay counter — the replay window is per-TID).
-- At least one **associated client** generating a capturable short frame (ARP).
+- At least one **associated client** — it is both the source of the capturable
+  short frame (ARP) and, as the receiver of the replayed guesses, the **emitter
+  of the MIC-failure oracle**. No client means no attack, not merely no ARP.
   Deauth can provoke a fresh ARP, reusing the existing deauth primitive.
 - The AP's **rekey interval** must exceed the attack time. The 802.11 TKIP
   **countermeasure** rule (two Michael failures within 60 s → the AP tears down
@@ -123,10 +131,14 @@ rekey-too-fast by failing, surfacing a clear reason.
 
 ### New / changed modules
 - `dot11/michael.py` — Michael MIC + inverse. Pure spec, no I/O. Tested offline.
-- `dot11/eapol.py` + `dot11/parser.py` — recognize an inbound EAPOL-Key
-  **MIC-failure report** (Key Info: Error+Request+Secure, pairwise bit per
-  direction), exposed on the parsed packet so a campaign RX callback can detect
-  it. TKIP key-descriptor version (`HMAC_MD5_RC4`) already present.
+- `dot11/parser.py` — inbound EAPOL-Key is already parsed in `_parse_eapol`
+  (key_info/mic/nonce/msg_num); add recognition of a **MIC-failure report**
+  (Key Info Error `0x0400` + Request `0x0800` + Secure, group key type) on the
+  parsed packet so a campaign RX callback can detect it. `_classify_eapol_msg`
+  must **not** misfile this as handshake M4 (a MIC-failure report looks like
+  ack=0/mic=1/install=0/key_data_len=0) — gate it out of the handshake path.
+  `dot11/eapol.py` is build-only today (that's fine; parsing stays in parser.py).
+  TKIP key-descriptor version (`HMAC_MD5_RC4`) already present in `eapol.py`.
 - `dot11/tkip.py` (or extend an existing module) — TKIP per-packet key mixing
   (Phase 1/2) and TSC/IV handling needed to forge a valid frame from recovered
   keystream + MIC key on a chosen TID. Pure spec, tested offline.
@@ -134,36 +146,70 @@ rekey-too-fast by failing, surfacing a clear reason.
   Michael inversion), offline-testable against a synthesized TKIP frame under a
   known key, mirroring `tests/crack/test_wep_crack.py`.
 - `campaigns/tkip/` — `__init__.py`, `campaign.py` (orchestrator, owns the
-  "one TX activity at a time" rule like WEP), `chop.py` (the MIC-oracle chop loop,
-  structurally mirroring `wep/chopchop.py`: `register_rx_callback`, injectable
-  `probe`, rolling sends, state machine), `inject.py` (build/forge/inject the
-  recovered-capability payloads), plus a README.
+  "one TX activity at a time" rule like WEP), `chop.py` (the MIC-oracle chop
+  loop), `inject.py` (build/forge/inject the recovered-capability payloads),
+  plus a README. **What transfers from `wep/chopchop.py` and what does not:**
+  the `register_rx_callback` tap and the injectable `probe(body)->accepted` seam
+  transfer directly. The WEP "identity-by-construction" trick — blast all 256
+  guesses in a rolling stream, stamp the guess into the destination MAC, read the
+  accepted guess back out of the AP's relayed frame — does **not**, because the
+  TKIP oracle is boolean with no value to read back. Instead: serialize guesses
+  for a byte position; wrong guesses are silently dropped (no penalty) so they
+  can go out at ~RTT spacing, and the first guess that yields a MIC-failure
+  report is the byte. Spacing must exceed the report RTT so the single failure
+  attributes unambiguously to the in-flight guess. Then wait the countermeasure
+  interval before the next byte.
+- **Group-cipher-downgrade data path (net-new, ~4 files).** `group_cipher_suite`
+  is computed in `RsnElement` (`dot11/rsn.py`, `parser.py:833`) but then
+  **discarded** — `_parse_tags` never reads it, `BeaconPacket` has no group field,
+  `AccessPoint` has none. The downgrade target mode requires plumbing it through:
+  `RsnElement` → `_parse_tags` → `BeaconPacket` → `WlanSink` → `AccessPoint`.
+  Pairwise-TKIP detection already works via `ap.pairwise_cipher == "TKIP"`.
 - `models/` + `persist/` — a new capture/record kind for a TKIP injection
-  capability (not a `CaptureType` PSK credential); surfaced in history.
-- `ui/screens/focus_v2/` — a `TkipInject` button + status panel (progress,
-  countdown, countermeasure stalls, recovered-slot count, inject controls);
-  wired in `campaign_controls.py` alongside WEP/EvilTwin/Decloak. Button CSS
-  overrides go in the screen `CSS`, not `app.py` (per AGENTS.md).
+  capability (not a PSK credential). Concretely: a new `CaptureType` member
+  (`models/access_point.py`), a filename branch in `persist/common.py`
+  (`LEGACY_CAPTURE_RE`) and `capture_history._parse_file`, a save path in
+  `persist/save.py`, and extending `capture_history.summarize()` (today a fixed
+  hs/pmkid/wep/psk tuple) so history can badge it.
+- `ui/` — a `TkipInject` button + an **interactive injection modal** (operator
+  picks canned ARP-spoof vs raw payload, sees slots remaining), following the
+  `eviltwin_modal.py` / `decloak_modal.py` / `verify_menu.py` precedent — the
+  Campaign base only exposes passive status strings, so the interactive surface
+  is a modal, not just a panel. Wiring lives in `ui/focus_model.py`
+  (`BUTTON_CAMPAIGNS`) and `focus_v2/screen.py` (`_ATTACK_BUTTONS`,
+  `_BUTTON_TIPS`, `_SHORT_BUTTON_LABELS`, `_campaign_toggles`, `on_button_pressed`,
+  a `_finish_<key>` reap handler, hotkey Bindings) — **not** `campaign_controls.py`,
+  which is only touched if `TkipInject`'s constructor signature differs from the
+  generic `(array, ap, log=)` form. Button CSS overrides go in the screen `CSS`,
+  not `app.py` (per AGENTS.md).
 - `ui/encryption_format.py` — stop treating TKIP-bearing APs as flatly "out of
   scope"; mark TKIP (pairwise or downgraded group) as an attackable target.
 
 ### Oracle & pacing (the delicate part)
-- Oracle = inbound EAPOL-Key MIC-failure report matched to our injected guess,
-  read via `register_rx_callback`, not inferred from timing.
-- Conservative default pacing: ≤1 MIC-failing guess per 60 s to stay under the
-  countermeasure threshold; detect an observed rekey/teardown and abort with a
-  clear reason. (Operator-overridable aggressiveness is a possible later knob,
-  not in scope now.)
+- Oracle = inbound client-sourced EAPOL-Key MIC-failure report (client→AP),
+  read via `register_rx_callback`, attributed to the in-flight guess by send
+  ordering/RTT, not inferred from timing alone.
+- Pacing is **per recovered byte**, not per guess: wrong guesses are silently
+  dropped and incur no countermeasure, so only a *successful* (MIC-failing) guess
+  counts toward the 2-in-60 s threshold. Wait the countermeasure interval between
+  bytes; detect an observed rekey/teardown and abort with a clear reason.
+  (Operator-overridable aggressiveness is a possible later knob, not in scope.)
 - TID selection: parse the WMM IE to pick an unused lower-priority TID for the
   TSC bypass; fall back to probing TIDs 1–7 if WMM parameters are unavailable.
+  Note: WMM is **not** parsed on the beacon path today (only the QoS Control
+  field length is accounted for), so both up-front "WMM present" reporting and
+  TID selection need new beacon parsing.
 
 ### Output / UX model
 - On success the campaign holds a live injection session bounded by recovered TID
   slots. Operator picks a canned ARP-spoof (gateway redirect) or enters a raw
   payload; each injection consumes one slot, and the UI shows slots remaining.
 - The recovered material (MIC key, keystream, TSC, direction, TID slots) is saved
-  to `captures/` as the new record kind so a later session can resume injection
-  while the keys remain valid (until the AP rekeys).
+  to `captures/` as the new record kind for the record/audit trail. Note this is
+  **not** a durably resumable session: the keystream and MIC key die at the next
+  GTK/PTK rekey, which (per the preconditions) is only minutes away. Injection is
+  expected to happen within the same run; the UI must not imply a persistent
+  channel.
 
 ## Left to the builder
 - Exact on-wire layout matching for the MIC-failure report across AP vendors
@@ -180,8 +226,9 @@ rekey-too-fast by failing, surfacing a clear reason.
   vectors; end-to-end recovery against a synthesized TKIP frame under a known key
   (assert keystream + MIC key recovered), mirroring the WEP crack test.
 - Campaign chop loop driven through the injectable `probe`/oracle seam with a
-  simulated AP (correct-ICV→MIC-failure, wrong-ICV→silent-drop, countermeasure
-  on 2-in-60 s), asserting the byte-walk, pacing, and rekey-abort paths.
+  simulated receiver (correct-ICV→client MIC-failure report, wrong-ICV→silent
+  drop, countermeasure on 2-in-60 s), asserting the byte-walk, guess-attribution,
+  per-byte pacing, and rekey-abort paths.
 
 ## Note for human review
 This spec and the new `campaigns/tkip/README.md` are human-facing docs; a human
