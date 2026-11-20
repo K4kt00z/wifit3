@@ -180,6 +180,7 @@ class WlanFrameParser:
                 "pmf_required": tags.get("pmf_required", False),
                 "beacon_protection": tags.get("beacon_protection", False),
                 "pairwise_cipher": tags.get("pairwise_cipher"),
+                "group_cipher": tags.get("group_cipher"),
                 "akms": tags.get("akms", []),
                 "akm_suites": tags.get("akm_suites", []),
                 "rsn_valid": tags.get("rsn_valid", False),
@@ -637,6 +638,7 @@ class WlanFrameParser:
         pmf_required = False
         beacon_protection = False
         pairwise_cipher: Optional[str] = None
+        group_cipher: Optional[str] = None
         akms: List[str] = []
         akm_suites: List[int] = []
         vendor_akm_offered = False
@@ -687,6 +689,7 @@ class WlanFrameParser:
                     parsed["rsn_ie_raw"] = bytes(raw_elem)
                     rsn_element = rsn
                     pairwise_cipher = rsn.pairwise_cipher
+                    group_cipher = cls._CIPHER_NAMES.get(rsn.group_cipher_suite)
                     akms = list(rsn.akms)
                     akm_suites = list(rsn.akm_suites)
                     vendor_akm_offered = rsn.vendor_akm_offered
@@ -748,6 +751,7 @@ class WlanFrameParser:
         parsed["pmf_required"] = pmf_required
         parsed["beacon_protection"] = beacon_protection
         parsed["pairwise_cipher"] = pairwise_cipher
+        parsed["group_cipher"] = group_cipher
         parsed["akms"] = akms
         parsed["akm_suites"] = akm_suites
         parsed["rsn_valid"] = rsn_element is not None
