@@ -7,6 +7,7 @@ for the AP's MIC-failure report).
 """
 import zlib
 
+from wifit3.campaigns.tkip.campaign import _KNOWN_ARP_PREFIX
 from wifit3.crack.tkip_beck_tews import BeckTewsWalk, Recovered, recover
 from wifit3.crack.wep import rc4_keystream
 from wifit3.dot11.michael import michael
@@ -64,6 +65,18 @@ async def test_recovers_keystream_and_mic_key_from_synthetic_tkip_frame():
     assert rec.keystream == keystream
     assert rec.keystream[:16] == _xor(cipher[:16], _KNOWN_ARP16)
     assert rec.tsc == _TSC
+
+
+async def test_recovers_arp_request_under_campaign_floor():
+    """The captured AP->client frame is an ARP REQUEST (op=1); the campaign's floor
+    must not assume the opcode byte, so recovery under it must still be exact."""
+    cipher, keystream = _synth_tkip_arp()
+    rec = await recover(
+        cipher, _KNOWN_ARP_PREFIX, probe=_icv_oracle(keystream),
+        da=_DA, sa=_SA, priority=_PRIORITY, tsc=_TSC,
+    )
+    assert rec.mic_key == _MIC_KEY
+    assert rec.keystream == keystream
 
 
 def test_walk_stops_at_known_prefix_floor():

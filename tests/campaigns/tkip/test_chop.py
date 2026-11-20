@@ -81,6 +81,30 @@ async def test_chop_walks_via_boolean_oracle(mocker):
     iface.unregister_rx_callback.assert_called_once()
 
 
+async def test_chop_recovers_group_direction(mocker):
+    """Group-cipher downgrade: the seed frame's DA is the broadcast/group address, so the
+    walk's Michael input must bind that group DA (how the campaign builds the group walk)."""
+    group = bytes.fromhex("ffffffffffff")
+    payload = _KNOWN_ARP16 + bytes.fromhex("c0a80101000000000000c0a80102")
+    mic = michael(_MIC_KEY, group + _BSSID + bytes([_TID]) + b"\x00\x00\x00" + payload)
+    plaintext = payload + mic
+    full = plaintext + icv(plaintext)
+    keystream = rc4_keystream(tkip_rc4_key(_TK, _BSSID, _TSC), len(full))
+    cipher = _xor(full, keystream)
+
+    iface = mocker.Mock()
+    chop = TkipChop(
+        iface, cipher, _KNOWN_ARP16, bssid=_BSSID, client=group, tid=_TID, tsc=_TSC,
+        probe=_icv_probe(keystream), countermeasure_interval=0,
+    )
+
+    recovered = await chop.run()
+
+    assert recovered is not None
+    assert recovered.mic_key == _MIC_KEY
+    assert recovered.keystream == keystream
+
+
 async def test_aborts_on_observed_rekey(mocker):
     cipher, keystream = _synth_tkip_arp()
     bytes_to_recover = len(cipher) - len(_KNOWN_ARP16)

