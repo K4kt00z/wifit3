@@ -14,6 +14,27 @@ def test_duplicate_chipsets_get_numbered():
         " RT3070 #1 · ALFA AWUS036NH", " RT3070 #2 · ALFA AWUS036NH"]
 
 
+def test_duplicate_chipsets_show_usb_port_locator_when_present():
+    a = DeviceID(0x148f, 0x3070, "RT3070", None, "ALFA AWUS036NH", bus=1, address=5)
+    b = DeviceID(0x148f, 0x3070, "RT3070", None, "ALFA AWUS036NH", bus=1, address=6)
+    assert device_list_labels([a, b]) == [
+        " RT3070 [1:5] · ALFA AWUS036NH", " RT3070 [1:6] · ALFA AWUS036NH"]
+
+
+def test_duplicate_chipsets_prefer_kernel_iface_name_over_port():
+    a = DeviceID(0x148f, 0x3070, "RT3070", None, "ALFA AWUS036NH",
+                 bus=1, address=5, extras={"iface": "wlan0"})
+    b = DeviceID(0x148f, 0x3070, "RT3070", None, "ALFA AWUS036NH",
+                 bus=1, address=6, extras={"iface": "wlan1"})
+    assert device_list_labels([a, b]) == [
+        " RT3070 [wlan0] · ALFA AWUS036NH", " RT3070 [wlan1] · ALFA AWUS036NH"]
+
+
+def test_lone_chipset_has_no_locator_even_with_a_port():
+    devs = [DeviceID(0x0e8d, 0x7961, "MT7921AU", None, "ALFA AXML", bus=1, address=5)]
+    assert device_list_labels(devs) == [" MT7921AU · ALFA AXML"]
+
+
 def test_vendor_and_product_join_with_a_space():
     devs = [DeviceID(0x2357, 0x0106, "RTL8814AU", "TP-Link", "Archer T9UH")]
     assert device_list_labels(devs) == [" RTL8814AU · TP-Link Archer T9UH"]

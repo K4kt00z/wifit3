@@ -28,6 +28,17 @@ class DeviceID:
         return (self.vid, self.pid, self.bus, addr)
 
     @property
+    def locator(self) -> Optional[str]:
+        """Short per-instance tag telling two identical cards apart on screen: the kernel net
+        interface name when one is bound (``"wlo1"``), else the USB ``bus:address`` port."""
+        iface = self.extras.get("iface")
+        if iface:
+            return str(iface)
+        if self.bus is not None and self.address is not None:
+            return f"{self.bus}:{self.address}"
+        return None
+
+    @property
     def description(self) -> str:
         """Human label ``"CHIPSET (brand model)"`` (or just ``"CHIPSET"``). Back-compat shim for
         the call sites that render a device as one string."""

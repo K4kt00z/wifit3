@@ -307,16 +307,41 @@ def _pci_netdev_devices(smap: dict[VidPid, Claim], sysfs_net: str | Path = SYSFS
             entry,
             bus="pci",
             address=pci_slot,
-            product_name=f"{entry.product_name} ({iface})" if entry.product_name else iface,
+            product_name=entry.product_name or iface,
             extras=extras,
         ))
     return out
+
+
+def _usb_iface_names(sysfs_net: str | Path = SYSFS_NET) -> dict[tuple[int, int], str]:
+    """``{(busnum, devnum): iface}`` for USB wireless cards whose in-kernel driver is bound (Linux).
+    Lets the picker show the familiar ``wlanN`` name for a USB card still owned by the kernel; the
+    name is gone once wifit3 claims the card, so callers fall back to the stable ``bus:address``."""
+    base_net = Path(sysfs_net)
+    if not sys.platform.startswith("linux") or not base_net.exists():
+        return {}
+    mapping: dict[tuple[int, int], str] = {}
+    for iface_dir in base_net.iterdir():
+        if not ((iface_dir / "wireless").exists() or (iface_dir / "phy80211").exists()):
+            continue
+        device_link = iface_dir / "device"
+        if not device_link.exists():
+            continue
+        usb_device = Path(os.path.realpath(device_link)).parent
+        try:
+            busnum = int((usb_device / "busnum").read_text().strip())
+            devnum = int((usb_device / "devnum").read_text().strip())
+        except (OSError, ValueError):
+            continue
+        mapping[(busnum, devnum)] = iface_dir.name
+    return mapping
 
 
 def devices() -> List[DeviceID]:
     """Every supported device present on the USB bus right now."""
     backend = _require_backend()
     smap = supported_ids()
+    iface_by_port = _usb_iface_names()
     out: List[DeviceID] = []
     seen: set[VidPid] = set()
     for dev in _bus_devices(backend):
@@ -330,7 +355,9 @@ def devices() -> List[DeviceID]:
             resolved = _package_claim(shared.resolve(dev), slot)
             if resolved is not None:
                 entry = resolved.entry
-        out.append(replace(entry, bus=dev.bus, address=dev.address))
+        iface = iface_by_port.get((dev.bus, dev.address))
+        extras = {**entry.extras, "iface": iface} if iface else entry.extras
+        out.append(replace(entry, bus=dev.bus, address=dev.address, extras=extras))
         seen.add(slot)
     out.extend(_pnp_only_devices(smap, seen))
     out.extend(_pci_netdev_devices(smap))
