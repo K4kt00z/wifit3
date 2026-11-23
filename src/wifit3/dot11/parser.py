@@ -180,6 +180,8 @@ class WlanFrameParser:
                 "pmf_required": tags.get("pmf_required", False),
                 "beacon_protection": tags.get("beacon_protection", False),
                 "pairwise_cipher": tags.get("pairwise_cipher"),
+                "group_cipher": tags.get("group_cipher"),
+                "wmm": tags.get("wmm", False),
                 "akms": tags.get("akms", []),
                 "akm_suites": tags.get("akm_suites", []),
                 "rsn_valid": tags.get("rsn_valid", False),
@@ -311,6 +313,7 @@ class WlanFrameParser:
                     mic=frame[eapol_start + 81: eapol_start + 97],
                     key_data_len=key_data_len,
                     msg_num=msg_num,
+                    mic_failure=bool(key_info & 0x0400 and key_info & 0x0800),
                 )
                 if pdu_end == structured_pdu_end and len(frame) >= structured_pdu_end:
                     fields["payload"] = bytes(frame[eapol_start: structured_pdu_end])
@@ -376,11 +379,14 @@ class WlanFrameParser:
         M3: ACK=1, MIC=1, INSTALL=1
         M4: ACK=0, MIC=1, INSTALL=0, key data empty
         """
-        # 802.11i Key Info (16-bit BE): bit 6 = INSTALL, bit 7 = ACK, bit 8 = MIC.
+        # 802.11i Key Info (16-bit BE): bit 6 = INSTALL, bit 7 = ACK, bit 8 = MIC, bit 10 = Error.
         install = bool(key_info & 0x0040)
         ack = bool(key_info & 0x0080)
         mic = bool(key_info & 0x0100)
+        error = bool(key_info & 0x0400)
 
+        if error:
+            return 0
         if ack and not mic and not install:
             return 1
         if ack and mic and install:
@@ -633,6 +639,7 @@ class WlanFrameParser:
         pmf_required = False
         beacon_protection = False
         pairwise_cipher: Optional[str] = None
+        group_cipher: Optional[str] = None
         akms: List[str] = []
         akm_suites: List[int] = []
         vendor_akm_offered = False
@@ -647,6 +654,7 @@ class WlanFrameParser:
         # so honor only the first occurrence.
         seen_ssid = False
         wps_payloads: List[bytes] = []
+        wmm = False
 
         for tag_id, tag_data, raw_elem in iter_information_elements(frame, start=ptr):
             if tag_id == 0 and not seen_ssid: # SSID (only the first)
@@ -683,6 +691,7 @@ class WlanFrameParser:
                     parsed["rsn_ie_raw"] = bytes(raw_elem)
                     rsn_element = rsn
                     pairwise_cipher = rsn.pairwise_cipher
+                    group_cipher = cls._CIPHER_NAMES.get(rsn.group_cipher_suite)
                     akms = list(rsn.akms)
                     akm_suites = list(rsn.akm_suites)
                     vendor_akm_offered = rsn.vendor_akm_offered
@@ -705,6 +714,8 @@ class WlanFrameParser:
                             has_wpa = True
                             if wpa_element is None:
                                 wpa_element = cls._parse_wpa_ie(tag_data)
+                        elif oui_type == 2: # WMM/WME
+                            wmm = True
                         elif oui_type == 4: # WPS
                             # tag_data = OUI(3) + type(1) + WPS TLVs.
                             wps_payloads.append(tag_data[4:])
@@ -744,6 +755,8 @@ class WlanFrameParser:
         parsed["pmf_required"] = pmf_required
         parsed["beacon_protection"] = beacon_protection
         parsed["pairwise_cipher"] = pairwise_cipher
+        parsed["group_cipher"] = group_cipher
+        parsed["wmm"] = wmm
         parsed["akms"] = akms
         parsed["akm_suites"] = akm_suites
         parsed["rsn_valid"] = rsn_element is not None

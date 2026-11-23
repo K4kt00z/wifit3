@@ -68,6 +68,8 @@ class BeaconPacket(Packet):
     rsn_valid: bool = False
     vendor_akm_offered: bool = False
     pairwise_cipher: Optional[str] = None
+    group_cipher: Optional[str] = None
+    wmm: bool = False
     wpa3: bool = False
     transition_mode: bool = False
     pmf_capable: bool = False
@@ -103,6 +105,7 @@ class EapolPacket(Packet):
     akm: Optional[int] = None
     akm_selection_rejected: bool = False  # M2's RSN IE is present but names no single AKM
     key_info: Optional[int] = None
+    mic_failure: bool = False
     # 802.11r identifiers from an M2's MDE / FTE; empty when absent.
     mdid: bytes = b""
     r0khid: bytes = b""

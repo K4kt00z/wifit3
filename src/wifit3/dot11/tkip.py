@@ -1,0 +1,109 @@
+"""TKIP per-packet key mixing (IEEE 802.11i): Phase-1 TTAK from TK/TA/TSC-high,
+Phase-2 16-byte RC4 seed from TTAK/TK/TSC-low."""
+from __future__ import annotations
+
+_MASK16 = 0xFFFF
+
+_SBOX = (
+    0xC6A5, 0xF884, 0xEE99, 0xF68D, 0xFF0D, 0xD6BD, 0xDEB1, 0x9154,
+    0x6050, 0x0203, 0xCEA9, 0x567D, 0xE719, 0xB562, 0x4DE6, 0xEC9A,
+    0x8F45, 0x1F9D, 0x8940, 0xFA87, 0xEF15, 0xB2EB, 0x8EC9, 0xFB0B,
+    0x41EC, 0xB367, 0x5FFD, 0x45EA, 0x23BF, 0x53F7, 0xE496, 0x9B5B,
+    0x75C2, 0xE11C, 0x3DAE, 0x4C6A, 0x6C5A, 0x7E41, 0xF502, 0x834F,
+    0x685C, 0x51F4, 0xD134, 0xF908, 0xE293, 0xAB73, 0x6253, 0x2A3F,
+    0x080C, 0x9552, 0x4665, 0x9D5E, 0x3028, 0x37A1, 0x0A0F, 0x2FB5,
+    0x0E09, 0x2436, 0x1B9B, 0xDF3D, 0xCD26, 0x4E69, 0x7FCD, 0xEA9F,
+    0x121B, 0x1D9E, 0x5874, 0x342E, 0x362D, 0xDCB2, 0xB4EE, 0x5BFB,
+    0xA4F6, 0x764D, 0xB761, 0x7DCE, 0x527B, 0xDD3E, 0x5E71, 0x1397,
+    0xA6F5, 0xB968, 0x0000, 0xC12C, 0x4060, 0xE31F, 0x79C8, 0xB6ED,
+    0xD4BE, 0x8D46, 0x67D9, 0x724B, 0x94DE, 0x98D4, 0xB0E8, 0x854A,
+    0xBB6B, 0xC52A, 0x4FE5, 0xED16, 0x86C5, 0x9AD7, 0x6655, 0x1194,
+    0x8ACF, 0xE910, 0x0406, 0xFE81, 0xA0F0, 0x7844, 0x25BA, 0x4BE3,
+    0xA2F3, 0x5DFE, 0x80C0, 0x058A, 0x3FAD, 0x21BC, 0x7048, 0xF104,
+    0x63DF, 0x77C1, 0xAF75, 0x4263, 0x2030, 0xE51A, 0xFD0E, 0xBF6D,
+    0x814C, 0x1814, 0x2635, 0xC32F, 0xBEE1, 0x35A2, 0x88CC, 0x2E39,
+    0x9357, 0x55F2, 0xFC82, 0x7A47, 0xC8AC, 0xBAE7, 0x322B, 0xE695,
+    0xC0A0, 0x1998, 0x9ED1, 0xA37F, 0x4466, 0x547E, 0x3BAB, 0x0B83,
+    0x8CCA, 0xC729, 0x6BD3, 0x283C, 0xA779, 0xBCE2, 0x161D, 0xAD76,
+    0xDB3B, 0x6456, 0x744E, 0x141E, 0x92DB, 0x0C0A, 0x486C, 0xB8E4,
+    0x9F5D, 0xBD6E, 0x43EF, 0xC4A6, 0x39A8, 0x31A4, 0xD337, 0xF28B,
+    0xD532, 0x8B43, 0x6E59, 0xDAB7, 0x018C, 0xB164, 0x9CD2, 0x49E0,
+    0xD8B4, 0xACFA, 0xF307, 0xCF25, 0xCAAF, 0xF48E, 0x47E9, 0x1018,
+    0x6FD5, 0xF088, 0x4A6F, 0x5C72, 0x3824, 0x57F1, 0x73C7, 0x9751,
+    0xCB23, 0xA17C, 0xE89C, 0x3E21, 0x96DD, 0x61DC, 0x0D86, 0x0F85,
+    0xE090, 0x7C42, 0x71C4, 0xCCAA, 0x90D8, 0x0605, 0xF701, 0x1C12,
+    0xC2A3, 0x6A5F, 0xAEF9, 0x69D0, 0x1791, 0x9958, 0x3A27, 0x27B9,
+    0xD938, 0xEB13, 0x2BB3, 0x2233, 0xD2BB, 0xA970, 0x0789, 0x33A7,
+    0x2DB6, 0x3C22, 0x1592, 0xC920, 0x8749, 0xAAFF, 0x5078, 0xA57A,
+    0x038F, 0x59F8, 0x0980, 0x1A17, 0x65DA, 0xD731, 0x84C6, 0xD0B8,
+    0x82C3, 0x29B0, 0x5A77, 0x1E11, 0x7BCB, 0xA8FC, 0x6DD6, 0x2C3A,
+)
+
+
+def _le16(data: bytes, offset: int) -> int:
+    return data[offset] | (data[offset + 1] << 8)
+
+
+def _sbox_mix(value: int) -> int:
+    swapped_hi = _SBOX[value >> 8]
+    return _SBOX[value & 0xFF] ^ ((swapped_hi << 8) | (swapped_hi >> 8))
+
+
+def _rotr16_1(value: int) -> int:
+    return (value >> 1) | ((value & 1) << 15)
+
+
+def _phase1_ttak(tk: bytes, ta: bytes, tsc_high32: int) -> list[int]:
+    ttak = [
+        tsc_high32 & _MASK16,
+        (tsc_high32 >> 16) & _MASK16,
+        _le16(ta, 0),
+        _le16(ta, 2),
+        _le16(ta, 4),
+    ]
+    for round_ in range(8):
+        offset = 2 * (round_ & 1)
+        ttak[0] = (ttak[0] + _sbox_mix(ttak[4] ^ _le16(tk, offset))) & _MASK16
+        ttak[1] = (ttak[1] + _sbox_mix(ttak[0] ^ _le16(tk, 4 + offset))) & _MASK16
+        ttak[2] = (ttak[2] + _sbox_mix(ttak[1] ^ _le16(tk, 8 + offset))) & _MASK16
+        ttak[3] = (ttak[3] + _sbox_mix(ttak[2] ^ _le16(tk, 12 + offset))) & _MASK16
+        ttak[4] = (ttak[4] + _sbox_mix(ttak[3] ^ _le16(tk, offset)) + round_) & _MASK16
+    return ttak
+
+
+def _phase2_seed(tk: bytes, ttak: list[int], tsc_low16: int) -> bytes:
+    ppk = ttak + [(ttak[4] + tsc_low16) & _MASK16]
+    ppk[0] = (ppk[0] + _sbox_mix(ppk[5] ^ _le16(tk, 0))) & _MASK16
+    ppk[1] = (ppk[1] + _sbox_mix(ppk[0] ^ _le16(tk, 2))) & _MASK16
+    ppk[2] = (ppk[2] + _sbox_mix(ppk[1] ^ _le16(tk, 4))) & _MASK16
+    ppk[3] = (ppk[3] + _sbox_mix(ppk[2] ^ _le16(tk, 6))) & _MASK16
+    ppk[4] = (ppk[4] + _sbox_mix(ppk[3] ^ _le16(tk, 8))) & _MASK16
+    ppk[5] = (ppk[5] + _sbox_mix(ppk[4] ^ _le16(tk, 10))) & _MASK16
+
+    ppk[0] = (ppk[0] + _rotr16_1(ppk[5] ^ _le16(tk, 12))) & _MASK16
+    ppk[1] = (ppk[1] + _rotr16_1(ppk[0] ^ _le16(tk, 14))) & _MASK16
+    ppk[2] = (ppk[2] + _rotr16_1(ppk[1])) & _MASK16
+    ppk[3] = (ppk[3] + _rotr16_1(ppk[2])) & _MASK16
+    ppk[4] = (ppk[4] + _rotr16_1(ppk[3])) & _MASK16
+    ppk[5] = (ppk[5] + _rotr16_1(ppk[4])) & _MASK16
+
+    seed = bytearray(16)
+    seed[0:3] = tsc_to_iv(tsc_low16)[0:3]
+    seed[3] = ((ppk[5] ^ _le16(tk, 0)) >> 1) & 0xFF
+    for i, word in enumerate(ppk):
+        seed[4 + 2 * i] = word & 0xFF
+        seed[5 + 2 * i] = (word >> 8) & 0xFF
+    return bytes(seed)
+
+
+def tkip_rc4_key(tk: bytes, ta: bytes, tsc: int) -> bytes:
+    """16-byte per-packet RC4 key: TKIP Phase-1 (TTAK) then Phase-2 mixing of `tk`, `ta` and `tsc`."""
+    ttak = _phase1_ttak(tk, ta, (tsc >> 16) & 0xFFFFFFFF)
+    return _phase2_seed(tk, ttak, tsc & _MASK16)
+
+
+def tsc_to_iv(tsc: int) -> bytes:
+    """8-byte TKIP IV + extended-IV field for `tsc`: WEP IV (with the TKIP IV-byte rule and Ext-IV bit) followed by the TSC2..TSC5 extension."""
+    tsc_bytes = [(tsc >> (8 * i)) & 0xFF for i in range(6)]
+    tsc0, tsc1, tsc2, tsc3, tsc4, tsc5 = tsc_bytes
+    return bytes([tsc1, (tsc1 | 0x20) & 0x7F, tsc0, 0x20, tsc2, tsc3, tsc4, tsc5])
