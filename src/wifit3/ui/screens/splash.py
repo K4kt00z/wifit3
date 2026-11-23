@@ -250,14 +250,14 @@ class SplashView(Screen):
         multi = len(devices) >= 2
         if multi:
             multi_list.clear_options()
-            multi_list.add_options([Selection(labels[i], i, initial_state=True)
+            multi_list.add_options([Selection(Text(labels[i]), i, initial_state=True)
                                     for i in range(len(devices))])
             single_list.display = False
             multi_list.display = True
         else:
             single_list.clear()
             for i, label in enumerate(labels):
-                single_list.append(ListItem(Label(label), name=str(i)))
+                single_list.append(ListItem(Label(Text(label)), name=str(i)))
             multi_list.display = False
             single_list.display = True
 
