@@ -40,3 +40,20 @@ def test_no_wmm_not_attackable():
     assert v.attackable is False
     assert v.direction is None
     assert v.reason
+
+
+def test_no_wmm_attackable_when_wmm_not_required():
+    v = assess(ap(pairwise="TKIP", group="TKIP", wmm=False), has_client=True, require_wmm=False)
+    assert v.attackable is True and v.direction == "pairwise"
+
+
+def test_no_wmm_still_blocked_by_default():
+    assert assess(ap(pairwise="TKIP", group="TKIP", wmm=False), has_client=True).attackable is False
+
+
+def test_ccmp_only_not_attackable_even_without_wmm_requirement():
+    assert assess(ap(pairwise="CCMP", group="CCMP", wmm=False), has_client=True, require_wmm=False).attackable is False
+
+
+def test_no_client_not_attackable_mitm_path():
+    assert assess(ap(pairwise="TKIP", group="TKIP", wmm=False), has_client=False, require_wmm=False).attackable is False
