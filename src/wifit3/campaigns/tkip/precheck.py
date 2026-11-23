@@ -13,10 +13,10 @@ class Verdict:
     direction: Optional[str] = None
 
 
-def assess(ap: AccessPoint, has_client: bool) -> Verdict:
+def assess(ap: AccessPoint, has_client: bool, *, require_wmm: bool = True) -> Verdict:
     """Best-effort check of whether `ap` looks worth a TKIP injection attempt.
 
-    Best-effort: the rekey interval is unknown up front, so a positive verdict is not a guarantee.
+    `require_wmm=False` skips the QoS/WMM gate, for the MITM path, which needs no QoS data channel.
     """
     if ap.pairwise_cipher == "TKIP":
         direction = "pairwise"
@@ -25,10 +25,11 @@ def assess(ap: AccessPoint, has_client: bool) -> Verdict:
     else:
         return Verdict(attackable=False, reason="no TKIP cipher advertised (pairwise or group)", direction=None)
 
-    if not ap.wmm:
+    if require_wmm and not ap.wmm:
         return Verdict(attackable=False, reason="QoS/WMM not advertised; no QoS data channel to inject on", direction=None)
 
     if not has_client:
         return Verdict(attackable=False, reason="no associated client seen to supply a QoS data stream", direction=None)
 
-    return Verdict(attackable=True, reason=f"TKIP {direction} cipher with WMM and an associated client", direction=direction)
+    qos_note = "WMM and " if ap.wmm else ""
+    return Verdict(attackable=True, reason=f"TKIP {direction} cipher with {qos_note}an associated client", direction=direction)
