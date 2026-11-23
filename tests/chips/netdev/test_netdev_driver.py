@@ -88,11 +88,13 @@ async def test_driver_connect_when_already_monitor(mock_id):
             mock_sock_cls.return_value = mock_sock
             progress = MagicMock()
             mock_loop = MagicMock()
-            with patch("asyncio.get_running_loop", return_value=mock_loop):
+            with patch("asyncio.get_running_loop", return_value=mock_loop), \
+                    patch("wifit3.chips.netdev.driver.RxReaderThread") as mock_reader_cls:
                 ok = await driver.connect(progress_cb=progress)
                 assert ok is True
                 mock_sock.bind.assert_called_once_with(("wlp62s0", 0))
-                mock_loop.add_reader.assert_called_once_with(mock_sock.fileno(), driver._on_socket_read)
+                mock_reader_cls.assert_called_once()
+                mock_reader_cls.return_value.start.assert_called_once_with()
                 assert progress.call_count >= 1
 
 
@@ -114,7 +116,7 @@ async def test_driver_on_socket_read_dispatches_packet(mock_id):
 
     received = []
     driver.register_rx_callback(received.append)
-    driver._on_socket_read()
+    driver._dispatch_packet(driver._read_packet())
 
     assert len(received) == 1
     assert received[0].bssid == "00:11:22:33:44:55"

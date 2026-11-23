@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Callable, ClassVar, List, Optional
 
 from wifit3.chips.driver import Driver, FakeMacSupport, ProgressCallback
+from wifit3.chips.rx_reader import RxReaderThread
 from wifit3.dot11.packet import Packet
 from wifit3.dot11.parser import WlanFrameParser
 from wifit3.errors import BringUpError, BringUpPermissionsError
@@ -19,6 +20,8 @@ from wifit3.models.device_id import DeviceID
 logger = logging.getLogger(__name__)
 
 ETH_P_ALL = 0x0003
+SO_RCVBUFFORCE = getattr(socket, "SO_RCVBUFFORCE", 33)  # root-only, bypasses rmem_max (not always in `socket`)
+RX_BUF_BYTES = 4 << 20
 
 
 def parse_radiotap(data: bytes) -> tuple[bytes, int]:
@@ -86,8 +89,9 @@ class LinuxNetdevDriver(Driver):
         self.id_entry = id_entry
         self.mac_address = self._read_mac()
         self._sock: Optional[socket.socket] = None
+        self._reader: Optional[RxReaderThread] = None
         self._rx_callback: Optional[Callable[[Packet], None]] = None
-        self._disconnect_callback: Optional[Callable[[], None]] = None
+        self._disconnect_callback: Optional[Callable[[Exception], None]] = None
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._tx_seq = 0
         self.is_warm = False
@@ -159,14 +163,26 @@ class LinuxNetdevDriver(Driver):
         try:
             self._sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
             self._sock.bind((self.iface, 0))
-            self._sock.setblocking(False)
+            # Monitor mode floods this socket with every on-channel frame, so the kernel buffer
+            # overflows (dropping beacons) unless it is large and drained off the UI event loop.
+            try:
+                self._sock.setsockopt(socket.SOL_SOCKET, SO_RCVBUFFORCE, RX_BUF_BYTES)
+            except OSError:
+                self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, RX_BUF_BYTES)
+            self._sock.settimeout(0.2)
         except PermissionError as exc:
             raise BringUpPermissionsError("open", f"Raw socket access denied on {self.iface}: {exc}") from exc
         except OSError as exc:
             raise BringUpError("open", f"Failed to bind {self.iface}: {exc}") from exc
 
+        # A dedicated drain thread keeps the kernel buffer empty regardless of UI-loop load, the
+        # same decoupling the USB bulk-IN drivers use; parsing still happens on the loop.
         self._loop = asyncio.get_running_loop()
-        self._loop.add_reader(self._sock.fileno(), self._on_socket_read)
+        self._reader = RxReaderThread(
+            self._loop, self._read_packet, self._dispatch_packet,
+            name="netdev-rx", on_fatal=self._fire_disconnect,
+        )
+        self._reader.start()
 
         if progress_cb:
             progress_cb(1.0, f"{self.iface} monitor active")
@@ -175,21 +191,19 @@ class LinuxNetdevDriver(Driver):
     def register_rx_callback(self, cb: Callable[[Packet], None]) -> None:
         self._rx_callback = cb
 
-    def register_disconnect_callback(self, cb: Callable[[], None]) -> None:
+    def register_disconnect_callback(self, cb: Callable[[Exception], None]) -> None:
         self._disconnect_callback = cb
 
-    def _on_socket_read(self) -> None:
-        if self._sock is None:
-            return
+    def _read_packet(self) -> Optional[bytes]:
+        """Thread side: one blocking frame read. None on a benign timeout; a real error (the iface
+        went down) propagates so the reader thread fires _fire_disconnect."""
         try:
-            raw_data = self._sock.recv(4096)
-        except (BlockingIOError, InterruptedError):
-            return
-        except Exception:
-            if self._disconnect_callback:
-                self._disconnect_callback()
-            return
+            return self._sock.recv(4096)
+        except (socket.timeout, BlockingIOError, InterruptedError):
+            return None
 
+    def _dispatch_packet(self, raw_data: bytes) -> None:
+        """Loop side: decode one frame and fan it out (runs on the event loop, not the reader)."""
         mpdu, rssi = parse_radiotap(raw_data)
         if not mpdu:
             return
@@ -198,6 +212,10 @@ class LinuxNetdevDriver(Driver):
         pkt = WlanFrameParser.parse_80211_frame(mpdu, rssi=rssi)
         if pkt is not None and self._rx_callback:
             self._rx_callback(pkt)
+
+    def _fire_disconnect(self, exc: Exception) -> None:
+        if self._disconnect_callback:
+            self._disconnect_callback(exc)
 
     async def set_channel(self, channel: int, scan: bool = False) -> bool:
         cmd = ["iw", "dev", self.iface, "set", "channel", str(channel)]
@@ -234,11 +252,10 @@ class LinuxNetdevDriver(Driver):
         return
 
     async def close(self) -> None:
-        if self._sock is not None and self._loop is not None:
-            try:
-                self._loop.remove_reader(self._sock.fileno())
-            except Exception:
-                pass
+        if self._reader is not None:
+            await self._reader.stop()
+            self._reader = None
+        if self._sock is not None:
             try:
                 self._sock.close()
             except Exception:
