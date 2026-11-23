@@ -131,3 +131,23 @@ async def test_single_click_highlights_double_click_starts(monkeypatch):
             if started:
                 break
         assert dev in started                                 # started, like Enter / START
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("no_usb_devices")
+async def test_duplicate_card_prompts_are_text_so_bracketed_locator_survives():
+    # The [wlan0] locator is bracket-wrapped; a plain str prompt is parsed as console markup and
+    # the bracketed tag eaten, making identical cards indistinguishable. Passing rich Text keeps
+    # the bracket in the rendered prompt.
+    devA = DeviceID(0x14C3, 0x7922, "MT7922", bus="pci", address="0000:3e:00.0",
+                    extras={"iface": "wlp62s0"})
+    devB = DeviceID(0x14C3, 0x7922, "MT7922", bus="pci", address="0000:40:00.0",
+                    extras={"iface": "wlp64s0"})
+    app = WifiteApp()
+    async with app.run_test() as pilot:
+        splash = app.screen
+        splash.render_devices([devA, devB])
+        await pilot.pause(0)
+        sl = splash.query_one("#device-select", SelectionList)
+        rendered = [sl.get_option_at_index(i).prompt.plain for i in range(2)]
+        assert "[wlp62s0]" in rendered[0] and "[wlp64s0]" in rendered[1]
