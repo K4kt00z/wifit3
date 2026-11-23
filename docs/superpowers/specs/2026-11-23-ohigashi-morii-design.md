@@ -1,7 +1,8 @@
 # Ohigashi-Morii TKIP MITM attack — design
 
-Status: approved-by-opt-out (2026-11-23; human let the scope be chosen) · Approach: A
-(two-radio MITM repeater reusing EvilTwin scaffolding + the Beck-Tews core)
+Status: approved-by-opt-out (2026-11-23; human let the scope be chosen), revised after
+builder-check (transparent-repeater correction) · Approach: A (two-radio MITM repeater
+reusing `beacon_clone`/`Punter` + the Beck-Tews core)
 
 ## Intent and why
 
@@ -22,42 +23,61 @@ widen coverage to no-WMM TKIP APs, keeping the same injection payoff.
 
 The attacker impersonates the target AP's BSSID on a **different channel** and moves the
 real client onto it (CSA punt), while keeping a link to the **real AP on its own channel**.
-It relays association/key traffic so the client stays usable, then runs the existing
-Beck-Tews byte-walk against the client directly.
+It acts as a **transparent repeater**: the client and the real AP complete a genuine
+4-way handshake and exchange traffic *through* the attacker, who forwards 802.11 frames
+between the two channels. The attacker never learns the PSK/PTK — it just relays — but from
+that position it runs the existing Beck-Tews byte-walk against the client, withholding the
+seed frame from the client so its TSC is not consumed (no QoS/WMM TID needed).
 
-Reused as-is (from `campaigns/eviltwin/`): two-interface election (`EvilTwinInput`:
-`twin_iface` on the decoy channel, `punt_iface`), `beacon_clone` (same-BSSID twin beacon on
-the decoy channel), `Punter` (CSA/deauth/BTM eviction), and `FakeAP`'s beacon + probe/auth/
-assoc responder and per-client state. Reused from the TKIP work: `BeckTewsWalk`/`recover`
-(crack/tkip_beck_tews.py), `dot11/michael.py`, `dot11/tkip.py`, the `mic_failure` oracle
-flag (dot11/parser.py), `forge_tkip_frame`/`arp_spoof_plaintext` (campaigns/tkip/inject.py),
-the `TKIP_INJECT` capture kind, and the injection modal.
+**Correction after builder-check — FakeAP is NOT reused as a responder.** EvilTwin's
+`FakeAP` terminates auth/assoc and fabricates the first EAPOL messages **locally** (its own
+random ANonce; it never contacts a real AP; it deauths stray data frames). That is the wrong
+base here: a session the twin fabricates has a MIC key the twin itself chose, so recovering
+it is pointless. Ohigashi-Morii requires the client's session to be **genuinely with the
+real AP**, so auth/assoc/EAPOL/data must be **proxied through**, not answered locally.
+Therefore the **relay is the primary component**, and only `beacon_clone` (the same-BSSID
+beacon that draws/holds the client on the decoy channel) is reused from the EvilTwin stack —
+plus `EvilTwinInput`'s two-interface *shape* and `Punter` (CSA/deauth/BTM) for the initial
+punt. `FakeAP`'s responder/per-client state is replaced by the repeater, not reused.
+
+Reused from the TKIP work (unchanged): `BeckTewsWalk`/`recover` (crack/tkip_beck_tews.py) —
+confirmed injection-mechanism-agnostic, so the MITM driver feeds it through a client-facing
+probe with no interface change; `dot11/michael.py`, `dot11/tkip.py`, the `mic_failure`
+oracle flag (dot11/parser.py), `forge_tkip_frame`/`arp_spoof_plaintext`
+(campaigns/tkip/inject.py), the `TKIP_INJECT` capture kind, and the injection modal.
 
 ## Goals
 - A new campaign (`campaigns/tkip_mitm/`) that establishes the two-radio MITM position by
-  reusing `EvilTwinInput` + `beacon_clone` + `Punter` + `FakeAP`, with the twin on the
-  **same BSSID** as the target (impersonation, not a decoy SSID).
-- A **relay** that forwards the frames needed to keep the punted client associated/alive
-  across the two interfaces (client on the decoy channel ⇄ real AP on its channel), enough
-  for the attack to proceed — not a general traffic bridge.
+  reusing `beacon_clone` (same-BSSID twin beacon on the decoy channel), the `EvilTwinInput`
+  two-interface shape, and `Punter` for the initial CSA punt — with a **hard requirement
+  that the two interfaces are distinct** (enforced in the campaign; the EvilTwin modal's
+  single-card fallback must NOT be silently accepted, since MITM needs continuous
+  simultaneous presence on two channels).
+- A **transparent repeater relay** (the primary component): proxy the client's auth/assoc/
+  EAPOL/data between the decoy-channel interface (client side) and the real-AP-channel
+  interface, so the client completes a **genuine** TKIP session with the real AP. It owns
+  the data/control-plane forwarding decisions — including **withholding the captured seed
+  frame from the client** so the seed TSC stays unconsumed. It forwards the session's 802.11
+  frames; it does not route, NAT, or read above L2.
 - A **MITM chop driver** that runs `BeckTewsWalk` from the MITM position: emit each guess
   to the client on the decoy-channel interface, read the client's `mic_failure` EAPOL-Key
-  report as the boolean oracle, and withhold the seed frame from the client so its TSC is
-  not consumed — **no QoS/WMM TID bypass**. Keep the `probe` seam injectable for offline
-  tests, as `TkipChop` does.
+  report as the boolean oracle — **no QoS/WMM TID bypass**. Keep the `probe` seam injectable
+  for offline tests, as `TkipChop` does; same rekey-abort.
 - A pre-check variant for this path that does **not** require WMM (it still needs TKIP +
-  a client + a long-enough rekey), reusing `precheck.assess` with WMM relaxed.
-- Output unchanged: a `Recovered` → the existing forge/inject/capture/modal, so the operator
-  gets the same ARP-spoof / custom-payload injection with slots-remaining.
-- Offline tests for the relay frame-rewrite (pure functions) and the MITM chop driver
-  (through the injected oracle seam), plus the WMM-relaxed pre-check.
+  a client + a long-enough rekey): a new kwarg on `precheck.assess` (or a sibling).
+- Output unchanged: a `Recovered` → the existing forge/inject/capture/modal.
+- Offline tests for the relay frame-rewrite (pure functions), the MITM chop driver (through
+  the injected oracle seam), the WMM-relaxed pre-check, and the distinct-interface guard.
 
 ## Non-goals
-- Single-radio operation (two interfaces, consistent with EvilTwin).
-- Full bulk traffic decryption or a general L2 MITM bridge — only the frames the attack
-  needs are relayed.
-- Any new cryptography — the recovery, Michael, TKIP mixing, and forge are reused verbatim.
+- Single-radio operation (two distinct interfaces required).
+- Traffic **decryption**, L3 routing/NAT, or interception above L2 — the repeater forwards
+  the session's 802.11 frames to keep the client↔AP session genuine, but reads nothing and
+  provides no interception channel. The payoff is the same bounded frame injection as
+  Beck-Tews.
+- Any new cryptography — recovery, Michael, TKIP mixing, and forge are reused verbatim.
 - Changing the Beck-Tews (QoS) campaign — this is an additive sibling.
+- Reusing `FakeAP`'s responder (it fabricates a local session — wrong for this attack).
 
 ## Anti-goals (failure even if it "works")
 - Silently wedging the victim client's connectivity with no indication (the relay must keep
@@ -93,19 +113,23 @@ the `TKIP_INJECT` capture kind, and the injection modal.
 
 ### New modules (`campaigns/tkip_mitm/`)
 - `__init__.py`, `campaign.py` — `OhigashiMoriiCampaign(Campaign)`: builds the same-BSSID
-  twin via `beacon_clone`, elects interfaces via `EvilTwinInput`, starts `FakeAP` + `Punter`
-  to move the client to the decoy channel, holds the recovered capability for the modal.
-  Owns the single-TX-per-radio discipline.
-- `relay.py` — the keep-alive relay: a pure frame-rewrite core (given a frame seen on one
-  side, produce the frame(s) to emit on the other — BSSID/channel/seq handling) behind an
-  async driver that pumps between the two interfaces. Pure core is unit-tested; the pump is
-  thin.
+  twin via `beacon_clone`, takes an `EvilTwinInput`-shaped two-interface input and
+  **raises if the two interfaces are not distinct**, starts the repeater + `Punter` to move
+  the client to the decoy channel, then drives the chop and holds the recovered capability
+  for the modal. Owns the single-TX-per-radio discipline. Needs its own
+  `campaign_controls.start()` branch + a modal-push/callback pair in `screen.py` mirroring
+  EvilTwin's `_start_eviltwin`/`_on_eviltwin_input` (this is required, not optional).
+- `relay.py` — the **transparent repeater** (primary component): a pure frame-rewrite core
+  (frame seen on one side → frame(s) to emit on the other; same BSSID, channel/seq handling,
+  and the forward/drop/withhold decision per frame type) behind an async pump between the two
+  interfaces. The pure core and the per-frame decision are unit-tested; the live two-radio
+  pump and its timing are hardware-validated, not CI-tested.
 - `chop.py` — `MitmChopDriver`: drives `BeckTewsWalk` with a `probe` that emits a guess to
-  the client on the decoy-channel iface and awaits the client's `mic_failure` report; it
-  withholds the seed frame from the client (so the TSC stays unused) instead of using a QoS
-  TID. Injectable `probe` seam for offline tests; rekey-abort like `TkipChop`.
-- `precheck.py` (or extend `campaigns/tkip/precheck.py`) — `assess_mitm(ap, has_client)`:
-  TKIP (pairwise or group) + client required; **WMM not required**.
+  the client on the decoy-channel iface and awaits the client's `mic_failure` report, with
+  the seed frame withheld from the client (TSC unconsumed) instead of a QoS TID. Injectable
+  `probe` seam for offline tests; rekey-abort like `TkipChop`.
+- extend `campaigns/tkip/precheck.py` — add a `require_wmm: bool = True` kwarg to `assess`
+  so the MITM path can pass `require_wmm=False` (TKIP + client still required).
 
 ### UI
 A `btn-tkip-mitm` button + reuse of the TKIP injection modal for the output, wired in
@@ -117,21 +141,22 @@ Same `Recovered` → `save_tkip_capability` / `TKIP_INJECT` capture → injectio
 capture kind.
 
 ## Left to the builder
-- The exact set of frames the relay must forward to keep the punted client associated and
-  the attack progressing (association/EAPOL/keep-alive) vs. what can be dropped — the
-  minimal viable relay, discovered against the EvilTwin FakeAP state machine.
+- The exact set of 802.11 frames the repeater forwards to establish and hold a genuine
+  client↔AP session (auth, assoc, the full 4-way EAPOL, data) vs. drops, and the per-frame
+  rewrite (channel; same BSSID; sequence handling). Minimal viable repeater, discovered
+  against the real handshake flow; the pure per-frame decision is unit-testable, the live
+  pump is hardware-validated.
 - The precise MITM sequencing that lets the byte-walk proceed without the QoS/TSC bypass
   (withholding the seed frame from the client; ordering guesses vs. the client's own
-  traffic). Internally consistent and offline-testable via the seam; on-wire timing is a
-  live-hardware question.
-- Whether `OhigashiMoriiCampaign` needs a bespoke `campaign_controls.start()` branch (it
-  takes an `EvilTwinInput`-style two-iface input, so likely yes — mirror EvilTwin's).
-- Whether to extend `campaigns/tkip/precheck.py` or add a sibling for the WMM-relaxed check.
+  traffic). Offline-testable via the seam; on-wire timing is a live-hardware question.
+- How the repeater interacts with the real AP's rekey (the recovery's rekey-abort must fire
+  on the genuine session's rekey, observed through the relay).
 
 ## Testing
-- Offline: relay frame-rewrite vectors (frame in → expected frame out); `MitmChopDriver`
-  byte-walk + rekey-abort through the injected oracle (simulated client MIC-failure), reusing
-  the Beck-Tews synthetic-frame construction; WMM-relaxed pre-check cases.
+- Offline: relay frame-rewrite + per-frame forward/drop/withhold decision (frame in →
+  expected action/frame out); `MitmChopDriver` byte-walk + rekey-abort through the injected
+  oracle (simulated client MIC-failure), reusing the Beck-Tews synthetic-frame construction;
+  WMM-relaxed pre-check cases; the distinct-interface guard raising on a single-card input.
 - Live (deferred, not in CI): two-radio MITM establishment, CSA punt of a real client, relay
   keep-alive, end-to-end recovery against a no-WMM TKIP AP.
 
