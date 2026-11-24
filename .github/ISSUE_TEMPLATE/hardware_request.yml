@@ -10,7 +10,7 @@ body:
 
         Adding a chipset is contributor-driven: I can't port devices I don't have.
         If you have the adapter and want to help, you can port it yourself using a coding agent and
-        https://github.com/derv82/wifang/blob/master/docs/porting/METHODOLOGY.md
+        https://github.com/derv82/wifit3/blob/master/docs/porting/METHODOLOGY.md
         
         Even if you can't capture/port the driver, please still file the request
         so I know there is demand for the device.

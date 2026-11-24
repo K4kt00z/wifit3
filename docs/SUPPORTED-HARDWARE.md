@@ -546,5 +546,5 @@ Kali: <https://github.com/morrownr/USB-WiFi/blob/main/home/Recommended_Adapters_
 
 **Wishlist (not yet bought):**
 
-- **TP-Link TL-WN823N**:  RTL8192CU [Issue#71](https://github.com/derv82/wifang/issues/71) (new port)
-- **Asus USB-AC68**: RTL8814AU [Issue#86](https://github.com/derv82/wifang/issues/86) ("for the art")
+- **TP-Link TL-WN823N**:  RTL8192CU [Issue#71](https://github.com/derv82/wifit3/issues/71) (new port)
+- **Asus USB-AC68**: RTL8814AU [Issue#86](https://github.com/derv82/wifit3/issues/86) ("for the art")

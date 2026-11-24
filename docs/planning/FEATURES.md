@@ -7,7 +7,7 @@ Known bugs live in `BUGS.md`.
 ### About page / Check-for-updates
 
 If the user has internet connection, it's trivial to query
-[the releases page](https://github.com/derv82/wifang/releases) to fectch the latest version,
+[the releases page](https://github.com/derv82/wifit3/releases) to fectch the latest version,
 compare with the current version, and show a Toast notification about the newest version,
 clicking Toast notification -> opens releases page.
 
@@ -20,7 +20,7 @@ We could automate this as well (opt-**in**), in Preferences: `[x] Automatically 
 [wpa-sec.stanev.org](https://wpa-sec.stanev.org/) is a free distributed cracking pool: submit a
 handshake with an API key, poll for a result. pwnagotchi already does exactly this
 ([dadav's `wpa-sec.py` plugin](https://github.com/dadav/pwnagotchi-custom-plugins/blob/master/wpa-sec.py)).
-Raised in [D#25](https://github.com/derv82/wifang/discussions/25).
+Raised in [D#25](https://github.com/derv82/wifit3/discussions/25).
 
 Why it fits: turnaround is reportedly bimodal (minutes, or never), which makes it a *free*
 background attempt to fire off the moment a capture lands. Especially valuable for mobile /
@@ -174,15 +174,15 @@ Do this only when absolutely necessary; prefer a per-feature modal over a new Pr
 Evil Twin + a fake router login page: punt the client onto an open twin, serve a password form,
 the user types the real PSK, then verify it against a captured handshake.
 
-Asked for repeatedly: [issue #55](https://github.com/derv82/wifang/issues/55) (well-written, with mockups),
-and it was the 3rd or 4th such request; [D#34](https://github.com/derv82/wifang/discussions/34)
+Asked for repeatedly: [issue #55](https://github.com/derv82/wifit3/issues/55) (well-written, with mockups),
+and it was the 3rd or 4th such request; [D#34](https://github.com/derv82/wifit3/discussions/34)
 covers the same ground from the plugin-system angle.
 
 **For:**
 - Demand is real and growing: several independent requests, plus follow-ups asking for a
   *generic* (non-brand-specific) form page à la airgeddon.
 - It's the only practical vector left when the PSK is a modern random ISP default: offline
-  cracking is mathematically dead there, and not every such router exposes WPS ([D#61](https://github.com/derv82/wifang/discussions/61)).
+  cracking is mathematically dead there, and not every such router exposes WPS ([D#61](https://github.com/derv82/wifit3/discussions/61)).
 - Not blind phishing: the entered password is verified against a real captured handshake, so
   the attack self-confirms instead of guessing.
 - Someone already built it: #55's author ran a modified wifang and offered the source; laxdog's
