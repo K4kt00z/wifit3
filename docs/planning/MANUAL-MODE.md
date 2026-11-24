@@ -12,9 +12,9 @@ Two separable layers — do them in order, don't conflate:
    campaign flow. Reuses the existing drivers/campaigns underneath; it's a UX layer, not new attacks.
 2. **Feature parity** (big, phased): close gaps vs airgeddon, one attack family per increment.
 
-## What wifit3 already has (confirm before building — from AGENTS.md)
+## What wifang already has (confirm before building — from AGENTS.md)
 
-- Campaigns: `AutoDeauth`, PMKID harvest, WPS PIN, WEP/Replay, `EvilTwin` (`src/wifit3/campaigns/`).
+- Campaigns: `AutoDeauth`, PMKID harvest, WPS PIN, WEP/Replay, `EvilTwin` (`src/wifang/campaigns/`).
 - Cracking: `vault/` + `tools/` (hashcat), `crack/` (WPA PSK, WEP, hc22000).
 - Screens: Splash (adapter pick) → Scanner (live AP table, hopping) → FocusViewV2 (single AP).
 - Drivers incl. the new Linux netdev (PCIe/M.2) backend.
@@ -28,13 +28,13 @@ making that flow fully user-driven and exposing every attack as an explicit menu
 than the campaign auto-picking. Open questions for brainstorming:
 
 - Is manual mode a new top-level screen, or a "mode" toggle on Scanner/Focus (auto vs manual)?
-- Multi-target selection (airgeddon does one target at a time; wifit3 scans many).
+- Multi-target selection (airgeddon does one target at a time; wifang scans many).
 - Where do attack params (deauth count, channel, WPS pin, wordlist) get entered — modal per attack?
 - Interface/band selection, 2.4/5 GHz, regdomain set (`iw reg set`) — airgeddon exposes these.
 
-## airgeddon → wifit3 gap list (triage; ✓ exists, ~ partial, ✗ missing)
+## airgeddon → wifang gap list (triage; ✓ exists, ~ partial, ✗ missing)
 
-| airgeddon feature | wifit3 | Notes |
+| airgeddon feature | wifang | Notes |
 |---|---|---|
 | Monitor mode on/off, iface mgmt | ✓ | drivers + setup/ |
 | DoS: deauth (aireplay/mdk4), multiple methods | ~ | AutoDeauth exists; expose methods/params manually |

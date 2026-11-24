@@ -6,7 +6,7 @@ follow-up project)
 
 ## Intent and why
 
-wifit3 has no WPA1/TKIP-specific attacks today. WPA1 is rendered "out of scope"
+wifang has no WPA1/TKIP-specific attacks today. WPA1 is rendered "out of scope"
 in the UI, PMKID is hidden for it, and the only path that touches a WPA1-PSK AP
 is the generic deauth→handshake→offline-crack ladder, which reaches WPA1 only
 because the WPA vendor-IE PSK selector maps to the same `AKM_PSK` value as RSN.
@@ -117,7 +117,7 @@ rekey-too-fast by failing, surfacing a clear reason.
 
 ## Constraints
 - Core-engine rules: `dot11/` and anything reusable stays generic — no imports
-  from `ui/`, `vault/`, `persist/`, `campaigns/`; no wifit3 product concepts.
+  from `ui/`, `vault/`, `persist/`, `campaigns/`; no wifang product concepts.
   Michael lives in `dot11/michael.py`; EAPOL MIC-failure parsing extends
   `dot11/eapol.py` / `dot11/parser.py`.
 - Code style per AGENTS.md (public-API docstrings only, ≤2 lines,

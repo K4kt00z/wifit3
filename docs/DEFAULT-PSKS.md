@@ -1,8 +1,8 @@
 # Default PSKs
 
-Many routers ship with a WPA passphrase derived from their BSSID, SSID or serial number. wifit3 tries
+Many routers ship with a WPA passphrase derived from their BSSID, SSID or serial number. wifang tries
 these before the SSID variants when "This AP's SSID variants" is ticked. The algorithms live in
-[`src/wifit3/crack/default_psks.py`](../src/wifit3/crack/default_psks.py); its docstring has the rules
+[`src/wifang/crack/default_psks.py`](../src/wifang/crack/default_psks.py); its docstring has the rules
 for adding one (signature, matching, cost limits, version bump).
 
 Implemented: `bssid_as_psk`: the BSSID without colons, then its last 10 hex digits (Axtel, Megared) and
@@ -85,7 +85,7 @@ Not included: AlcatelLucent, whose key comes from an online lookup service, not 
   (about 66 MB).
 - **Candidate count.** Speedport500 and Comtrend add 1000 and 512 PBKDF2s to every matching AP.
 - **Not WPA passphrases.** Eircom, Huawei, Ono and Wlan2 produce WEP keys, and Andared a raw 64-hex PMK.
-  `default_psks` drops these, so the scheme is useless unless wifit3 cracks WEP or tries PMKs directly.
+  `default_psks` drops these, so the scheme is useless unless wifang cracks WEP or tries PMKs directly.
 - **Tables.** Six schemes need a data table (sizes above). Their redistribution terms are unknown.
 - **Existing implementations have bugs.** Generating test vectors by running an existing implementation
   reproduces its bugs. Bugs seen so far:

@@ -15,7 +15,7 @@ a real BSSID, MAC or SSID.
 - [ ] `connect()` holds only libusb/WinUSB setup, then calls `_bringup()`. `_bringup()` holds
       exactly what the capture shows. The gate calls `_bringup()` directly.
 - [ ] The gate prints total, claimed, and waived per label. Claimed + waived = total is the ideal; at least
-      the bring-up matches, waiving only what wifit3 doesn't need.
+      the bring-up matches, waiving only what wifang doesn't need.
 - [ ] Count the vendor requests in each capture with tshark, independently of the gate's extractor.
       The count equals the gate's total.
 - [ ] Mutation test, in memory: change one table value, swap two adjacent writes, drop one read.
@@ -32,7 +32,7 @@ a real BSSID, MAC or SSID.
       channel-14-specific writes. Record: how many such branches, how many unit-tested.
 - [ ] No value hard-coded to the recorded card where the C reads it from the chip.
 - [ ] No module-level mutable state. Two cards of the same chip in one process must not share state.
-- [ ] Restart: start wifit3, see frames, quit, reopen, start the driver again: frames again (warm attach,
+- [ ] Restart: start wifang, see frames, quit, reopen, start the driver again: frames again (warm attach,
       or a cold bring-up every time).
 - [ ] RX delivers frames without the FCS.
 - [ ] Runtime paths the captures never reach (thermal recalibration, TX power tracking): ported
@@ -42,17 +42,17 @@ a real BSSID, MAC or SSID.
 ## 3. Hardware
 
 - [ ] Bring-up: 1 cold plug, then 5 warm connects. 5/5 succeed.
-- [ ] ACK lab (docs/ACKS.md), `scripts/ack/rx_autoack.py` and `scripts/ack/tx_retries.py`, with a second wifit3
+- [ ] ACK lab (docs/ACKS.md), `scripts/ack/rx_autoack.py` and `scripts/ack/tx_retries.py`, with a second wifang
       card as prober and as control. n=100 per phase: own MAC, spoofed MAC with active monitor on,
       spoofed with it off, bogus MAC. Retries to a target nobody owns vs the C's retry limit.
 
 ## 4. Grade (docs/GRADING.md, "Per-card checklist")
 
-- [ ] Baselines (scripts/baseline/BASELINING.md): `baseline_linux.py` and `baseline_wifit3.py` on the same card,
+- [ ] Baselines (scripts/baseline/BASELINING.md): `baseline_linux.py` and `baseline_wifang.py` on the same card,
       same channels and dwell, the reference AP pinned by BSSID. Invalid if the reference AP is off its channel.
 - [ ] `baseline_diff.py --diff ... --ref <reference BSSID>`. Without `--ref` the beacon line measures
       Linux's most-heard AP, not the reference AP.
-- [ ] At least 3 sweeps, alternating Linux and wifit3. One sweep of the same driver varied by
+- [ ] At least 3 sweeps, alternating Linux and wifang. One sweep of the same driver varied by
       2 beacons/s, so no single sweep decides a gap.
 - [ ] TX attacks, WEP where a WEP AP exists, and the 20-min soak, as GRADING.md lists them.
 - [ ] Record the grade and its one-line reason.
@@ -71,7 +71,7 @@ a real BSSID, MAC or SSID.
       new card. Tally commit authorship of the kernel path (and the vendor repo); beware kernel file
       renames (GitHub's `?path=` filter doesn't follow them, so scrape the pre-reorg path too). Drop
       tree-wide mechanical committers; keep the real builders.
-- [ ] **Licensing** — wifit3 is GPL-2.0-only (a derivative of GPLv2 drivers). Any firmware blob in
+- [ ] **Licensing** — wifang is GPL-2.0-only (a derivative of GPLv2 drivers). Any firmware blob in
       `chips/<chip>/assets/` is not GPL: record its provenance + redistribution terms from
       linux-firmware's WHENCE and byte-verify the blob (see docs/FIRMWARE.md).
 

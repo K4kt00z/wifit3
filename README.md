@@ -1,8 +1,8 @@
-# wifit3
+# wifang
 > A standalone USB and pcie Wi-Fi auditor for Linux
 
 <p align="center">
-  <img src="assets/wifang-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
+  <img src="assets/wifang-1-splash.png" alt="wifang splash / adapter picker" width="700">
 </p>
 
 > *At least* one of the [supported adapters](#supported-hardware) — a USB dongle or a PCIe/M.2 card — is **required**.
@@ -14,7 +14,7 @@
 * **Few Runtime Dependencies:** No `aircrack-ng` or `reaver` — the USB stack is pure Python (PyUSB & Textual); the Linux PCIe/M.2 path additionally uses the in-kernel driver with `iw`/`nmcli`.
 
 <p align="center">
-  <img src="assets/wifang-demo.gif" alt="wifit3 in action: WPS PushButton PSK capture" width="700">
+  <img src="assets/wifang-demo.gif" alt="wifang in action: WPS PushButton PSK capture" width="700">
 </p>
 
 ---
@@ -90,7 +90,7 @@ Breakdown of each USB device's capabilities and limitations: [Supported Hardware
 ## Installation & Running
 
 ### Option 1: Download Prebuilt Binaries (Recommended)
-Download the latest standalone executable from [**Releases**](https://github.com/K4kt00z/wifit3/releases/latest):
+Download the latest standalone executable from [**Releases**](https://github.com/K4kt00z/wifang/releases/latest):
 
 * **Windows:** Download and run `wifang-windows-x64.exe`.
 * **Linux (non-sudo):** `chmod +x wifang-linux-x64 && ./wifang-linux-x64`
@@ -104,24 +104,24 @@ Download the latest standalone executable from [**Releases**](https://github.com
 > The PCIe/M.2 (Linux netdev) backend is available only in the Linux builds; the Windows and macOS builds drive USB adapters only.
 
 ### Option 2: Run from Source
-wifit3 uses Astral's [`uv`](https://docs.astral.sh/uv/). `sync` sets up dependencies:
+wifang uses Astral's [`uv`](https://docs.astral.sh/uv/). `sync` sets up dependencies:
 ```bash
 uv sync
-uv run wifit3
+uv run wifang
 ```
 
 ### Option 3: Build your own binary
 ```bash
-uv run pyinstaller wifit3.spec --noconfirm --clean
+uv run pyinstaller wifang.spec --noconfirm --clean
 ```
 Binary executable is written to `dist/` subdirectory.
 
 ## One-Time Driver Setup
 
-wifit3 automatically handles hardware configuration within the app, after clicking the `START` button:
+wifang automatically handles hardware configuration within the app, after clicking the `START` button:
 
 - **Linux (USB):** Prompts once via `pkexec`/`sudo` to write udev permissions and blocklists in `/etc/modprobe.d/`.
-- **Linux (PCIe/M.2):** No install step — the card keeps its in-kernel driver. wifit3 switches it to monitor mode with `iw` (prompting once for root via `pkexec`/`sudo`) and restores it to NetworkManager on exit.
+- **Linux (PCIe/M.2):** No install step — the card keeps its in-kernel driver. wifang switches it to monitor mode with `iw` (prompting once for root via `pkexec`/`sudo`) and restores it to NetworkManager on exit.
 - **macOS:** No installation required; plug in the device and select *Allow* in the authorization dialog.
 - **Windows:** Prompts once via UAC to install WinUSB for the device.
 - **VirtualBox:** Add your device(s) to VirtualBox's `USB Filters` *before* plugging in.
@@ -129,17 +129,17 @@ wifit3 automatically handles hardware configuration within the app, after clicki
 ## Uninstalling
 Return the previously-installed device to your operating system's Wi-Fi stack:
 
-1. Select the card on the wifit3 splash screen.
+1. Select the card on the wifang splash screen.
 2. Click the `Uninstall` button and confirm.
 3. Accept the elevation prompt (UAC on Windows or `pkexec` on Linux).
 4. Unplug and re-plug the adapter.
 
-On Linux, this deletes wifit3's `udev` and `modprobe` rules.
+On Linux, this deletes wifang's `udev` and `modprobe` rules.
 On Windows, this uninstalls the WinUSB binding, and triggers a PnP device rescan (old driver reattaches).
 
 ## *Thank you, Linux!*
 
-wifit3 only exists because of the great people who reverse-engineered and maintained these Linux wireless
+wifang only exists because of the great people who reverse-engineered and maintained these Linux wireless
 drivers. It's usually a thankless job.
 
 Special thanks to:
@@ -154,7 +154,7 @@ The full list is in **[CREDITS.md](docs/CREDITS.md)**.
 
 ### USB adapters: userspace mini-drivers
 
-For USB adapters, wifit3 bypasses the operating system's native Wi-Fi stack entirely. It ships with lightweight Python ports of Linux kernel drivers ([src/wifit3/chips/\*](src/wifit3/chips)) that directly control the device over USB bulk and control transfers.
+For USB adapters, wifang bypasses the operating system's native Wi-Fi stack entirely. It ships with lightweight Python ports of Linux kernel drivers ([src/wifang/chips/\*](src/wifang/chips)) that directly control the device over USB bulk and control transfers.
 
 Because register-level frame injection and monitor mode are performed entirely in user space, Windows NDIS restrictions and Linux kernel driver locking do not apply. This path is cross-platform (Linux, Windows, macOS).
 
@@ -170,4 +170,4 @@ For architecture details, driver porting methodology, and USB trace replay tooli
 
 **Firmware:** Vendor firmware blobs loaded onto adapters are redistributed verbatim under their respective manufacturers' licenses (details in [FIRMWARE.md](docs/FIRMWARE.md)).
 
-**⚠️ Notice & Disclaimer:** For use only on networks and equipment you own or are explicitly authorized to audit. wifit3 operates directly on USB hardware registers (and, for PCIe/M.2 cards, the kernel's raw monitor interface) without the usual OS Wi-Fi guardrails; use at your own risk.
+**⚠️ Notice & Disclaimer:** For use only on networks and equipment you own or are explicitly authorized to audit. wifang operates directly on USB hardware registers (and, for PCIe/M.2 cards, the kernel's raw monitor interface) without the usual OS Wi-Fi guardrails; use at your own risk.

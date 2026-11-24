@@ -7,7 +7,7 @@ port and shows monitor mode works.
 Also read: GOTCHAS.md (bugs earlier ports hit), CHIP-DOC.md (the `<CHIP>.md` shipped with the port),
 FINAL-CHECKLIST.md (before calling the port done).
 
-## What wifit3 needs from a driver
+## What wifang needs from a driver
 
 - **Monitor mode only.** No managed mode, no association. Port the STA setup the driver runs before monitor
   entry when the bring-up goes through it.
@@ -32,21 +32,21 @@ FINAL-CHECKLIST.md (before calling the port done).
 
 ## What a port may edit
 
-- `src/wifit3/chips/<chip>/`: the port. Nearly every change goes here.
-- `src/wifit3/device/manager.py`: only to tell this chip apart from a different chip sharing its VID:PID
+- `src/wifang/chips/<chip>/`: the port. Nearly every change goes here.
+- `src/wifang/device/manager.py`: only to tell this chip apart from a different chip sharing its VID:PID
   (`_VIDPID_FAMILIES`).
 - `scripts/chips/<chip>/`: the port's scratch dir: extractors, `test_hw.py` (the user plugs in the card, you
   test and debug), diagnostics.
-- `src/wifit3/chips/products.py`: the card's retail model, if missing.
+- `src/wifang/chips/products.py`: the card's retail model, if missing.
 - `docs/SUPPORTED-HARDWARE.md`: the card's entry.
 - Card art, optional: offer the user to draw the card as 20x10 ANSI art with textual-paint
-  (`uvx --python 3.11 --with "setuptools<82" textual-paint`), saved as `src/wifit3/ui/assets/cards/card-<model>.ans`
-  and mapped in `src/wifit3/ui/screens/focus_v2/art.py`. Conventions: `src/wifit3/ui/assets/cards/README.md`.
+  (`uvx --python 3.11 --with "setuptools<82" textual-paint`), saved as `src/wifang/ui/assets/cards/card-<model>.ans`
+  and mapped in `src/wifang/ui/screens/focus_v2/art.py`. Conventions: `src/wifang/ui/assets/cards/README.md`.
 - At FINAL-CHECKLIST.md only: `docs/CREDITS.md`, `docs/FIRMWARE.md`, the `README.md#supported-hardware` row, and
   unit tests in `tests/chips/<chip>/`.
 - Nothing else: not the `Driver` ABC (`chips/driver.py`), not `wlan/`, not another chip's package.
 
-Look at other ports for how wifit3 does a thing (active monitor, ACKs in RX, the RX reader, warm attach). Take the
+Look at other ports for how wifang does a thing (active monitor, ACKs in RX, the RX reader, warm attach). Take the
 chip's behaviour, values and tables only from its own C source.
 
 ## Code style in `chips/`
@@ -92,7 +92,7 @@ A capture is the usbmon pcap plus everything recorded with it: the step timestam
 the exact driver and its source, shows that monitor mode and injection work, and maps the bring-up before you
 write code.
 
-- **Capture** — on a Linux machine, card unplugged: `sudo python src/wifit3/scripts/capture.py`
+- **Capture** — on a Linux machine, card unplugged: `sudo python src/wifang/scripts/capture.py`
   (`--target <BSSID>` adds an injection test). It records the usbmon pcap of plug-in, firmware, monitor mode, a
   channel sweep and injection, with per-step timestamps (`main.log`), the firmware blob and, for DKMS, the driver
   source, under `captures_<chip>/`. Keep it in `driver_captures/captures_<chip>/` (gitignored: real MACs).
@@ -142,7 +142,7 @@ compare with the C, not a byte to copy.
 
 ## Step 2 — Port the chipset's paths
 
-The chip package (`src/wifit3/chips/<name>/`):
+The chip package (`src/wifang/chips/<name>/`):
 
 - **`__init__.py` declares the VID:PIDs**: `SUPPORTED_IDS: list[DeviceID]` (every VID:PID this driver claims, a
   readable description, any chip-id discriminator in `extras={}`) and
