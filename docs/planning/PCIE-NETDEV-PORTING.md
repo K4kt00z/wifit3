@@ -7,8 +7,8 @@ This document specifies the architectural plan for extending `wifit3` from USB-o
 ## 1. Context & Architectural Reality
 
 `wifit3` is historically a pure-userspace Python 802.11 stack communicating directly with USB dongles via `PyUSB` (`libusb`). In that model:
-- The Linux kernel driver is blacklisted (`/etc/modprobe.d/wifit3-*.conf`).
-- Udev rules (`/etc/udev/rules.d/60-wifit3-*.rules`) grant non-root users access to the raw usbfs device node (`/dev/bus/usb/BBB/DDD`).
+- The Linux kernel driver is blacklisted (`/etc/modprobe.d/wifang-*.conf`).
+- Udev rules (`/etc/udev/rules.d/60-wifang-*.rules`) grant non-root users access to the raw usbfs device node (`/dev/bus/usb/BBB/DDD`).
 - Hardware init, firmware loading, register configuration, channel tuning, and packet parsing are all handled in Python userland.
 
 PCIe / M.2 adapters (such as the MediaTek MT7922 `14c3:7922` driven by `mt7921e`) communicate via PCIe MMIO and coherent host-memory DMA descriptor rings, not USB endpoints. Rather than writing a bare-metal userspace PCIe DMA engine in Python for every PCIe chipset, `wifit3` can support PCIe/M.2 cards via **Path A**: a hybrid `LinuxNetdevDriver` backed by the Linux kernel's standard netdev and `nl80211` interfaces.

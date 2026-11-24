@@ -48,7 +48,7 @@ The TUI is built on **Textual**.
 
 Not a clean top-to-bottom stack (the real flow is more tangled), but the points of interest.
 
-**Core engine**: generic and wifit3-agnostic, meant to be split out into a separate `wifit3-drivers`
+**Core engine**: generic and wifang-agnostic, meant to be split out into a separate `wifang-drivers`
 package. Not off-limits, but changes here stay generic: no imports from the app layer (`ui/`, `id/`,
 `vault/`, `persist/`, `campaigns/`), no wifit3 UI or product concepts.
 

@@ -197,7 +197,7 @@ operation as-is, so a 5 GHz target that advertises a wider channel gets a twin t
 ## 40/80 MHz APs may be invisible to the scanner
 
 **Problem.** An AP that defaults to 40 MHz is not seen. 40/80 MHz was never ported because it was
-unclear how scanning should use those widths. Unconfirmed as a bug: the wifit3-vs-Linux tests
+unclear how scanning should use those widths. Unconfirmed as a bug: the wifang-vs-Linux tests
 showed about the same AP counts.
 
 **Direction.** Reproduce with the 40 MHz AP, then decide whether scanning needs wide-channel support.

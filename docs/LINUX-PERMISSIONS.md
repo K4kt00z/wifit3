@@ -77,9 +77,9 @@ Code: `src/wifit3/setup/linux.py`, `src/wifit3/setup/__init__.py`.
 
 **Each target writes one file pair, named by the driver key** (`setup/linux.py:72`, `:77`):
 
-- `/etc/udev/rules.d/60-wifit3-<key>.rules` : one `SUBSYSTEM=="usb"...` line per VID:PID in
+- `/etc/udev/rules.d/60-wifang-<key>.rules` : one `SUBSYSTEM=="usb"...` line per VID:PID in
   `target.ids` (`emit_udev_text`, `setup/linux.py:199`).
-- `/etc/modprobe.d/wifit3-<key>.conf` : `blacklist`/`install` for the modules discovered for the card
+- `/etc/modprobe.d/wifang-<key>.conf` : `blacklist`/`install` for the modules discovered for the card
   (`emit_blacklist_text`, `setup/linux.py:214`).
 
 **The blacklisted module list is discovered live** at install time from the plugged-in card:
@@ -112,8 +112,8 @@ blocking the kernel for the entire module family.
 `rt3070`, `rt5370`, `rt5372`, `rt5572`, ... are separate wifit3 drivers, each its own `SetupTarget`,
 but on most kernels they are all bound by the single module `rt2800usb`.
 
-1. Install an `rt5372` card. This writes `60-wifit3-rt5372.rules` (rt5372's VID:PIDs) and
-   `wifit3-rt5372.conf` (`blacklist rt2800usb`).
+1. Install an `rt5372` card. This writes `60-wifang-rt5372.rules` (rt5372's VID:PIDs) and
+   `wifang-rt5372.conf` (`blacklist rt2800usb`).
 2. `rt2800usb` is now blocked for the **whole family**. Good: those cards stay cold.
 3. Plug in a *different* card, an `rt3070`. Its kernel driver is blocked (the blacklist is
    module-wide), so it stays cold. But there is **no udev rule for the rt3070 VID:PID** (only rt5372's
@@ -132,7 +132,7 @@ the access hole in the first place.
 ## 5. The staleness problem: buckets grow between releases
 
 Even a per-module rewrite (section 6) has to handle version drift. Suppose wifit3 v1 wrote
-`60-wifit3-rt2800usb.rules` listing the VID:PIDs it supported then. wifit3 v2 adds support for a new
+`60-wifang-rt2800usb.rules` listing the VID:PIDs it supported then. wifit3 v2 adds support for a new
 card in the same family. On a machine that installed under v1:
 
 - The blacklist already covers the new card (it is module-wide).
@@ -148,9 +148,9 @@ rewrite when they are stale.
 
 Key the files by the **kernel module**, not the wifit3 driver:
 
-- `/etc/udev/rules.d/60-wifit3-<module>.rules` : a `SUBSYSTEM=="usb"...` line for **every**
-  wifit3-supported VID:PID whose driver is bound by `<module>`.
-- `/etc/modprobe.d/wifit3-<module>.conf` : `blacklist`/`install` for `<module>` (and any sibling
+- `/etc/udev/rules.d/60-wifang-<module>.rules` : a `SUBSYSTEM=="usb"...` line for **every**
+  wifang-supported VID:PID whose driver is bound by `<module>`.
+- `/etc/modprobe.d/wifang-<module>.conf` : `blacklist`/`install` for `<module>` (and any sibling
   modules it drags in).
 
 **Install** = overwrite the module's pair with the full current family set (idempotent). **Uninstall**
@@ -242,7 +242,7 @@ members needing setup collapse to one file write.
 
 ## 9. Migration
 
-Users upgrading from the current per-driver files (`60-wifit3-rt5372.rules`, ...) will have stale,
+Users upgrading from the current per-driver files (`60-wifang-rt5372.rules`, ...) will have stale,
 finer-grained files. The install/update path should also remove any old per-driver wifit3 files it is
 superseding when it writes the per-module file, so a machine ends up with exactly one file pair per
 module. This can be a one-time reconciliation inside the same elevation.

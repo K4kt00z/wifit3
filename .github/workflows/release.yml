@@ -35,13 +35,13 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact_name: wifit3-windows-x64.exe
+            artifact_name: wifang-windows-x64.exe
             build_path: dist/wifit3.exe
           - os: ubuntu-22.04          # build on older glibc so the binary runs on more distros
-            artifact_name: wifit3-linux-x64
+            artifact_name: wifang-linux-x64
             build_path: dist/wifit3
           - os: ubuntu-22.04-arm      # GitHub-hosted arm64 Linux runner (free for public repos); native arm64 build
-            artifact_name: wifit3-linux-arm64
+            artifact_name: wifang-linux-arm64
             build_path: dist/wifit3
           # macOS: see build-macos
 
@@ -180,13 +180,13 @@ jobs:
       - name: Stage artifact
         run: |
           mkdir -p out
-          cp dist/wifit3 out/wifit3-macos-universal2
+          cp dist/wifit3 out/wifang-macos-universal2
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: wifit3-macos-universal2
-          path: out/wifit3-macos-universal2
+          name: wifang-macos-universal2
+          path: out/wifang-macos-universal2
           if-no-files-found: error
 
   release:

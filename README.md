@@ -2,7 +2,7 @@
 > A standalone USB and pcie Wi-Fi auditor for Linux
 
 <p align="center">
-  <img src="assets/wifit3-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
+  <img src="assets/wifang-1-splash.png" alt="wifit3 splash / adapter picker" width="700">
 </p>
 
 > *At least* one of the [supported adapters](#supported-hardware) — a USB dongle or a PCIe/M.2 card — is **required**.
@@ -14,7 +14,7 @@
 * **Few Runtime Dependencies:** No `aircrack-ng` or `reaver` — the USB stack is pure Python (PyUSB & Textual); the Linux PCIe/M.2 path additionally uses the in-kernel driver with `iw`/`nmcli`.
 
 <p align="center">
-  <img src="assets/wifit3-demo.gif" alt="wifit3 in action: WPS PushButton PSK capture" width="700">
+  <img src="assets/wifang-demo.gif" alt="wifit3 in action: WPS PushButton PSK capture" width="700">
 </p>
 
 ---
@@ -42,7 +42,7 @@
 
 | Scanner | Focus (single target) |
 |---|---|
-| ![Scanner](assets/wifit3-2-scanner.png) | ![Focus](assets/wifit3-3-focus-handshake.png) |
+| ![Scanner](assets/wifang-2-scanner.png) | ![Focus](assets/wifang-3-focus-handshake.png) |
 
 ## Supported Hardware
 
@@ -92,13 +92,13 @@ Breakdown of each USB device's capabilities and limitations: [Supported Hardware
 ### Option 1: Download Prebuilt Binaries (Recommended)
 Download the latest standalone executable from [**Releases**](https://github.com/K4kt00z/wifit3/releases/latest):
 
-* **Windows:** Download and run `wifit3-windows-x64.exe`.
-* **Linux (non-sudo):** `chmod +x wifit3-linux-x64 && ./wifit3-linux-x64`
+* **Windows:** Download and run `wifang-windows-x64.exe`.
+* **Linux (non-sudo):** `chmod +x wifang-linux-x64 && ./wifang-linux-x64`
 * **macOS:** (bypass quarantine)
   ```bash
-  xattr -d com.apple.quarantine wifit3-macos-universal2
-  chmod +x wifit3-macos-universal2
-  ./wifit3-macos-universal2
+  xattr -d com.apple.quarantine wifang-macos-universal2
+  chmod +x wifang-macos-universal2
+  ./wifang-macos-universal2
   ```
 
 > The PCIe/M.2 (Linux netdev) backend is available only in the Linux builds; the Windows and macOS builds drive USB adapters only.
