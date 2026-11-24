@@ -1,11 +1,11 @@
-# PyInstaller build spec for wifit3 — build with: uv run pyinstaller wifit3.spec
+# PyInstaller build spec for wifang — build with: uv run pyinstaller wifang.spec
 #
-# Produces a single self-contained onefile binary — dist/wifit3.exe on Windows, dist/wifit3 on
+# Produces a single self-contained onefile binary — dist/wifang.exe on Windows, dist/wifang on
 # Linux/macOS. PyInstaller does NOT cross-compile: build each target on that OS.
 #
 # onefile (active) vs onedir tradeoff:
 #   onefile: one binary; unpacks into a temp dir on each launch (slower cold start), trips AV/SmartScreen more.
-#   onedir:  a dist/wifit3/ folder; faster start, friendlier to AV, but ships as the whole folder.
+#   onedir:  a dist/wifang/ folder; faster start, friendlier to AV, but ships as the whole folder.
 # To switch to onedir, swap the EXE/COLLECT blocks at the bottom of this file.
 #
 # Console app (console=True): Textual needs a real TTY, so a --windowed build would have no
@@ -17,7 +17,7 @@ import sys
 from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_submodules
 
 # Collects firmware blobs (*.bin, *.fw), ANSI art (*.ans), and Windows installer (wdi-simple.exe)
-datas = collect_data_files("wifit3")
+datas = collect_data_files("wifang")
 if sys.platform != "win32":
     # /setup/bin/* is 100% windows-specific
     datas = [(src, dest) for (src, dest) in datas
@@ -33,10 +33,10 @@ for _pkg in ("libusb_package", "textual", "rich"):
     binaries += _b
     hiddenimports += _h
 
-# Chip drivers are discovered at runtime by a pkgutil walk over wifit3.chips (device/manager.py),
+# Chip drivers are discovered at runtime by a pkgutil walk over wifang.chips (device/manager.py),
 # never statically imported, so PyInstaller's analysis can't see them and a onefile build ships
 # with zero drivers: the app launches but finds no interfaces. Force every chip subpackage in.
-hiddenimports += collect_submodules("wifit3.chips")
+hiddenimports += collect_submodules("wifang.chips")
 
 # libusb_package.get_library_path() locates the libusb shared lib via importlib.resources, i.e.
 # it must sit at libusb_package/libusb-1.0.* INSIDE the package dir of the bundle. collect_all
@@ -52,7 +52,7 @@ for _f in os.listdir(_lp_dir):
         datas.append((os.path.join(_lp_dir, _f), "libusb_package"))
 
 a = Analysis(
-    ["src/wifit3/__main__.py"],
+    ["src/wifang/__main__.py"],
     pathex=["src"],
     binaries=binaries,
     datas=datas,
@@ -69,18 +69,18 @@ pyz = PYZ(a.pure)
 # App icon: .ico is a Windows resource; a Linux ELF has no icon slot (PyInstaller ignores icon=
 # there), so the icon is Windows-only. Fall back to None if the file is absent so a build never
 # fails over a missing icon.
-_icon = "assets/wifit3.ico" if sys.platform == "win32" else None
+_icon = "assets/wifang.ico" if sys.platform == "win32" else None
 if _icon and not os.path.isfile(_icon):
     _icon = None
 
-# ---- onefile build (ACTIVE): one self-contained binary (dist/wifit3.exe on Windows) ----
+# ---- onefile build (ACTIVE): one self-contained binary (dist/wifang.exe on Windows) ----
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
     a.datas,
     [],
-    name="wifit3",
+    name="wifang",
     debug=False,
     strip=False,
     upx=False,
@@ -92,15 +92,15 @@ exe = EXE(
     runtime_tmpdir=None,
 )
 
-# ---- onedir build (revert option): dist/wifit3/wifit3.exe + a sibling dist/wifit3/_internal/ ----
+# ---- onedir build (revert option): dist/wifang/wifang.exe + a sibling dist/wifang/_internal/ ----
 # To switch back: comment out the EXE(...) above and uncomment both blocks below. A onedir
-# build must be distributed as the WHOLE dist/wifit3/ folder (zip it) — the .exe alone won't run.
+# build must be distributed as the WHOLE dist/wifang/ folder (zip it) — the .exe alone won't run.
 # exe = EXE(
 #     pyz,
 #     a.scripts,
 #     [],
 #     exclude_binaries=True,
-#     name="wifit3",
+#     name="wifang",
 #     debug=False,
 #     strip=False,
 #     upx=False,
@@ -113,5 +113,5 @@ exe = EXE(
 #     a.datas,
 #     strip=False,
 #     upx=False,
-#     name="wifit3",
+#     name="wifang",
 # )
