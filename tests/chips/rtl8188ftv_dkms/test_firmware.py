@@ -35,7 +35,7 @@ class FakeT:
 
 
 def test_parse_header_strips_32b():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     blob = bytes(32) + bytes(100)
     blob = bytes([0xF1, 0x88, 0, 0, 4, 0, 0, 0]) + blob[8:]
     ver, sub, sig, payload = firmware.parse_header(blob)
@@ -43,13 +43,13 @@ def test_parse_header_strips_32b():
 
 
 def test_parse_header_absent_keeps_blob():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     blob = bytes([0x00, 0x00, 0, 0, 1, 0, 0, 0]) + bytes(32)
     assert firmware.parse_header(blob)[3] == blob
 
 
 def test_block_write_phases():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     t = FakeT([])
     buf = bytes(range(256)) * 2 + bytes([9])
     firmware.block_write(t, buf[:400])
@@ -61,14 +61,14 @@ def test_block_write_phases():
 
 
 def test_page_write_selects_page():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     t = FakeT([0x05])
     firmware.page_write(t, 3, bytes(10))
     assert t.writes[0] == (0x82, 1, (0x05 & 0xF8) | 3)
 
 
 def test_download_enable_disable():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     t = FakeT([0xFC, 0x04, 0x05, 0x05])
     firmware.download_enable(t, True)
     assert t.writes == [(0x03, 1, 0xFC), (0x80, 1, 0x05), (0x82, 1, 0x05)]
@@ -78,7 +78,7 @@ def test_download_enable_disable():
 
 
 def test_reset_8051_order():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     t = FakeT([0x03, 0xFC, 0x03, 0xFC])
     firmware.reset_8051(t)
     assert t.writes == [(0x1D, 1, 0x02), (0x03, 1, 0xF8),
@@ -86,13 +86,13 @@ def test_reset_8051_order():
 
 
 def test_checksum_poll_first_try_and_timeout():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     assert firmware.polling_fwdl_chksum(FakeT([0x04]), 5, 50) is True
     assert firmware.polling_fwdl_chksum(FakeT([0x00]), 0, 0) is False
 
 
 def test_free_to_go_ready_path():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     ready = 0x02 | 0x04 | 0x40 | 0x80
     t = FakeT([0x00, 0x03, 0xFC, 0x03, 0xFC, 0x03, 0xFC, 0x03, 0xFC, ready])
     assert firmware.fw_free_to_go(t, 10, 200) is True
@@ -100,7 +100,7 @@ def test_free_to_go_ready_path():
 
 
 def test_download_rejects_oversize():
-    from wifit3.chips.rtl8188ftv_dkms import firmware
+    from wifang.chips.rtl8188ftv_dkms import firmware
     try:
         firmware.download_firmware(FakeT([]), bytes(0x8001))
     except ValueError:
@@ -110,7 +110,7 @@ def test_download_rejects_oversize():
 
 
 def test_init_llt_and_tx_report():
-    from wifit3.chips.rtl8188ftv_dkms import llt
+    from wifang.chips.rtl8188ftv_dkms import llt
     t = FakeT([0x2020, 0x2020])
     assert llt.init_llt(t) is True
     assert t.writes == [(0x224, 4, 0x2020 | 0x10000)]
@@ -120,7 +120,7 @@ def test_init_llt_and_tx_report():
 
 
 def test_c2h_handshake():
-    from wifit3.chips.rtl8188ftv_dkms import c2h
+    from wifang.chips.rtl8188ftv_dkms import c2h
     t = FakeT([])
     c2h.request_hidden_report(t)
     assert t.writes == [(0x1A0, 1, 0xFD)]

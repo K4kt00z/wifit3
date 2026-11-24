@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.campaigns.wps import pixie_prng as P
+from wifang.campaigns.wps import pixie_prng as P
 
 _VEC = json.loads((Path(__file__).parent / "data" / "pixie_prng_vectors.json").read_text())
 

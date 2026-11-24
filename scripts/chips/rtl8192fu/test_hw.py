@@ -10,8 +10,8 @@ import usb.core
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "src"))
 
-from wifit3.chips.rtl8192fu import SUPPORTED_IDS
-from wifit3.chips.rtl8192fu.driver import RTL8192FUDriver
+from wifang.chips.rtl8192fu import SUPPORTED_IDS
+from wifang.chips.rtl8192fu.driver import RTL8192FUDriver
 
 
 async def run(duration: float, channel: int) -> int:

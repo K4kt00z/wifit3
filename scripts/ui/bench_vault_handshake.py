@@ -6,9 +6,9 @@ import time
 
 from make_vault_fixture import RSN_IE, data_frame, m1_m2, mac_bytes
 from vault_bench import bssid_of, open_vault, painted, select, terminal_size, wait_for
-from wifit3.models import AccessPoint, Handshake, HandshakeMessage
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.vault_table import VaultTable
+from wifang.models import AccessPoint, Handshake, HandshakeMessage
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.vault_table import VaultTable
 
 AKM_PSK = 2
 CLIENT = "02:00:00:0b:00:00"

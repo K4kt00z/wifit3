@@ -35,11 +35,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from wifit3.wlan.station import Association, WlanTransport, str_to_mac
-from wifit3.dot11.wsc.assoc_ie import WPS_REQ_REGISTRAR, wps_assoc_ie
-from wifit3.campaigns.wps.registrar import PinResult, WpsRegistrar
-from wifit3.wlan.array import WlanArray
-from wifit3.device.manager import wlan_ifaces, wlan_close
+from wifang.wlan.station import Association, WlanTransport, str_to_mac
+from wifang.dot11.wsc.assoc_ie import WPS_REQ_REGISTRAR, wps_assoc_ie
+from wifang.campaigns.wps.registrar import PinResult, WpsRegistrar
+from wifang.wlan.array import WlanArray
+from wifang.device.manager import wlan_ifaces, wlan_close
 
 
 def step(label: str) -> None:
@@ -105,7 +105,7 @@ def derive_wrong_pin(pin: str) -> str:
 async def discover_iface(debug: bool, card: str = ""):
     ifaces = wlan_ifaces()
     if not ifaces:
-        fail("No supported wifit3 card found. Plug it in (Zadig→WinUSB on Windows) and retry.")
+        fail("No supported wifang card found. Plug it in (Zadig→WinUSB on Windows) and retry.")
     if card:
         matches = [i for i in ifaces
                    if card.lower() in f"{i.name} {i.description}".lower()]
@@ -211,7 +211,7 @@ async def main_async(args) -> int:
         if args.campaign:
             from types import SimpleNamespace
 
-            from wifit3.campaigns.pin import WpsCampaign
+            from wifang.campaigns.pin import WpsCampaign
             target = found_ap or SimpleNamespace(bssid=bssid, ssid=ssid,
                                                  channel=channel, wps_locked=False)
             step(f"Run full WpsCampaign (up to {args.max_secs:.0f}s)")
@@ -283,7 +283,7 @@ def main() -> int:
                    help="assoc-request Privacy capability bit (auto: off for a WPS assoc)")
     p.add_argument("--scan-secs", type=float, default=6.0)
     p.add_argument("--attempt-gap", type=float, default=3.0, help="delay between the two attempts")
-    p.add_argument("--out", default="wifit3-wps-probe.pcap", help="pcap output path")
+    p.add_argument("--out", default="wifang-wps-probe.pcap", help="pcap output path")
     p.add_argument("--debug", action="store_true", help="verbose USB/driver logs")
     args = p.parse_args()
 
@@ -299,7 +299,7 @@ def main() -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     if not args.debug:
-        logging.getLogger("wifit3").setLevel(logging.INFO)
+        logging.getLogger("wifang").setLevel(logging.INFO)
     try:
         return asyncio.run(main_async(args))
     except KeyboardInterrupt:

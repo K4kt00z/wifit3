@@ -26,9 +26,9 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import rtw88_pcap_replay as rp
-from wifit3.chips.rtl8188ftv_dkms import rx
-from wifit3.dot11.packet import BeaconPacket
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.chips.rtl8188ftv_dkms import rx
+from wifang.dot11.packet import BeaconPacket
+from wifang.dot11.parser import WlanFrameParser
 
 LINKTYPE_IEEE802_11 = 105
 FCS_LEN = 4

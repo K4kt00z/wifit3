@@ -6,8 +6,8 @@ from textual import events
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 
-from wifit3.ui.screens.focus_v2.clients_list import ClientsList, ClientWidget, FingerprintModal
-from wifit3.id import Fingerprint
+from wifang.ui.screens.focus_v2.clients_list import ClientsList, ClientWidget, FingerprintModal
+from wifang.id import Fingerprint
 
 _MAC = "18:7f:88:aa:bb:cc"
 _RING = Fingerprint("🔔", "Ring device")

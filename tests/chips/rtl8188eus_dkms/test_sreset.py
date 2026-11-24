@@ -3,9 +3,9 @@ import asyncio
 
 import pytest
 
-from wifit3.chips.rtl8188eus_dkms import dig, powertrack, sreset
-from wifit3.chips.rtl8188eus_dkms import constants as C
-from wifit3.chips.rtl8188eus_dkms.driver import Rtl8188eusDkmsDriver
+from wifang.chips.rtl8188eus_dkms import dig, powertrack, sreset
+from wifang.chips.rtl8188eus_dkms import constants as C
+from wifang.chips.rtl8188eus_dkms.driver import Rtl8188eusDkmsDriver
 
 
 class OpTx:

@@ -20,7 +20,7 @@ class FakeT:
 
 
 def test_save_reload_round_trip():
-    from wifit3.chips.rtl8188ftv_dkms import iqk
+    from wifang.chips.rtl8188ftv_dkms import iqk
     reads = [0x100 + i for i in range(16)] + [0x1, 0x2, 0x3, 0x4] + \
         [0x200 + i for i in range(9)]
     t = FakeT(reads)
@@ -41,7 +41,7 @@ def test_save_reload_round_trip():
 
 
 def test_path_adda_on_mac_calibration():
-    from wifit3.chips.rtl8188ftv_dkms import iqk
+    from wifang.chips.rtl8188ftv_dkms import iqk
     t = FakeT([])
     iqk.path_adda_on(t)
     assert t.writes == [(a, 4, 0x03C00014) for a in iqk.ADDA_REG]
@@ -51,7 +51,7 @@ def test_path_adda_on_mac_calibration():
 
 
 def test_fill_path_a_matrix():
-    from wifit3.chips.rtl8188ftv_dkms import iqk
+    from wifang.chips.rtl8188ftv_dkms import iqk
     t = FakeT([0x390000E4, 0x390000E4, 0x7F037F, 0x0, 0x0, 0x390000E6,
                0x390000E6, 0x807F037F, 0xA07F037F, 0x40000100, 0x40000101,
                0x4000D501, 0x0, 0xF0000000])
@@ -67,7 +67,7 @@ def test_fill_path_a_matrix():
 def test_fill_path_a_matrix_sign_extends_xy():
     # halphyrf_8188f.c:1206-1221 — X/Y sign-extend from 10 bits before
     # the multiply. X=0x3F0, old=0x2C0 must land 0x3D4, not 0x2D4.
-    from wifit3.chips.rtl8188ftv_dkms import iqk
+    from wifang.chips.rtl8188ftv_dkms import iqk
     t = FakeT([0x2C0 << 22] + [0] * 10)
     st: dict = {}
     iqk.fill_path_a_matrix(t, st, [0x3F0, 0x200, 0, 0], tx_only=True)
@@ -77,7 +77,7 @@ def test_fill_path_a_matrix_sign_extends_xy():
 
 
 def test_similarity():
-    from wifit3.chips.rtl8188ftv_dkms import iqk
+    from wifang.chips.rtl8188ftv_dkms import iqk
     result = [[0x103, 0x2, 0x101, 0x3F5, 0, 0, 0, 0],
               [0x103, 0x2, 0x101, 0x3F5, 0, 0, 0, 0],
               [0] * 8, [0] * 8]

@@ -4,11 +4,11 @@ import pkgutil
 
 import pytest
 
-from wifit3 import chips
-from wifit3.chips.driver import Driver
-from wifit3.chips.rt2800usb.driver import RT2800USBDriver
-from wifit3.chips.rt5572.driver import RT5572Driver
-from wifit3.chips.rtw88_8814au.driver import RTL8814AUDriver
+from wifang import chips
+from wifang.chips.driver import Driver
+from wifang.chips.rt2800usb.driver import RT2800USBDriver
+from wifang.chips.rt5572.driver import RT5572Driver
+from wifang.chips.rtw88_8814au.driver import RTL8814AUDriver
 
 DRIVERS_WITHOUT_DFS = {RT2800USBDriver, RTL8814AUDriver}
 

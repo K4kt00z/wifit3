@@ -7,8 +7,8 @@ import threading
 import pytest
 import usb.core
 
-from wifit3.chips import rx_reader
-from wifit3.chips.rx_reader import RxReaderThread
+from wifang.chips import rx_reader
+from wifang.chips.rx_reader import RxReaderThread
 
 
 def _usb_error(*, errno=None, backend=None):

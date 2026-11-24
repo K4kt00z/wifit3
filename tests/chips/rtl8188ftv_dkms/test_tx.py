@@ -45,7 +45,7 @@ AP = bytes.fromhex("020000000002")
 
 
 def test_checksum_vectors():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     for desc in (PROBE_DESC, AUTH_DESC, DATA_DESC, SP_DATA_DESC,
                  DEAUTH_DESC):
         assert len(desc) == 40
@@ -56,19 +56,19 @@ def test_checksum_vectors():
 
 
 def test_build_probe_matches_recorded():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     assert tx.build_mgnt_desc(size=64, seq=0, bmc=True,
                               retry_limit=6) == PROBE_DESC
 
 
 def test_build_auth_matches_recorded():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     assert tx.build_mgnt_desc(size=30, seq=44, bmc=False,
                               retry_limit=6) == AUTH_DESC
 
 
 def test_build_deauth_matches_recorded():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     assert tx.build_mgnt_desc(size=26, seq=47, bmc=False,
                               retry_limit=12,
                               spe_rpt=True) == DEAUTH_DESC
@@ -77,7 +77,7 @@ def test_build_deauth_matches_recorded():
 
 
 def test_build_data_vectors_match_recorded():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     assert tx.build_tx_desc(size=108, seq=1, macid=0, qsel=0, rateid=6,
                             use_rate=False, tx_rate=0, retry_en=False,
                             retry_limit=0, bmc=False, agg_num=1,
@@ -90,7 +90,7 @@ def test_build_data_vectors_match_recorded():
 
 
 def test_zero_pad_rule():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     assert tx.needs_zero_pad(472) is True
     assert tx.needs_zero_pad(64) is False
     # enumerated bulk size drives the decision, not the 512 default:
@@ -117,7 +117,7 @@ def test_zero_pad_rule():
 
 
 def test_tx_urb_rejects_flag_mismatch():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     import pytest
     frame = b"\xc0" + bytes(471)  # 472 B: pad required
     plain = tx.build_mgnt_desc(size=472, seq=0, bmc=False)
@@ -129,7 +129,7 @@ def test_tx_urb_rejects_flag_mismatch():
 
 
 def test_seq_helpers_round_trip():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     frame = tx.build_deauth_frame(AP, CARD, AP, 0)
     assert tx.frame_seqnum(frame) == 0
     stamped = tx.stamp_seqnum(frame, 47)
@@ -138,7 +138,7 @@ def test_seq_helpers_round_trip():
 
 
 def test_inject_frame_sends_urb_and_advances_seq():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     t = FakeT()
     st = {"mgnt_seq": 0}
     frame = tx.stamp_seqnum(tx.build_deauth_frame(AP, CARD, AP, 0), 5)
@@ -151,7 +151,7 @@ def test_inject_frame_sends_urb_and_advances_seq():
 
 
 def test_inject_frame_sends_qos_data_with_monitor_template():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     t = FakeT()
     st = {"mgnt_seq": 7}
     qos = (bytes((0x88, 0x01, 0x00, 0x00)) + AP + CARD + AP
@@ -164,7 +164,7 @@ def test_inject_frame_sends_qos_data_with_monitor_template():
 
 
 def test_inject_frame_rejects_control_and_short():
-    from wifit3.chips.rtl8188ftv_dkms import tx
+    from wifang.chips.rtl8188ftv_dkms import tx
     t = FakeT()
     try:
         tx.inject_frame(t, {}, b"\xD4" + bytes(30))

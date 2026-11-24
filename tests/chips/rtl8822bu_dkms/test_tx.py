@@ -5,14 +5,14 @@ offsets + the XOR-16 checksum invariant directly — the strongest available off
 """
 from unittest.mock import MagicMock
 
-from wifit3.chips.rtl8822bu_dkms.constants import (
+from wifang.chips.rtl8822bu_dkms.constants import (
     DESC_RATE1M,
     DESC_RATE6M,
     RATEID_IDX_B,
     RATEID_IDX_G,
 )
-from wifit3.chips.rtl8822bu_dkms.driver import Rtl8822buDkmsDriver
-from wifit3.chips.rtl8822bu_dkms.tx import build_inject_txdesc
+from wifang.chips.rtl8822bu_dkms.driver import Rtl8822buDkmsDriver
+from wifang.chips.rtl8822bu_dkms.tx import build_inject_txdesc
 
 # A 26-byte deauth (FC=c0:00, dur, addr1=broadcast, addr2, addr3, seq) — addr1 multicast bit set.
 _DEAUTH_BCAST = bytes.fromhex(

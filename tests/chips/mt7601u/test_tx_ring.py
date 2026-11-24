@@ -8,16 +8,16 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.constants import MT_TX_STAT_FIFO
-from wifit3.chips.mt7601u.mcu import MT7601UMcu
-from wifit3.chips.mt7601u.tx import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.constants import MT_TX_STAT_FIFO
+from wifang.chips.mt7601u.mcu import MT7601UMcu
+from wifang.chips.mt7601u.tx import (
     TX_QUEUE_COUNT,
     TX_QUEUE_INBAND_CMD,
     TX_QUEUE_INJECT,
     TX_NO_STATION,
 )
-from wifit3.chips.mt7601u.tx_ring import TX_QUEUE_ENTRIES, TX_STATUS_HISTORY, TxQueue
+from wifang.chips.mt7601u.tx_ring import TX_QUEUE_ENTRIES, TX_STATUS_HISTORY, TxQueue
 
 FRAME = b"\x08\x00" + b"\x00" * 30
 """A 32-byte data frame, FC 0x0008: 24 bytes of MAC header plus an 8-byte body."""

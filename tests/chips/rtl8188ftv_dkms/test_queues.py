@@ -29,14 +29,14 @@ class FakeT:
 
 
 def test_queue_reserved_page_two_ep():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([])
     queues.init_queue_reserved_page(t, 0x05)
     assert t.writes == [(0x214, 1, 0x02), (0x200, 4, 0x80E9000C)]
 
 
 def test_tx_buffer_boundary():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([])
     queues.init_tx_buffer_boundary(t)
     assert t.writes == [(0x424, 1, 0xF8), (0x425, 1, 0xF8), (0x45D, 1, 0xF8),
@@ -44,14 +44,14 @@ def test_tx_buffer_boundary():
 
 
 def test_queue_priority_two_ep():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([0x0000])
     queues.init_queue_priority(t, 2, 0x05)
     assert t.writes == [(0x10C, 2, 0xFAF0)]
 
 
 def test_page_and_transfer_and_drvinfo():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([])
     queues.init_page_boundary(t)
     queues.init_transfer_page_size(t)
@@ -60,7 +60,7 @@ def test_page_and_transfer_and_drvinfo():
 
 
 def test_macaddr_networktype():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([0x00000000])
     queues.init_macaddr(t, bytes.fromhex("020000000001"))
     assert t.writes == [(0x610 + i, 1, b) for i, b in enumerate(bytes.fromhex("020000000001"))]
@@ -70,7 +70,7 @@ def test_macaddr_networktype():
 
 
 def test_wmac_filter_maps():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([])
     queues.init_wmac_setting(t)
     assert t.writes[0] == (0x608, 4, queues.RCR_ALL)
@@ -78,7 +78,7 @@ def test_wmac_filter_maps():
 
 
 def test_adaptive_edca_fallback_retry():
-    from wifit3.chips.rtl8188ftv_dkms import queues
+    from wifang.chips.rtl8188ftv_dkms import queues
     t = FakeT([0x00000000])
     queues.init_adaptive_ctrl(t)
     assert t.writes == [(0x440, 4, 0xFFFF1), (0x428, 2, 0x1010), (0x42A, 2, 0x3030)]

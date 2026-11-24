@@ -4,8 +4,8 @@ Locks the 24-byte RX-desc field positions, the aggregation walk (skip-and-contin
 _RND4), FCS stripping, and the CCK/OFDM RSSI decode. End-to-end RX is hardware-validated
 by a live beacon count (no pcap gate — RX is environment-dependent).
 """
-from wifit3.chips.rtl8188eus_dkms import rx
-from wifit3.chips.rtl8188eus_dkms.phy_cond import ODM_CUT_A, ODM_CUT_I
+from wifang.chips.rtl8188eus_dkms import rx
+from wifang.chips.rtl8188eus_dkms.phy_cond import ODM_CUT_A, ODM_CUT_I
 
 TSMC = (ODM_CUT_A, False, 0)            # (cut_version, ext_lna, type_glna)
 

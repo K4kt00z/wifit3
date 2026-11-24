@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from wifit3.crack.hc22000_format import hashline_id
-from wifit3.persist.meta import update_meta
+from wifang.crack.hc22000_format import hashline_id
+from wifang.persist.meta import update_meta
 
 
 def write_hashline_dates(ssid: Optional[str], bssid: str, epochs: dict[str, int]) -> None:

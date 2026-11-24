@@ -3,10 +3,10 @@ from textual.app import App
 from textual.containers import VerticalScroll
 from textual.widgets import Button, Input, Label, Select
 
-import wifit3.ui.vault.modals.hashtopolis as mod
-from wifit3.persist.config import Config
-from wifit3.ui.vault.modals.hashtopolis import HashtopolisConfigModal
-from wifit3.vault.tools.hashtopolis_api import AccessGroup, HashtopolisError, ServerFile
+import wifang.ui.vault.modals.hashtopolis as mod
+from wifang.persist.config import Config
+from wifang.ui.vault.modals.hashtopolis import HashtopolisConfigModal
+from wifang.vault.tools.hashtopolis_api import AccessGroup, HashtopolisError, ServerFile
 from tests.ui.wait_until import wait_until
 
 

@@ -6,9 +6,9 @@ are the enumeration + factory the bring-up engine drives.
 """
 import pytest
 
-import wifit3.device.manager as manager
+import wifang.device.manager as manager
 from tests.device.fakes import FakeBackend
-from wifit3.chips.driver import DeviceID
+from wifang.chips.driver import DeviceID
 
 
 @pytest.fixture(autouse=True)
@@ -25,89 +25,89 @@ def _driver_for(vid, pid):
 
 
 def test_rtl8821_default_is_dkms(monkeypatch):
-    monkeypatch.delenv("WIFIT3_RTL8821", raising=False)
+    monkeypatch.delenv("WIFANG_RTL8821", raising=False)
     assert _driver_for(0x0BDA, 0x0811) == "Rtl8821auDkmsDriver"
 
 
 def test_rtl8821_mainline_opt_in(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8821", "MainLine")   # case-insensitive
+    monkeypatch.setenv("WIFANG_RTL8821", "MainLine")   # case-insensitive
     assert _driver_for(0x0BDA, 0x0811) == "RTL8821AUDriver"
 
 
 def test_rtl8821_unknown_value_stays_dkms(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8821", "dkms")   # any non-"mainline" -> default DKMS
+    monkeypatch.setenv("WIFANG_RTL8821", "dkms")   # any non-"mainline" -> default DKMS
     assert _driver_for(0x0BDA, 0x0811) == "Rtl8821auDkmsDriver"
 
 
 def test_both_8821_drivers_claim_0811():
-    from wifit3.chips.rtl8821au_dkms import SUPPORTED_IDS
+    from wifang.chips.rtl8821au_dkms import SUPPORTED_IDS
     assert (0x0BDA, 0x0811) in {(e.vid, e.pid) for e in SUPPORTED_IDS}
 
 
 def test_rtl8814_default_is_dkms(monkeypatch):
-    monkeypatch.delenv("WIFIT3_RTL8814", raising=False)
+    monkeypatch.delenv("WIFANG_RTL8814", raising=False)
     assert _driver_for(0x0BDA, 0x8813) == "Rtl8814auDkmsDriver"
 
 
 def test_rtl8814_mainline_opt_in(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8814", "mainline")
+    monkeypatch.setenv("WIFANG_RTL8814", "mainline")
     assert _driver_for(0x0BDA, 0x8813) == "RTL8814AUDriver"
 
 
 def test_rtl8814_pair_claims_the_same_ids():
     """The DKMS port once claimed only 0bda:8813, so an Archer T9UH or a DWA-192 fell through
     to no driver at all unless the user opted into mainline."""
-    from wifit3.chips.rtl8814au_dkms import SUPPORTED_IDS as dkms
-    from wifit3.chips.rtw88_8814au import SUPPORTED_IDS as mainline
+    from wifang.chips.rtl8814au_dkms import SUPPORTED_IDS as dkms
+    from wifang.chips.rtw88_8814au import SUPPORTED_IDS as mainline
 
     assert {(e.vid, e.pid) for e in dkms} == {(e.vid, e.pid) for e in mainline}
     assert (0x2357, 0x0106) in {(e.vid, e.pid) for e in dkms}
 
 
 def test_rtl8812_default_is_dkms(monkeypatch):
-    monkeypatch.delenv("WIFIT3_RTL8812", raising=False)
+    monkeypatch.delenv("WIFANG_RTL8812", raising=False)
     assert _driver_for(0x0BDA, 0x8812) == "Rtl8812auDkmsDriver"
 
 
 def test_rtl8812_mainline_opt_in(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8812", "MainLine")   # case-insensitive
+    monkeypatch.setenv("WIFANG_RTL8812", "MainLine")   # case-insensitive
     assert _driver_for(0x0BDA, 0x8812) == "RTL8812AUDriver"
 
 
 def test_rtl8812_unknown_value_stays_dkms(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8812", "dkms")
+    monkeypatch.setenv("WIFANG_RTL8812", "dkms")
     assert _driver_for(0x0BDA, 0x8812) == "Rtl8812auDkmsDriver"
 
 
 def test_both_8812_drivers_claim_8812():
-    from wifit3.chips.rtl8812au_dkms import SUPPORTED_IDS
+    from wifang.chips.rtl8812au_dkms import SUPPORTED_IDS
     assert (0x0BDA, 0x8812) in {(e.vid, e.pid) for e in SUPPORTED_IDS}
 
 
 def test_rtl8822_default_is_dkms(monkeypatch):
-    monkeypatch.delenv("WIFIT3_RTL8822", raising=False)
+    monkeypatch.delenv("WIFANG_RTL8822", raising=False)
     assert _driver_for(0x2357, 0x0138) == "Rtl8822buDkmsDriver"
 
 
 def test_rtl8822_mainline_opt_in(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8822", "MainLine")   # case-insensitive
+    monkeypatch.setenv("WIFANG_RTL8822", "MainLine")   # case-insensitive
     assert _driver_for(0x2357, 0x0138) == "RTL8822BUDriver"
 
 
 def test_rtl8822_unknown_value_stays_dkms(monkeypatch):
-    monkeypatch.setenv("WIFIT3_RTL8822", "dkms")
+    monkeypatch.setenv("WIFANG_RTL8822", "dkms")
     assert _driver_for(0x2357, 0x0138) == "Rtl8822buDkmsDriver"
 
 
 def test_both_8822_drivers_claim_0138():
-    from wifit3.chips.rtl8822bu_dkms import SUPPORTED_IDS
+    from wifang.chips.rtl8822bu_dkms import SUPPORTED_IDS
     assert (0x2357, 0x0138) in {(e.vid, e.pid) for e in SUPPORTED_IDS}
 
 
 def test_rtl8822_t4u_v3_plus_uses_dkms_label(monkeypatch):
-    from wifit3.chips.products import TPLink
-    from wifit3.device import manager
-    monkeypatch.delenv("WIFIT3_RTL8822", raising=False)
+    from wifang.chips.products import TPLink
+    from wifang.device import manager
+    monkeypatch.delenv("WIFANG_RTL8822", raising=False)
     manager.supported_ids.cache_clear()
 
     cls, _key = manager.driver_for(0x2357, 0x0115)
@@ -162,7 +162,7 @@ def test_realtek_default_ids_claim_the_8822cu(pid):
 
 def test_the_alpha_id_stays_with_the_8822bu(monkeypatch):
     # 13b1:0043 is in the vendor 8822C table but commented out of ours: 88x2bu already claims it.
-    monkeypatch.delenv("WIFIT3_RTL8822", raising=False)
+    monkeypatch.delenv("WIFANG_RTL8822", raising=False)
     assert _driver_for(0x13B1, 0x0043) == "Rtl8822buDkmsDriver"
 
 
@@ -219,7 +219,7 @@ class _FakeDriver:
 def _stub_bus(monkeypatch, devs):
     monkeypatch.setattr(manager, "usb_backend", lambda: FakeBackend(devs))
     # Isolate from the host's real PnP tree on Windows (devices() merges it in).
-    monkeypatch.setattr("wifit3.device.windows_pnp.present_usb_ids", lambda: set())
+    monkeypatch.setattr("wifang.device.windows_pnp.present_usb_ids", lambda: set())
     # Isolate from the host's real PCIe netdev tree on Linux (devices() merges it in).
     monkeypatch.setattr(manager, "_pci_netdev_devices", lambda smap: [])
 
@@ -316,7 +316,7 @@ def test_linux_node_path_first_match_for_catalog_entry(monkeypatch):
 
 
 def test_vidpid_regex_parses_windows_instance_id():
-    from wifit3.device.windows_pnp import _VIDPID
+    from wifang.device.windows_pnp import _VIDPID
     m = _VIDPID.search(r"USB\VID_0BDA&PID_1A2B\5&3207d635&0&6")
     assert (int(m.group(1), 16), int(m.group(2), 16)) == (0x0BDA, 0x1A2B)
 
@@ -327,7 +327,7 @@ def _claim(vid, pid):
 
 def test_pnp_only_devices_surfaces_present_driverless_card(monkeypatch):
     monkeypatch.setattr(manager.sys, "platform", "win32")
-    monkeypatch.setattr("wifit3.device.windows_pnp.present_usb_ids",
+    monkeypatch.setattr("wifang.device.windows_pnp.present_usb_ids",
                         lambda: {(0x0B05, 0x1D84), (0x1234, 0x5678)})   # second is unsupported
     smap = {(0x0B05, 0x1D84): _claim(0x0B05, 0x1D84)}
     out = manager._pnp_only_devices(smap, set())
@@ -337,7 +337,7 @@ def test_pnp_only_devices_surfaces_present_driverless_card(monkeypatch):
 
 def test_pnp_only_devices_skips_ids_libusb_already_saw(monkeypatch):
     monkeypatch.setattr(manager.sys, "platform", "win32")
-    monkeypatch.setattr("wifit3.device.windows_pnp.present_usb_ids", lambda: {(0x0B05, 0x1D84)})
+    monkeypatch.setattr("wifang.device.windows_pnp.present_usb_ids", lambda: {(0x0B05, 0x1D84)})
     smap = {(0x0B05, 0x1D84): _claim(0x0B05, 0x1D84)}
     assert manager._pnp_only_devices(smap, {(0x0B05, 0x1D84)}) == []
 

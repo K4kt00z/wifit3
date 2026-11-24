@@ -9,7 +9,7 @@ import random
 
 import pytest
 
-from wifit3.crack.wep import (
+from wifang.crack.wep import (
     ARP_REQUEST_PLAINTEXT,
     PtwCracker,
     keystream_from_arp_cipher,

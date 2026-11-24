@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Callable
 
-from wifit3.chips.rtl8192fu.core import Rtl8xxxuPriv
-from wifit3.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
+from wifang.chips.rtl8192fu.core import Rtl8xxxuPriv
+from wifang.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
 
 
 class FakeTransport:

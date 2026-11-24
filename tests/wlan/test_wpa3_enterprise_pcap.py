@@ -3,7 +3,7 @@ and assert the RSN/AKM classification per BSSID."""
 import pytest
 
 from tests.fixtures.make_wpa3_enterprise_pcap import beacons
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.dot11.parser import WlanFrameParser
 
 # BSSID -> (encryption label, wpa3, transition_mode) the parser must produce.
 EXPECTED = {

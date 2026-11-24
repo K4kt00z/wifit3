@@ -1,4 +1,4 @@
-"""Broadcom wps_monitor vs hostapd differential from qkaiser/broadcom-wps broadcom_fingerprint.py, on wifit3's drivers.
+"""Broadcom wps_monitor vs hostapd differential from qkaiser/broadcom-wps broadcom_fingerprint.py, on wifang's drivers.
 
     uv run python scripts/bcom/fragment_probe.py --ssid MyRouter
     uv run python scripts/bcom/fragment_probe.py --bssid 11:22:33:44:55:66
@@ -26,15 +26,15 @@ sys.path.insert(0, str(_HERE.parent))  # scripts/ for dev.py
 
 from dev import select_device
 
-from wifit3.wlan.station import Association, WlanTransport, build_client_leaving
-from wifit3.campaigns.probe.broadcom_wps import RESPONSE_TIMEOUT, WpsImplementation, enter_wps, send_fragment
-from wifit3.device.manager import wlan_close, wlan_ifaces
-from wifit3.dot11 import str_to_mac
-from wifit3.dot11.wsc import messages as M
-from wifit3.dot11.wsc.assoc_ie import WPS_REQ_ENROLLEE, wps_assoc_ie
-from wifit3.models import AccessPoint
-from wifit3.persist.pcap import write_pcap
-from wifit3.wlan.array import WlanArray
+from wifang.wlan.station import Association, WlanTransport, build_client_leaving
+from wifang.campaigns.probe.broadcom_wps import RESPONSE_TIMEOUT, WpsImplementation, enter_wps, send_fragment
+from wifang.device.manager import wlan_close, wlan_ifaces
+from wifang.dot11 import str_to_mac
+from wifang.dot11.wsc import messages as M
+from wifang.dot11.wsc.assoc_ie import WPS_REQ_ENROLLEE, wps_assoc_ie
+from wifang.models import AccessPoint
+from wifang.persist.pcap import write_pcap
+from wifang.wlan.array import WlanArray
 
 SCAN_SECONDS = 6.0
 HOP_INTERVAL = 0.5

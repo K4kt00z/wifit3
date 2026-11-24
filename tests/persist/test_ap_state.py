@@ -5,13 +5,13 @@ import os
 import time
 from pathlib import Path
 
-from wifit3.crack import wpa_psk
-from wifit3.crack.hc22000_format import hashline_id, parse_hc22000
-from wifit3.dot11.eapol import LLC_SNAP_EAPOL, data_header, set_mic
-from wifit3.dot11.wpa import derive_pmk
-from wifit3.models import CaptureType, PersistedCapture
-from wifit3.persist.capture_history import load_capture_index
-from wifit3.persist.ap_state import (
+from wifang.crack import wpa_psk
+from wifang.crack.hc22000_format import hashline_id, parse_hc22000
+from wifang.dot11.eapol import LLC_SNAP_EAPOL, data_header, set_mic
+from wifang.dot11.wpa import derive_pmk
+from wifang.models import CaptureType, PersistedCapture
+from wifang.persist.capture_history import load_capture_index
+from wifang.persist.ap_state import (
     DatedHashline,
     Key,
     LiveVerification,
@@ -24,8 +24,8 @@ from wifit3.persist.ap_state import (
     record_hashlines_captured,
     record_live_verification,
 )
-from wifit3.persist.meta import meta_path, read_meta, update_meta
-from wifit3.persist.pcap import write_pcap
+from wifang.persist.meta import meta_path, read_meta, update_meta
+from wifang.persist.pcap import write_pcap
 from tests.hashline_dates import write_hashline_dates
 
 # hashcat wiki example_hashes, mode 22000 (password "hashcat!"); message pair a2 = M2+M3.
@@ -206,14 +206,14 @@ def test_a_loaded_state_carries_each_keys_status(tmp_path):
 
 
 def _write_aggregate(ssid: str, *lines: str) -> Path:
-    from wifit3.persist.config import Config
+    from wifang.persist.config import Config
     path = Path(Config.captures_dir) / f"{ssid}_{_DASHED}.hc22000"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
 def _write_psk(ssid: str, epoch: int, psk: str) -> None:
-    from wifit3.persist.config import Config
+    from wifang.persist.config import Config
     (Path(Config.captures_dir) / f"{ssid}_{_DASHED}_{epoch}_wpa_psk.txt").write_text(
         f"SSID: {ssid}\nBSSID: {_BSSID}\nPSK: {psk}\n", encoding="utf-8")
 

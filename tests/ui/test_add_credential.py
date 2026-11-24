@@ -1,8 +1,8 @@
 """Validation of a credential typed into the Vault's Add Credential modal."""
 import pytest
 
-from wifit3.models import CaptureType
-from wifit3.ui.vault.modals.add_credential import credential_error
+from wifang.models import CaptureType
+from wifang.ui.vault.modals.add_credential import credential_error
 
 _BSSID = "aa:bb:cc:dd:ee:ff"
 

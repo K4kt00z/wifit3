@@ -1,6 +1,6 @@
 """Unit tests for ui/pmkid_log.py: the active PMKID harvest tree markup."""
-from wifit3.campaigns.pmkid import PmkidFail
-from wifit3.ui.pmkid_log import render_failure, render_success
+from wifang.campaigns.pmkid import PmkidFail
+from wifang.ui.pmkid_log import render_failure, render_success
 
 _ESSID = "TESTNET"
 _HEADER = "[bold]Harvesting PMKID[/bold] from [bold cyan]TESTNET[/bold cyan]"

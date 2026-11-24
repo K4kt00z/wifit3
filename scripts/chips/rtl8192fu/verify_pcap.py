@@ -20,8 +20,8 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import rtw88_pcap_replay as rp
-from wifit3.chips.rtl8192fu import constants as C
-from wifit3.chips.rtl8192fu.core import (
+from wifang.chips.rtl8192fu import constants as C
+from wifang.chips.rtl8192fu.core import (
     MONITOR_FILTER_FLAGS,
     Rtl8xxxuPriv,
     rtl8xxxu_config,
@@ -32,14 +32,14 @@ from wifit3.chips.rtl8192fu.core import (
     rtl8xxxu_sw_scan_complete,
     rtl8xxxu_sw_scan_start,
 )
-from wifit3.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
-from wifit3.chips.rtl8192fu.rx import rtl8xxxu_parse_rxdesc24
-from wifit3.chips.rtl8192fu.transport import RTL8192FUTransport
-from wifit3.chips.rtl8192fu.tx import RTL8XXXU_TXDESC40_SIZE, rtl8xxxu_tx
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
+from wifang.chips.rtl8192fu.rx import rtl8xxxu_parse_rxdesc24
+from wifang.chips.rtl8192fu.transport import RTL8192FUTransport
+from wifang.chips.rtl8192fu.tx import RTL8XXXU_TXDESC40_SIZE, rtl8xxxu_tx
+from wifang.dot11.parser import WlanFrameParser
 
 CAP_DIR = REPO / "driver_captures" / "captures_rtl8xxxu_8192fu"
-FIRMWARE = REPO / "src/wifit3/chips/rtl8192fu/assets/rtl8192fufw.bin"
+FIRMWARE = REPO / "src/wifang/chips/rtl8192fu/assets/rtl8192fufw.bin"
 
 
 class ReplayTransport(rp.ReplayTransport):

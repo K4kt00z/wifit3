@@ -1,7 +1,7 @@
 """Spec tests for the channel -> operating-class + band helpers (IEEE 802.11-2020 Annex E)."""
 import pytest
 
-from wifit3.dot11.chan import channel_operating_class, is_dfs_channel, same_band
+from wifang.dot11.chan import channel_operating_class, is_dfs_channel, same_band
 
 
 def test_channel_operating_class_2ghz_and_5ghz():

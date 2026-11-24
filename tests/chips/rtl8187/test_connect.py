@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import wifit3.chips.rtl8187.driver as drv
-from wifit3.chips.rtl8187.constants import HwRev
-from wifit3.chips.rtl8187.mac import ChipVariant
-from wifit3.chips.rtl8187.probe import ProbeResult
-from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower
+import wifang.chips.rtl8187.driver as drv
+from wifang.chips.rtl8187.constants import HwRev
+from wifang.chips.rtl8187.mac import ChipVariant
+from wifang.chips.rtl8187.probe import ProbeResult
+from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower
 
 _POWER = TxPower(hw_value=tuple([0x55] * 14), base=0x36)
 _SETUP = RfSetup(asic_rev=1, variant=RfVariant.RTL8225Z2, hw_rev=None)
@@ -115,7 +115,7 @@ async def test_connect_fails_when_radio_switch_reads_off(monkeypatch):
 
     import pytest
 
-    from wifit3.errors import BringUpError
+    from wifang.errors import BringUpError
 
     calls: list[tuple] = []
     d = _mock_bring_up(monkeypatch, calls)
@@ -130,7 +130,7 @@ async def test_connect_fails_when_radio_switch_reads_off(monkeypatch):
 
 
 def test_from_usb_device_reads_driver_info_from_the_id_entry():
-    from wifit3.models.device_id import DeviceID
+    from wifang.models.device_id import DeviceID
 
     b = drv.RTL8187Driver.from_usb_device(MagicMock(), DeviceID(0x0846, 0x4260, "RTL8187B"))
     l_ = drv.RTL8187Driver.from_usb_device(MagicMock(), DeviceID(0x0BDA, 0x8187, "RTL8187L"))

@@ -4,8 +4,8 @@ from textual.app import App, ComposeResult
 from textual.reactive import reactive
 from textual.widgets import Label
 
-from wifit3.models.jobs import JobAction, JobState, ToolStatus
-from wifit3.ui.vault.job_pane import (
+from wifang.models.jobs import JobAction, JobState, ToolStatus
+from wifang.ui.vault.job_pane import (
     JobActionButton, JobPauseButton, JobRow, JobSkipButton, JobTrackerPane,
 )
 
@@ -117,7 +117,7 @@ def test_pause_button_offers_resume_to_a_paused_job_and_nothing_to_an_unreachabl
 
 
 class JobPaneApp(App):
-    """Just the tracker pane, with the app-wide button minimum used by Wifit3."""
+    """Just the tracker pane, with the app-wide button minimum used by Wifang."""
 
     CSS = """
     Button { min-width: 12; margin-right: 1; }

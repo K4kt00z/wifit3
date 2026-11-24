@@ -18,11 +18,11 @@ sys.path.insert(0, str(_HERE.parent))  # scripts/ for dev.py
 
 from dev import select_device
 
-from wifit3.device.manager import wlan_close, wlan_ifaces
-from wifit3.dot11.ie import iter_information_elements
-from wifit3.dot11.packet import Packet
-from wifit3.dot11.wsc.messages import iter_wsc_tlvs
-from wifit3.id import VENDOR_BY_OUI
+from wifang.device.manager import wlan_close, wlan_ifaces
+from wifang.dot11.ie import iter_information_elements
+from wifang.dot11.packet import Packet
+from wifang.dot11.wsc.messages import iter_wsc_tlvs
+from wifang.id import VENDOR_BY_OUI
 
 BEACON_IE_OFFSET = 36  # 24-byte header + 12-byte fixed params
 WPS_OUI_TYPE = bytes.fromhex("0050f204")

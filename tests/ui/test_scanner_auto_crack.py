@@ -1,10 +1,10 @@
 """The Scanner logs an automatic job's recovered key and the auto-crack preference state."""
 import pytest
 
-from wifit3.models.jobs import JobState, ToolStatus
-from wifit3.persist.config import Config
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.models.jobs import JobState, ToolStatus
+from wifang.persist.config import Config
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.scanner import ScannerView
 
 
 async def _scanner(app: WifiteApp, pilot) -> ScannerView:

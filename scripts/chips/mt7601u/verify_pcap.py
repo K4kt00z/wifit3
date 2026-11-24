@@ -20,7 +20,7 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import mt76_verify_replay as E
-from wifit3.chips.mt7601u.constants import (
+from wifang.chips.mt7601u.constants import (
     MT_BBP_CSR_CFG,
     MT_BBP_CSR_CFG_REG_NUM,
     MT_RF_CSR_CFG,
@@ -42,21 +42,21 @@ from wifit3.chips.mt7601u.constants import (
     MT_TXD_INFO_LEN,
     _field_get,
 )
-from wifit3.chips.mt7601u.driver import MT7601UDriver
-from wifit3.chips.mt7601u.eeprom import MT7601UEepromParams
-from wifit3.chips.mt7601u.cal import phy_calibrate
-from wifit3.chips.mt7601u.mac import MacStats, mac_work
-from wifit3.chips.mt7601u.phy import (
+from wifang.chips.mt7601u.driver import MT7601UDriver
+from wifang.chips.mt7601u.eeprom import MT7601UEepromParams
+from wifang.chips.mt7601u.cal import phy_calibrate
+from wifang.chips.mt7601u.mac import MacStats, mac_work
+from wifang.chips.mt7601u.phy import (
     FREQ_PLAN,
     FREQ_PLAN_BASE_REG,
     FREQ_PLAN_REGS,
 )
-from wifit3.chips.mt7601u.rx import (
+from wifang.chips.mt7601u.rx import (
     MT_FCE_INFO_LEN,
     iter_frames,
     next_segment_len,
 )
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.dot11.parser import WlanFrameParser
 
 DEFAULT_CAP = "driver_captures/captures_mt7601u_superwang/capture-1.pcap"
 
@@ -464,7 +464,7 @@ async def _run_bringup(walk: E.Walk, endpoints: list[_Endpoint], state: dict) ->
 
 def run(cap: str | None = None, verbose: bool = False) -> int:
     if not verbose:
-        logging.getLogger("wifit3").setLevel(logging.CRITICAL)
+        logging.getLogger("wifang").setLevel(logging.CRITICAL)
     _real_sleep, time.sleep = time.sleep, lambda *a, **k: None
     _real_asleep = asyncio.sleep
 

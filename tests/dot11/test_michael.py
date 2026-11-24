@@ -1,6 +1,6 @@
 """Michael MIC (IEEE 802.11i) test vectors: the chained key->digest sequence
 from `crypto/testmgr.h` (Linux kernel), sourced to IEEE 802.11i."""
-from wifit3.dot11.michael import michael, michael_key_from_mic
+from wifang.dot11.michael import michael, michael_key_from_mic
 
 # Each entry's digest becomes the next entry's key, exactly as chained in the
 # kernel's michael_mic_tv_template.

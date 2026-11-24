@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.eeprom import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.eeprom import (
     _is_valid_ether_addr,
     _random_ether_addr,
     EepromError,

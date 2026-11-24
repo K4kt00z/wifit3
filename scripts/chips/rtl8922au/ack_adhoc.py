@@ -17,7 +17,7 @@ import argparse
 import asyncio
 
 import _amlib as L
-from wifit3.dot11 import build_deauth
+from wifang.dot11 import build_deauth
 
 FORGED = bytes.fromhex("02acac000001")
 

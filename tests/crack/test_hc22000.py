@@ -1,12 +1,12 @@
 """Hashcat ``-m 22000`` hashline format and parser tests."""
 
-from wifit3.crack.hc22000_format import (
+from wifang.crack.hc22000_format import (
     eapol_hashlines,
     parse_hc22000,
     pmkid_hashline,
     read_hc22000,
 )
-from wifit3.models import HandshakeMessage, Handshake
+from wifang.models import HandshakeMessage, Handshake
 
 
 # ---- Test fixtures --------------------------------------------------------------

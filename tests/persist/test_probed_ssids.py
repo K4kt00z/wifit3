@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.persist.config import Config
-from wifit3.persist.probed_ssids import FILE_NAME, ProbedSsidFile
+from wifang.persist.config import Config
+from wifang.persist.probed_ssids import FILE_NAME, ProbedSsidFile
 
 
 @pytest.fixture

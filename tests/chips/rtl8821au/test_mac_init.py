@@ -13,7 +13,7 @@ from __future__ import annotations
 
 
 
-from wifit3.chips.rtl8821au.constants import (
+from wifang.chips.rtl8821au.constants import (
     BIT_LD_RQPN,
     BIT_MACRXEN,
     BIT_MACTXEN,
@@ -35,8 +35,8 @@ from wifit3.chips.rtl8821au.constants import (
     BIT_CBSSID_DATA,
     WLAN_TBTT_TIME,
 )
-from wifit3.chips.rtl8821au.fifo import set_trx_fifo_info
-from wifit3.chips.rtl8821au.mac import (
+from wifang.chips.rtl8821au.fifo import set_trx_fifo_info
+from wifang.chips.rtl8821au.mac import (
     apply_monitor_rx_filter,
     init_edca,
     init_queue_priority,

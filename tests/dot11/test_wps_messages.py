@@ -7,8 +7,8 @@ test_wps_registrar.py; on-air correctness is proven by wps_probe.py.
 
 import struct
 
-from wifit3.dot11.wsc import messages as M
-from wifit3.dot11.wsc import crypto as wc
+from wifang.dot11.wsc import messages as M
+from wifang.dot11.wsc import crypto as wc
 
 
 def test_tlv_roundtrip():
@@ -215,7 +215,7 @@ def test_wsc_2_0_rides_in_every_registrar_message():
 
 
 def test_assoc_ie_advertises_wsc_2_0_only_when_asked():
-    from wifit3.dot11.wsc.assoc_ie import WPS_REQ_REGISTRAR, wps_assoc_ie
+    from wifang.dot11.wsc.assoc_ie import WPS_REQ_REGISTRAR, wps_assoc_ie
     v1 = wps_assoc_ie(WPS_REQ_REGISTRAR, False)
     v2 = wps_assoc_ie(WPS_REQ_REGISTRAR, True)
     assert v1.hex() == "dd0e0050f204104a000110103a000102"
@@ -224,8 +224,8 @@ def test_assoc_ie_advertises_wsc_2_0_only_when_asked():
 
 
 def test_registrar_and_enrollee_take_rf_bands_from_their_channel():
-    from wifit3.campaigns.wps.enrollee import WpsEnrollee
-    from wifit3.campaigns.wps.registrar import WpsRegistrar
+    from wifang.campaigns.wps.enrollee import WpsEnrollee
+    from wifang.campaigns.wps.registrar import WpsRegistrar
     b, sta = b"B" * 6, b"S" * 6
     assert WpsRegistrar(None, b, sta, channel=44, wsc_2_0=True).rf_bands == M.RF_BAND_5GHZ
     assert WpsRegistrar(None, b, sta, channel=6, wsc_2_0=False).rf_bands == M.RF_BAND_24GHZ

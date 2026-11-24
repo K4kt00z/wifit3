@@ -11,11 +11,11 @@ import pytest_asyncio
 from textual.app import App
 from textual.reactive import reactive
 
-from wifit3.models.jobs import JobState, ToolStatus
-from wifit3.ui import focus_model as fm
-from wifit3.ui.screens.focus_v2 import FocusViewV2
-from wifit3.ui.vault.global_tracker import GlobalJobTracker
-from wifit3.ui.screens.focus_v2.art import BreathingArt, art_size, breathe
+from wifang.models.jobs import JobState, ToolStatus
+from wifang.ui import focus_model as fm
+from wifang.ui.screens.focus_v2 import FocusViewV2
+from wifang.ui.vault.global_tracker import GlobalJobTracker
+from wifang.ui.screens.focus_v2.art import BreathingArt, art_size, breathe
 
 _TOPBAR_H = 3
 _CHROME_H = 2          # Header (1 row) + Footer (1 row)
@@ -298,8 +298,8 @@ def test_breathe_changes_green_leds():
 def test_art_pure_black_is_transparent():
     """The .ans negative space is pure black; the loader must drop it so the art
     blends into the theme surface instead of painting a black rectangle."""
-    from wifit3.ui.ansi_art import is_black
-    from wifit3.ui.screens.focus_v2.art import _transparent
+    from wifang.ui.ansi_art import is_black
+    from wifang.ui.screens.focus_v2.art import _transparent
 
     for name in ("focus-card.ans", "focus-ap.ans"):
         for span in _transparent(name).spans:
@@ -310,7 +310,7 @@ def test_art_pure_black_is_transparent():
 def test_flicker_spikes_above_the_breathe_band():
     """A packet flicker must be unmistakably brighter than the dim idle breathe,
     so activity reads as a spike, not a slightly-brighter glow."""
-    from wifit3.ui.screens.focus_v2.art import (
+    from wifang.ui.screens.focus_v2.art import (
         _BREATHE_HI, _BREATHE_LO, _FLICKER_GREEN, _breathe_green,
     )
     assert _breathe_green(0.0) == _BREATHE_LO

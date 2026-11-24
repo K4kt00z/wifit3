@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u import initvals_mac, initvals_phy
-from wifit3.chips.mt7601u.eeprom import MT7601UEepromParams
-from wifit3.chips.mt7601u.init import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u import initvals_mac, initvals_phy
+from wifang.chips.mt7601u.eeprom import MT7601UEepromParams
+from wifang.chips.mt7601u.init import (
     BEACON_OFFSETS,
     MT_USB_AGGR_SIZE_LIMIT,
     MT_USB_AGGR_TIMEOUT,
@@ -25,8 +25,8 @@ from wifit3.chips.mt7601u.init import (
     BringUpError,
     MT7601UInit,
 )
-from wifit3.chips.mt7601u.mcu import MT7601UMcu
-from wifit3.chips.mt7601u.phy import MT7601UPhy
+from wifang.chips.mt7601u.mcu import MT7601UMcu
+from wifang.chips.mt7601u.phy import MT7601UPhy
 
 
 class RecordingTransport:

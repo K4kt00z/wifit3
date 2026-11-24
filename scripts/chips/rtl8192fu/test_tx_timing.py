@@ -15,10 +15,10 @@ import usb.core
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "src"))
 
-from wifit3.chips.rtl8192fu import SUPPORTED_IDS
-from wifit3.chips.rtl8192fu.driver import RTL8192FUDriver
-from wifit3.dot11 import build_deauth, str_to_mac
-from wifit3.dot11.deauth import deauth_nav_bytes
+from wifang.chips.rtl8192fu import SUPPORTED_IDS
+from wifang.chips.rtl8192fu.driver import RTL8192FUDriver
+from wifang.dot11 import build_deauth, str_to_mac
+from wifang.dot11.deauth import deauth_nav_bytes
 
 USB_SLOW_SECONDS = 0.100
 

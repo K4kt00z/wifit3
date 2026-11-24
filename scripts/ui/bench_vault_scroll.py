@@ -7,7 +7,7 @@ import time
 from textual import events
 
 from vault_bench import aps, bssid_at, open_vault, painted, shown_state, terminal_size, wait_for
-from wifit3.ui.app import WifiteApp
+from wifang.ui.app import WifiteApp
 
 
 async def main() -> None:

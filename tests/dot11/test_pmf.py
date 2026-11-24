@@ -1,7 +1,7 @@
 import pytest
 
-from wifit3.dot11.pmf import PmfPosture
-from wifit3.models import AccessPoint
+from wifang.dot11.pmf import PmfPosture
+from wifang.models import AccessPoint
 
 
 @pytest.mark.parametrize(

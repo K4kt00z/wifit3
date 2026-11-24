@@ -34,12 +34,12 @@ sys.path.insert(0, str(_HERE.parent.parent / "src"))
 sys.path.insert(0, str(_HERE.parent))
 
 from dev import select_device
-from wifit3.campaigns.probe import probe_ap
-from wifit3.campaigns.probe.broadcom_wps import probe_wps_implementation
-from wifit3.device.manager import wlan_ifaces, wlan_close
-from wifit3.dot11 import mac_to_str, str_to_mac
-from wifit3.dot11.packet import AssocRespPacket, AuthPacket, DeauthPacket, Packet
-from wifit3.wlan.array import WlanArray
+from wifang.campaigns.probe import probe_ap
+from wifang.campaigns.probe.broadcom_wps import probe_wps_implementation
+from wifang.device.manager import wlan_ifaces, wlan_close
+from wifang.dot11 import mac_to_str, str_to_mac
+from wifang.dot11.packet import AssocRespPacket, AuthPacket, DeauthPacket, Packet
+from wifang.wlan.array import WlanArray
 
 BEACON_WAIT_S = 5.0
 RUN_PAUSE_S = 0.0

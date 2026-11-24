@@ -4,19 +4,19 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from wifit3.campaigns.decloak import (
+from wifang.campaigns.decloak import (
     SIBLING_SUFFIXES,
     DecloakCampaign,
     DecloakInput,
     KnownDecloakCampaign,
     candidates_from_sibling,
 )
-from wifit3.wlan.station import AssocState
-from wifit3.models import AccessPoint
-from wifit3.persist.config import Config
-from wifit3.wlan.array import WlanArray
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.probe import probe_req
+from wifang.wlan.station import AssocState
+from wifang.models import AccessPoint
+from wifang.persist.config import Config
+from wifang.wlan.array import WlanArray
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.probe import probe_req
 
 _BSSID = "aa:bb:cc:dd:ee:ff"
 

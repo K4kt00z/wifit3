@@ -1,6 +1,6 @@
 """Family selection for RTL8188FTV: the DKMS port claims 0bda:f179."""
-from wifit3.chips.rtl8188ftv_dkms import SUPPORTED_IDS
-from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+from wifang.chips.rtl8188ftv_dkms import SUPPORTED_IDS
+from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
 
 
 def test_claims_f179():
@@ -8,7 +8,7 @@ def test_claims_f179():
 
 
 def test_f179_resolves_to_dkms():
-    from wifit3.device import manager
+    from wifang.device import manager
     manager.supported_ids.cache_clear()
     try:
         claim = manager.driver_for(0x0BDA, 0xF179)

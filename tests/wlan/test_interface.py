@@ -5,7 +5,7 @@ import asyncio
 
 import usb.core
 
-from wifit3.wlan.interface import WlanInterface
+from wifang.wlan.interface import WlanInterface
 
 
 def test_rx_callback_can_unregister_without_skipping_next_subscriber(mocker):

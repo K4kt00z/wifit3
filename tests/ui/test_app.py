@@ -3,19 +3,19 @@ import threading
 
 import pytest
 
-from wifit3.chips.driver import DeviceID
-from wifit3.models import AccessPoint
-from wifit3.persist import ap_state
-from wifit3.persist.vault import Vault
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.splash import SplashView
-from wifit3.ui.screens.scanner import ScannerView
-from wifit3.ui.screens.vault_drawer import VaultDrawer
+from wifang.chips.driver import DeviceID
+from wifang.models import AccessPoint
+from wifang.persist import ap_state
+from wifang.persist.vault import Vault
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.splash import SplashView
+from wifang.ui.screens.scanner import ScannerView
+from wifang.ui.screens.vault_drawer import VaultDrawer
 from textual.widgets import Button, RichLog
 from textual.worker import WorkerCancelled
 from textual.widgets._header import HeaderTitle
 
-from wifit3.ui.ap_table import APTable
+from wifang.ui.ap_table import APTable
 from tests.ui.wait_until import wait_until
 
 
@@ -160,7 +160,7 @@ async def test_app_layout_and_boot():
     app = WifiteApp()
     async with app.run_test() as pilot:
         # Check Title
-        assert pilot.app.title.startswith("wifit3")
+        assert pilot.app.title.startswith("wifang")
         
         # Verify we start on the Splash screen
         assert isinstance(pilot.app.screen, SplashView)

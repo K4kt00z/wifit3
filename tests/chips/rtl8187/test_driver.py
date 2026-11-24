@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from wifit3.chips.rtl8187.constants import (
+from wifang.chips.rtl8187.constants import (
     CMD_RX_ENABLE,
     CMD_TX_ENABLE,
     HWVER_DEFAULT_NAME,
@@ -19,9 +19,9 @@ from wifit3.chips.rtl8187.constants import (
     USB_PID_RTL8187,
     USB_VID_REALTEK,
 )
-from wifit3.chips.rtl8187 import SUPPORTED_IDS
-from wifit3.chips.rtl8187.driver import RTL8187Driver
-from wifit3.chips.rtl8187.mac import (
+from wifang.chips.rtl8187 import SUPPORTED_IDS
+from wifang.chips.rtl8187.driver import RTL8187Driver
+from wifang.chips.rtl8187.mac import (
     cold_bring_up,
     detect_chip_variant,
     is_chip_warm,
@@ -55,7 +55,7 @@ class FakeTransport:
 
 
 def test_supported_ids_mirror_rtl8187_table_driver_info():
-    from wifit3.device.manager import supported_ids
+    from wifang.device.manager import supported_ids
 
     rtl8187b = {(0x0BDA, 0x8189), (0x0BDA, 0x8197), (0x0BDA, 0x8198), (0x050D, 0x705E),
                 (0x0846, 0x4260), (0x0DF6, 0x0028), (0x0DF6, 0x0029), (0x1737, 0x0073)}
@@ -168,7 +168,7 @@ class RecordingTransport(FakeTransport):
 
 
 def _read_rx_conf(t) -> int:
-    from wifit3.chips.rtl8187.constants import REG_RX_CONF
+    from wifang.chips.rtl8187.constants import REG_RX_CONF
     return (t.regs.get(REG_RX_CONF, 0) | (t.regs.get(REG_RX_CONF + 1, 0) << 8)
             | (t.regs.get(REG_RX_CONF + 2, 0) << 16) | (t.regs.get(REG_RX_CONF + 3, 0) << 24))
 
@@ -178,8 +178,8 @@ def test_start_writes_station_baseline_no_monitor(monkeypatch):
     0x9094FC0A, with NO monitor bit. Monitor mode is entered separately by
     configure_filter (the airmon path). Folding monitor into start() (an earlier port's
     bug) both mis-ordered the write and dropped the CTRL bit airmon also requests."""
-    import wifit3.chips.rtl8187.mac as mac
-    from wifit3.chips.rtl8187.constants import RX_CONF_MONITOR
+    import wifang.chips.rtl8187.mac as mac
+    from wifang.chips.rtl8187.constants import RX_CONF_MONITOR
 
     monkeypatch.setattr(mac.time, "sleep", lambda *_a, **_kw: None)
 
@@ -193,8 +193,8 @@ def test_start_writes_station_baseline_no_monitor(monkeypatch):
 def test_configure_filter_enters_monitor_with_ctrl(monkeypatch):
     """The monitor request (FIF_OTHER_BSS|FIF_CONTROL, all changed) on the start() baseline:
     0x9094FC0A ^ CTRL | MONITOR = 0x909CFC0B, total_flags = CONTROL|OTHER_BSS|ALLMULTI."""
-    import wifit3.chips.rtl8187.mac as mac
-    from wifit3.chips.rtl8187.constants import FIF_ALLMULTI, FIF_CONTROL, FIF_OTHER_BSS
+    import wifang.chips.rtl8187.mac as mac
+    from wifang.chips.rtl8187.constants import FIF_ALLMULTI, FIF_CONTROL, FIF_OTHER_BSS
 
     t = RecordingTransport()
     flags = FIF_OTHER_BSS | FIF_CONTROL
@@ -207,8 +207,8 @@ def test_configure_filter_enters_monitor_with_ctrl(monkeypatch):
 def test_configure_filter_xors_changed_flags_only(monkeypatch):
     """dev.c:1317-1325: FCS/CTRL toggle only on changed_flags; a reapply with CONTROL unchanged
     keeps CTRL, and dropping OTHER_BSS/ALLMULTI with no multicast clears MONITOR."""
-    import wifit3.chips.rtl8187.mac as mac
-    from wifit3.chips.rtl8187.constants import (
+    import wifang.chips.rtl8187.mac as mac
+    from wifang.chips.rtl8187.constants import (
         FIF_ALLMULTI, FIF_CONTROL, FIF_FCSFAIL, FIF_OTHER_BSS, RX_CONF_FCS, RX_CONF_MONITOR,
     )
 
@@ -231,7 +231,7 @@ def test_configure_filter_xors_changed_flags_only(monkeypatch):
 def test_cold_bring_up_latches_cmd_tx_rx_enable(monkeypatch):
     """cold_bring_up's contract: after it returns, CMD has both
     TX_ENABLE and RX_ENABLE bits set. This is what the hw demo asserts."""
-    import wifit3.chips.rtl8187.mac as mac
+    import wifang.chips.rtl8187.mac as mac
 
     # Make the kernel msleep()s instant — we don't want unit tests to
     # spend 500ms on real sleeps.
@@ -283,7 +283,7 @@ def _build_rx_urb(frame_body: bytes, *, agc: int = 0x40, crc_err: bool = False,
 
 
 def test_parse_rx_urb_decodes_trailer_and_strips_fcs():
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     body = b"\x80\x00" + b"\x00" * 22 + b"BEACON"  # 30-byte body
     urb = _build_rx_urb(body, agc=0x40)
@@ -304,7 +304,7 @@ def test_parse_rx_urb_decodes_trailer_and_strips_fcs():
 def test_parse_rx_urb_rssi_scales_linearly_with_agc():
     """The kernel formula `-4 - ((27 * agc) >> 6)` is a step-linear
     function of agc. Spot-check a few values to lock the math down."""
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     body = b"\x00" * 30
     for agc, expected in [(0, -4), (8, -7), (64, -31), (128, -58), (255, -111)]:
@@ -314,7 +314,7 @@ def test_parse_rx_urb_rssi_scales_linearly_with_agc():
 
 
 def test_parse_rx_urb_returns_none_on_short_buffer():
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     assert parse_rx_urb(b"", False) is None
     assert parse_rx_urb(b"\x00" * 15, False) is None  # 1 byte short of the trailer
@@ -323,7 +323,7 @@ def test_parse_rx_urb_returns_none_on_short_buffer():
 def test_parse_rx_urb_returns_none_on_oversized_frame_len():
     """If the trailer claims a frame longer than the URB can hold, drop."""
     import struct
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     # 16-byte URB = just a trailer, no body. But trailer claims a 500-byte frame.
     trailer = struct.pack("<IBBBBQ", 500, 0, 0, 0x40, 0, 0)
@@ -331,7 +331,7 @@ def test_parse_rx_urb_returns_none_on_oversized_frame_len():
 
 
 def test_parse_rx_urb_flags_fcs_error():
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     body = b"\x00" * 30
     rx = parse_rx_urb(_build_rx_urb(body, crc_err=True), False)
@@ -343,13 +343,13 @@ def test_parse_rx_urb_flags_fcs_error():
 # M4 set_channel tests
 # ----------------------------------------------------------------------
 def _zero_power():
-    from wifit3.chips.rtl8187.rtl8225 import TxPower
+    from wifang.chips.rtl8187.rtl8225 import TxPower
     return TxPower(hw_value=tuple([0] * 14), base=0)
 
 
 def test_config_channel_rejects_out_of_range(monkeypatch):
-    from wifit3.chips.rtl8187 import chan as chan_mod
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant
+    from wifang.chips.rtl8187 import chan as chan_mod
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant
     import pytest
 
     monkeypatch.setattr(chan_mod.time, "sleep", lambda *_a, **_kw: None)
@@ -365,8 +365,8 @@ def test_config_channel_writes_correct_rf7_word(monkeypatch):
     """config_channel(ch) must write RF reg 0x7 = rtl8225_chan[ch-1] (the synth word).
 
     Spot-check a few channels — kernel table is shared across BCD + z2."""
-    from wifit3.chips.rtl8187 import chan as chan_mod
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant, rtl8225_chan
+    from wifang.chips.rtl8187 import chan as chan_mod
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant, rtl8225_chan
 
     monkeypatch.setattr(chan_mod.time, "sleep", lambda *_a, **_kw: None)
 
@@ -394,12 +394,12 @@ def test_config_channel_writes_correct_rf7_word(monkeypatch):
 def test_config_channel_brackets_tune_in_tx_conf_loopback(monkeypatch):
     """config_channel mirrors rtl8187_config: read TX_CONF, OR in LOOPBACK_MAC, retune,
     restore TX_CONF, then write the 4 ATIM/beacon interval registers (dev.c:1162-1176)."""
-    from wifit3.chips.rtl8187 import chan as chan_mod
-    from wifit3.chips.rtl8187.constants import (
+    from wifang.chips.rtl8187 import chan as chan_mod
+    from wifang.chips.rtl8187.constants import (
         REG_ATIM_WND, REG_ATIMTR_INTERVAL, REG_BEACON_INTERVAL,
         REG_BEACON_INTERVAL_TIME, REG_TX_CONF, TX_CONF_LOOPBACK_MAC,
     )
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant
 
     monkeypatch.setattr(chan_mod.time, "sleep", lambda *_a, **_kw: None)
     monkeypatch.setattr(chan_mod, "rtl8225_write", lambda *a, **kw: None)
@@ -430,7 +430,7 @@ def test_config_channel_brackets_tune_in_tx_conf_loopback(monkeypatch):
 # M5 TX tests
 # ----------------------------------------------------------------------
 def test_build_tx_hdr_default_shape():
-    from wifit3.chips.rtl8187.tx import TX_HDR_SIZE, build_tx_hdr
+    from wifang.chips.rtl8187.tx import TX_HDR_SIZE, build_tx_hdr
     import struct
 
     hdr = build_tx_hdr(100)  # 1 Mbps CCK, retry=7, no morefrag
@@ -452,7 +452,7 @@ def test_build_tx_hdr_default_shape():
 
 
 def test_build_tx_hdr_rate_index_lands_in_bits_24_27():
-    from wifit3.chips.rtl8187.tx import RATE_24MBPS_OFDM, build_tx_hdr
+    from wifang.chips.rtl8187.tx import RATE_24MBPS_OFDM, build_tx_hdr
     import struct
 
     hdr = build_tx_hdr(50, rate_hw_value=RATE_24MBPS_OFDM)
@@ -461,7 +461,7 @@ def test_build_tx_hdr_rate_index_lands_in_bits_24_27():
 
 
 def test_build_tx_hdr_rejects_oversized_frame():
-    from wifit3.chips.rtl8187.tx import build_tx_hdr
+    from wifang.chips.rtl8187.tx import build_tx_hdr
     import pytest
 
     with pytest.raises(ValueError):
@@ -475,7 +475,7 @@ def test_stamp_seq_ctrl_increments_and_preserves_frag():
     sequence number (step 0x10, the number lives in seq_ctrl bits [4:15]) while preserving
     the fragment bits — else every injected frame is seq=0 and an AP dedups our
     association/EAPOL conversation (PMKID extraction / WPS). Mirrors rtl8187_tx (dev.c)."""
-    from wifit3.chips.rtl8187.tx import stamp_seq_ctrl
+    from wifang.chips.rtl8187.tx import stamp_seq_ctrl
 
     f = bytearray(26)                       # deauth-sized, frag 0
     seqno = stamp_seq_ctrl(f, 0)
@@ -501,7 +501,7 @@ def test_stamp_seq_ctrl_increments_and_preserves_frag():
 
 
 def test_build_deauth_structure():
-    from wifit3.chips.rtl8187.tx import (
+    from wifang.chips.rtl8187.tx import (
         BROADCAST_MAC,
         DEAUTH_REASON_CLASS3,
         build_deauth,
@@ -528,7 +528,7 @@ def test_build_deauth_structure():
 def test_build_deauth_unicast_sets_ack_nav():
     """A unicast target gets the ACK NAV (0x013A) in duration; broadcast gets 0. Matches
     aireplay-ng: the addressed STA ACKs, so we reserve SIFS + a 1 Mbps ACK for it."""
-    from wifit3.chips.rtl8187.tx import build_deauth
+    from wifang.chips.rtl8187.tx import build_deauth
 
     bssid = bytes.fromhex("aabbccddeeff")
     client = bytes.fromhex("001122334455")   # unicast (even first octet)
@@ -541,9 +541,9 @@ def test_config_channel_dispatches_z2_set_tx_power(monkeypatch):
     """Variant=RTL8225Z2 must route through rtl8225z2_rf_set_tx_power, NOT the BCD one —
     matches kernel rtl8225_rf_set_channel dispatch. The shared set_tx_power dispatcher
     (rtl8225.set_tx_power) picks the variant from the EEPROM hw_value."""
-    from wifit3.chips.rtl8187 import chan as chan_mod
-    import wifit3.chips.rtl8187.rtl8225 as rf
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant
+    from wifang.chips.rtl8187 import chan as chan_mod
+    import wifang.chips.rtl8187.rtl8225 as rf
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant
 
     monkeypatch.setattr(chan_mod.time, "sleep", lambda *_a, **_kw: None)
 
@@ -571,9 +571,9 @@ def test_z2_set_tx_power_uses_eeprom_cck_ofdm_gain(monkeypatch):
     cck=min(5,15)+(0x36&0xF)=11, ofdm=(5+10)+(0x36>>4)=18 — both direct-index the z2 gain
     table. The pre-EEPROM stub (cck=ofdm=0) wrote 0x00/0x03 instead; this is what made the
     channel hops diverge from the capture until the 93cx6 read landed."""
-    import wifit3.chips.rtl8187.rtl8225 as rf
-    from wifit3.chips.rtl8187.constants import REG_TX_GAIN_CCK, REG_TX_GAIN_OFDM
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower, set_tx_power
+    import wifang.chips.rtl8187.rtl8225 as rf
+    from wifang.chips.rtl8187.constants import REG_TX_GAIN_CCK, REG_TX_GAIN_OFDM
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower, set_tx_power
 
     monkeypatch.setattr(rf.time, "sleep", lambda *_a, **_kw: None)
 
@@ -588,7 +588,7 @@ def test_set_anaparam_brackets_with_eeprom_config_normal(monkeypatch):
     """set_anaparam's contract: writes ANAPARAM + ANAPARAM2 inside an
     EEPROM_CMD CONFIG→NORMAL bracket, with CONFIG3 ANAPARAM_WRITE bit
     set during the window."""
-    import wifit3.chips.rtl8187.mac as mac
+    import wifang.chips.rtl8187.mac as mac
 
     monkeypatch.setattr(mac.time, "sleep", lambda *_a, **_kw: None)
 
@@ -610,8 +610,8 @@ def test_set_anaparam_brackets_with_eeprom_config_normal(monkeypatch):
 def test_stop_matches_rtl8187_stop_op_order(monkeypatch):
     """rtl8187_stop (dev.c:1022-1053): INT_MASK=0, CMD &= ~(TX|RX), rf->stop, ANAPARAM off,
     CONFIG4 |= VCOOFF inside an EEPROM_CMD CONFIG/NORMAL window."""
-    import wifit3.chips.rtl8187.mac as mac
-    from wifit3.chips.rtl8187.constants import (
+    import wifang.chips.rtl8187.mac as mac
+    from wifang.chips.rtl8187.constants import (
         ANAPARAM2_OFF, ANAPARAM_OFF, REG_ANAPARAM, REG_ANAPARAM2, REG_CONFIG3, REG_CONFIG4,
         REG_EEPROM_CMD, REG_INT_MASK,
     )
@@ -642,7 +642,7 @@ def test_stop_matches_rtl8187_stop_op_order(monkeypatch):
 
 
 def test_rtl8225_rf_stop_writes_rf4(monkeypatch):
-    import wifit3.chips.rtl8187.rtl8225 as rf
+    import wifang.chips.rtl8187.rtl8225 as rf
 
     writes: list[tuple[int, int, int]] = []
     monkeypatch.setattr(rf, "rtl8225_write",
@@ -654,8 +654,8 @@ def test_rtl8225_rf_stop_writes_rf4(monkeypatch):
 def _probe_with_fake_eeprom(monkeypatch, tx_conf_top: int, word_value: int = 0x1234,
                             product_id: int = 0x8187, is_rtl8187b: bool = False):
     """Run probe() with the EEPROM, rfkill and RF SPI mocked; return (result, eeprom words, rf writes)."""
-    import wifit3.chips.rtl8187.probe as probe_mod
-    import wifit3.chips.rtl8187.rtl8225 as rf
+    import wifang.chips.rtl8187.probe as probe_mod
+    import wifang.chips.rtl8187.rtl8225 as rf
 
     words: list[int] = []
 
@@ -683,7 +683,7 @@ def _probe_with_fake_eeprom(monkeypatch, tx_conf_top: int, word_value: int = 0x1
 
 
 def test_probe_8187L_reads_channel_11_14_words_and_probes_rf(monkeypatch):
-    from wifit3.chips.rtl8187.rtl8225 import RfVariant
+    from wifang.chips.rtl8187.rtl8225 import RfVariant
 
     pr, words, rf_writes = _probe_with_fake_eeprom(monkeypatch, 0x00)
     assert pr.rfkill_off is True
@@ -696,7 +696,7 @@ def test_probe_8187L_reads_channel_11_14_words_and_probes_rf(monkeypatch):
 def test_probe_early_8187B_takes_the_8187B_tail(monkeypatch):
     """dev.c:1592-1601: ch11 from CHAN_6 low byte, ch12 from word 0x0A, ch13/14 from 0x1C;
     rtl8187_detect_rf returns z2_b without the RF SPI probe."""
-    from wifit3.chips.rtl8187.rtl8225 import RfVariant
+    from wifang.chips.rtl8187.rtl8225 import RfVariant
 
     pr, words, rf_writes = _probe_with_fake_eeprom(monkeypatch, (TX_CONF_R8187vD_B >> 24) & 0xFF)
     assert words[-4:] == [0x1B, 0x0A, 0x1C, 0x3F]
@@ -709,9 +709,9 @@ def test_probe_early_8187B_takes_the_8187B_tail(monkeypatch):
 def test_z2_set_tx_power_wraps_ofdm_power_as_u8(monkeypatch):
     """rtl8225.c:637: u8 ofdm_power += txpwr_base >> 4 wraps. base=0xFFFF, hw_value=0x55:
     ofdm = (15 + 0xFFF) & 0xFF = 14, not min(4110, 35) = 35; cck = 5 + 15 = 20."""
-    import wifit3.chips.rtl8187.rtl8225 as rf
-    from wifit3.chips.rtl8187.constants import REG_TX_GAIN_CCK, REG_TX_GAIN_OFDM
-    from wifit3.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower, set_tx_power
+    import wifang.chips.rtl8187.rtl8225 as rf
+    from wifang.chips.rtl8187.constants import REG_TX_GAIN_CCK, REG_TX_GAIN_OFDM
+    from wifang.chips.rtl8187.rtl8225 import RfSetup, RfVariant, TxPower, set_tx_power
 
     monkeypatch.setattr(rf.time, "sleep", lambda *_a, **_kw: None)
 
@@ -730,7 +730,7 @@ def test_probe_replaces_invalid_eeprom_mac_with_random_local_unicast(monkeypatch
 
 
 def test_is_valid_ether_addr():
-    from wifit3.chips.rtl8187.probe import is_valid_ether_addr
+    from wifang.chips.rtl8187.probe import is_valid_ether_addr
 
     assert is_valid_ether_addr(bytes.fromhex("020000000001"))
     assert not is_valid_ether_addr(bytes(6))
@@ -749,7 +749,7 @@ def _bulk_writer() -> tuple[list[bytes], object]:
 def test_inject_frame_sends_zlp_on_a_multiple_of_wmaxpacketsize():
     """URB_ZERO_PACKET (dev.c:315) pads against the endpoint's wMaxPacketSize: 64 on a
     full-speed link, so a 64-byte transfer (12 B tx_hdr + 52 B frame) needs a ZLP."""
-    from wifit3.chips.rtl8187.tx import inject_frame
+    from wifang.chips.rtl8187.tx import inject_frame
 
     writes, dev = _bulk_writer()
     inject_frame(dev, bytes(52), {0x02: 64}, False)
@@ -764,7 +764,7 @@ def test_inject_frame_sets_morefrag_from_the_frame_control():
     """dev.c:251: MOREFRAG (bit 17) follows the frame's More Fragments bit."""
     import struct
 
-    from wifit3.chips.rtl8187.tx import inject_frame
+    from wifang.chips.rtl8187.tx import inject_frame
 
     for is_rtl8187b in (False, True):
         for fc1, expected in ((0x00, 0), (0x04, 1 << 17)):
@@ -778,7 +778,7 @@ def test_inject_frame_sets_morefrag_from_the_frame_control():
 def test_bulk_out_max_packet_size_reads_the_endpoint_descriptor(monkeypatch):
     from unittest.mock import MagicMock
 
-    import wifit3.chips.rtl8187.tx as tx
+    import wifang.chips.rtl8187.tx as tx
 
     monkeypatch.setattr(tx.usb.util, "find_descriptor",
                         lambda intf, bEndpointAddress: MagicMock(wMaxPacketSize=64)

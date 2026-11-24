@@ -26,8 +26,8 @@ class FakeT:
 
 
 def test_delta_tables_match_recorded_pairs():
-    from wifit3.chips.rtl8188ftv_dkms import track
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     tup, tdown = track.delta_tables(T.MGN_1M, 7)
     assert (tup[2], tup[3], tup[4], tup[5]) == (1, 2, 2, 3)
     assert (tdown[2], tdown[4]) == (2, 4)
@@ -37,7 +37,7 @@ def test_delta_tables_match_recorded_pairs():
 
 
 def test_set_iqk_matrix_captures():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     t = FakeT([0x00000000, 0xA03E0346])
     track.set_iqk_matrix(t, 29, 0x103, 0x2)
     assert t.writes == [(0xC80, 4, 0x3C8100F4), (0xC94, 4, 0x00000000),
@@ -52,7 +52,7 @@ def test_set_iqk_matrix_captures():
 
 
 def test_set_iqk_matrix_x_zero_writes_table():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     t = FakeT([0x00000000, 0x00000000])
     track.set_iqk_matrix(t, 28, 0, 0)
     assert t.writes == [(0xC80, 4, 0x390000E4), (0xC94, 4, 0x00000000),
@@ -60,7 +60,7 @@ def test_set_iqk_matrix_x_zero_writes_table():
 
 
 def test_write_cck_swing_limit_row():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     t = FakeT([])
     track.write_cck_swing(t, 20)
     assert [v for _, _, v in t.writes] == [
@@ -72,15 +72,15 @@ def test_write_cck_swing_limit_row():
 
 
 def _st(eeprom=0x1A):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     st = track.tracking_init_state(eeprom)
     st["iqk_x"], st["iqk_y"] = 0x103, 0x2
     return st
 
 
 def _params():
-    from wifit3.chips.rtl8188ftv_dkms import prom
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     params = prom.EfuseParams()
     params.cck_base_ch = [[0x20] * 14]
     params.bw40_base_ch = [[0x20] * 14]
@@ -90,7 +90,7 @@ def _params():
 
 
 def test_tracking_callback_first_setpwr():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     st = _st()
     params, tables = _params()
     reads = [0xA1390204, 0xA1390204, 0x01000100, 0x001070E0,
@@ -107,7 +107,7 @@ def test_tracking_callback_first_setpwr():
 
 
 def test_tracking_callback_no_setpwr_on_zero_offset():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     st = _st()
     params, tables = _params()
     t = FakeT([0xA1390204, 0xA1390204, 0x01000100, 0x001068D0])
@@ -118,7 +118,7 @@ def test_tracking_callback_no_setpwr_on_zero_offset():
 
 
 def test_tracking_callback_second_fires_on_table_step():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     st = _st()
     params, tables = _params()
     t = FakeT([0xA1390204, 0xA1390204, 0x01000100, 0x001070E0,
@@ -135,7 +135,7 @@ def test_tracking_callback_second_fires_on_table_step():
 
 
 def _cal_spies(monkeypatch, iqk_result):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
 
     def lck(t):
         t.writes.append("LCK")
@@ -152,7 +152,7 @@ _THERMAL_34 = [0xA1390204, 0xA1390204, 0x01000100, 0x00108800]
 
 
 def test_tracking_callback_lck_then_setpwr_then_iqk_ce_278_552(monkeypatch):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     _cal_spies(monkeypatch, _IQK_FINAL_0)
     st = _st()
     params, tables = _params()
@@ -168,7 +168,7 @@ def test_tracking_callback_lck_then_setpwr_then_iqk_ce_278_552(monkeypatch):
 
 
 def test_tracking_callback_below_threshold_no_lck_no_iqk(monkeypatch):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     _cal_spies(monkeypatch, _IQK_FINAL_0)
     st = _st()
     st["th_lck"] = st["th_iqk"] = 27
@@ -180,7 +180,7 @@ def test_tracking_callback_below_threshold_no_lck_no_iqk(monkeypatch):
 
 
 def test_tracking_callback_iqk_without_power_change_ce_552(monkeypatch):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     _cal_spies(monkeypatch, {"final": 0xFF, "result": [[0] * 8] * 4})
     st = _st()
     st["th_val"] = st["th_lck"] = 34
@@ -194,7 +194,7 @@ def test_tracking_callback_iqk_without_power_change_ce_552(monkeypatch):
 
 
 def test_tracking_callback_no_pg_references_ce_252_264(monkeypatch):
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     _cal_spies(monkeypatch, _IQK_FINAL_0)
     st = _st()
     st["th_val"] = 34
@@ -207,7 +207,7 @@ def test_tracking_callback_no_pg_references_ce_252_264(monkeypatch):
 
 
 def test_ra_dynamic_retry_count_flips_once():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     st = _st()
     fa = {"all": 2022, "cca": 2075, "cck_fail": 0}
     t = FakeT([])
@@ -225,8 +225,8 @@ def test_ra_dynamic_retry_count_flips_once():
 
 
 def test_watchdog_trigger_tick():
-    from wifit3.chips.rtl8188ftv_dkms import dm
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import track
     reads = [0xA0, 0x0000, 0x48071D40, 0x04030740, 0x350000, 0x2F60642,
              0x1702F7, 0x2E, 0xD3A000, 0xD3B000, 0x154, 0x2005881,
              0x80801B04, 0x6C6C6CEC, 0xEC6C6CEC, 0x84030740, 0x8C030740,

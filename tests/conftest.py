@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.campaigns.campaign import Campaign
-from wifit3.persist.config import Config, CpuCrackSettings, HashcatSettings, HashtopolisSettings
+from wifang.campaigns.campaign import Campaign
+from wifang.persist.config import Config, CpuCrackSettings, HashcatSettings, HashtopolisSettings
 
 _test_dir_numbers = itertools.count()
 

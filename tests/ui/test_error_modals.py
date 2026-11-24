@@ -6,8 +6,8 @@ import pytest
 import usb.core
 from textual.widgets import Button, Label, ListItem, ListView
 
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.error_modals import FatalErrorModal, RecoverableErrorModal
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.error_modals import FatalErrorModal, RecoverableErrorModal
 
 
 def _raise_no_backend(*args, **kwargs):

@@ -13,9 +13,9 @@ import usb.core
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO / "src"))
 
-from wifit3.chips.rtl8821au import SUPPORTED_IDS
-from wifit3.chips.rtl8821au.driver import RTL8821AUDriver
-from wifit3.chips.rtl8821au.rx import iter_bulk_frames
+from wifang.chips.rtl8821au import SUPPORTED_IDS
+from wifang.chips.rtl8821au.driver import RTL8821AUDriver
+from wifang.chips.rtl8821au.rx import iter_bulk_frames
 
 PCAP_LINKTYPE_IEEE802_11 = 105
 RTL8821AU_ID = next(entry for entry in SUPPORTED_IDS if (entry.vid, entry.pid) == (0x2357, 0x011F))

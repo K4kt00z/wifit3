@@ -1,9 +1,9 @@
 import struct
 from typing import Optional
 
-from wifit3.campaigns.probe.broadcom_wps import (FRAME_DEAUTH, WpsImplementation, enter_wps, send_fragment,
+from wifang.campaigns.probe.broadcom_wps import (FRAME_DEAUTH, WpsImplementation, enter_wps, send_fragment,
                                                  zero_length_first_fragment)
-from wifit3.dot11.wsc import messages as M
+from wifang.dot11.wsc import messages as M
 
 BSSID = bytes.fromhex("020000000001")
 STA = bytes.fromhex("02aabbccddee")

@@ -6,8 +6,8 @@ RF_CHNLBW writes. Full byte-for-byte replay of the initial tune lives in
 """
 import pytest
 
-from wifit3.chips.rtl8188eus_dkms import chan, dig
-from wifit3.chips.rtl8188eus_dkms.efuse import TxPwr2G
+from wifang.chips.rtl8188eus_dkms import chan, dig
+from wifang.chips.rtl8188eus_dkms.efuse import TxPwr2G
 
 WIRE_TXPWR = TxPwr2G(
     cck_base=(0x30, 0x30, 0x2F, 0x2E, 0x2E, 0x2E),

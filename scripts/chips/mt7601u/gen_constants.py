@@ -370,7 +370,7 @@ def main() -> None:
     for dname, dval, dloc in deferred:
         out.append(f"{dname} = {dval}".ljust(46) + f"  # [SRC] {dloc}")
 
-    target = REPO / "src" / "wifit3" / "chips" / "mt7601u" / "constants.py"
+    target = REPO / "src" / "wifang" / "chips" / "mt7601u" / "constants.py"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text("\n".join(out) + "\n")
     print(f"wrote {target} ({len(out)} lines)")

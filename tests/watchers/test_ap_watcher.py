@@ -1,17 +1,17 @@
 """ApWatcher and its detectors."""
 from __future__ import annotations
 
-from wifit3.models import AccessPoint, Handshake, HandshakeMessage
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.watchers.ap_watcher import (
+from wifang.models import AccessPoint, Handshake, HandshakeMessage
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.watchers.ap_watcher import (
     ApDecloaked, ApWatcher, CaptureEventDetector, DecloakDetector, EapolFrameDetector,
     HandshakeCaptured, HandshakeDetector, PbcWindowDetector, PbcWindowOpened, PmkidCaptured, PmkidDetector,
     UncrackableHandshakeDetector,
     WepKeyDetector, WepKeyRecovered, WpsPbcPskDetector, WpsPbcPskRecovered, WpsPinDetector,
     WpsPinRecovered, WpsPskDetector, WpsPskRecovered,
 )
-from wifit3.wlan.array import WlanArray
+from wifang.wlan.array import WlanArray
 
 _CLIENT = "11:22:33:44:55:66"
 

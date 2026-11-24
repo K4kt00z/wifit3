@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u.constants import (
+from wifang.chips.mt7601u.constants import (
     MT_WCID_ADDR,
     MT_WCID_ATTR,
     MT_WCID_ATTR_BSS_IDX,
     MT_WCID_ATTR_BSS_IDX_SHIFT,
     MT_WCID_ATTR_BSS_IDX_EXT,
 )
-from wifit3.chips.mt7601u.wcid import (
+from wifang.chips.mt7601u.wcid import (
     WCID_ALLOC_LIMIT,
     WCID_COUNT,
     WCID_MONITOR,

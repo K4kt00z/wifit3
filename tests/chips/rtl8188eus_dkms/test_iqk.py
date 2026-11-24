@@ -1,9 +1,9 @@
 """Hardware-free regression for the RTL8188EUS (DKMS) IQ calibration (``iqk``) and the IQK
 result feeding power tracking's ``set_iqk_matrix_8188e``."""
-from wifit3.chips.rtl8188eus_dkms import iqk, powertrack
-from wifit3.chips.rtl8188eus_dkms import powertrack_tbl as T
+from wifang.chips.rtl8188eus_dkms import iqk, powertrack
+from wifang.chips.rtl8188eus_dkms import powertrack_tbl as T
 
-_RF = "wifit3.chips.rtl8188eus_dkms.powertrack.rf"
+_RF = "wifang.chips.rtl8188eus_dkms.powertrack.rf"
 
 
 class RegTx:
@@ -115,9 +115,9 @@ def test_phy_iq_calibrate_tx_failure_stores_zero_result():
 def test_callback_runs_iqk_at_threshold(mocker):
     mocker.patch(f"{_RF}.phy_query_rf_reg", return_value=29 + 9)
     mocker.patch(f"{_RF}.set_rf_reg")
-    mocker.patch("wifit3.chips.rtl8188eus_dkms.powertrack.phy_lc_calibrate")
-    mocker.patch("wifit3.chips.rtl8188eus_dkms.powertrack._apply_mix_mode")
-    cal = mocker.patch("wifit3.chips.rtl8188eus_dkms.iqk.phy_iq_calibrate_8188e")
+    mocker.patch("wifang.chips.rtl8188eus_dkms.powertrack.phy_lc_calibrate")
+    mocker.patch("wifang.chips.rtl8188eus_dkms.powertrack._apply_mix_mode")
+    cal = mocker.patch("wifang.chips.rtl8188eus_dkms.iqk.phy_iq_calibrate_8188e")
     st = _state()
     powertrack._callback(RegTx(), st)
     cal.assert_called_once()
@@ -127,8 +127,8 @@ def test_callback_runs_iqk_at_threshold(mocker):
 
 def test_callback_below_threshold_skips_iqk(mocker):
     mocker.patch(f"{_RF}.phy_query_rf_reg", return_value=29 + 7)
-    mocker.patch("wifit3.chips.rtl8188eus_dkms.powertrack._apply_mix_mode")
-    cal = mocker.patch("wifit3.chips.rtl8188eus_dkms.iqk.phy_iq_calibrate_8188e")
+    mocker.patch("wifang.chips.rtl8188eus_dkms.powertrack._apply_mix_mode")
+    cal = mocker.patch("wifang.chips.rtl8188eus_dkms.iqk.phy_iq_calibrate_8188e")
     st = _state()
     powertrack._callback(RegTx(), st)
     cal.assert_not_called()

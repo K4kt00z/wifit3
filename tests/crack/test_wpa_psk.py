@@ -4,10 +4,10 @@ import hmac
 
 import pytest
 
-from wifit3.crack import wpa_psk
-from wifit3.crack.hc22000_format import Hc22000Line, parse_hc22000
-from wifit3.dot11.eapol import eapol_key, set_mic, MIC_OFFSET, MIC_LEN
-from wifit3.dot11.wpa import (
+from wifang.crack import wpa_psk
+from wifang.crack.hc22000_format import Hc22000Line, parse_hc22000
+from wifang.dot11.eapol import eapol_key, set_mic, MIC_OFFSET, MIC_LEN
+from wifang.dot11.wpa import (
     KCK_LEN,
     derive_pmk,
     derive_ptk,
@@ -204,7 +204,7 @@ def test_pmk_matches_sha256_pmkid_when_message_pair_bit_set():
     assert wpa_psk.pmkid(_PMK, _AA, _SPA) != digest
 
 
-# FT-PSK known answers, generated outside wifit3 from hostapd's sha256_prf_bits / wpa_derive_pmk_r0 /
+# FT-PSK known answers, generated outside wifang from hostapd's sha256_prf_bits / wpa_derive_pmk_r0 /
 # wpa_derive_pmk_r1 / wpa_pmk_r1_to_ptk (stdlib hashlib + hmac) with the MIC from `openssl mac CMAC`.
 _FT_COMMON = "*020000000001*020000000002*66742d70736b2d74657374"
 _FT_IDENTIFIERS = "*a1b2*72306b682e6578616d706c652e74657374*020000000001"

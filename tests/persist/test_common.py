@@ -1,5 +1,5 @@
 """Tests for persist.common: naming and filename parsing."""
-from wifit3.persist.common import (
+from wifang.persist.common import (
     AGGREGATED_HC22000_RE,
     LEGACY_CAPTURE_RE,
     WEP_KEY_HEX_RE,

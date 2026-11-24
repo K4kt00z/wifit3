@@ -40,7 +40,7 @@ def _mask_seq(payload: bytes) -> bytes:
     report a divergence that is not a port defect. Everything else is compared
     byte-for-byte.
     """
-    from wifit3.chips.mt7601u.constants import MT_TXD_CMD_INFO_SEQ
+    from wifang.chips.mt7601u.constants import MT_TXD_CMD_INFO_SEQ
 
     if len(payload) < 4:
         return payload

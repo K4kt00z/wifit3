@@ -4,10 +4,10 @@ import struct
 
 import pytest
 
-from wifit3.models import HandshakeMessage, Handshake
-from wifit3.crack.handshake import crackable_pairs
-from wifit3.crack.hc22000_format import eapol_hashlines
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.models import HandshakeMessage, Handshake
+from wifang.crack.handshake import crackable_pairs
+from wifang.crack.hc22000_format import eapol_hashlines
+from wifang.dot11.parser import WlanFrameParser
 
 
 def _build_eapol_frame(

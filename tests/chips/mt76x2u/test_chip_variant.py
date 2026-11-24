@@ -10,8 +10,8 @@ COEXCFG0 still cleared, semaphore never touched.
 """
 from unittest.mock import MagicMock
 
-from wifit3.chips.mt76x2u import constants as C
-from wifit3.chips.mt76x2u import firmware, mac
+from wifang.chips.mt76x2u import constants as C
+from wifang.chips.mt76x2u import firmware, mac
 
 
 class FakeTransport:

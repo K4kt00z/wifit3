@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 import pytest
 import usb.core
 
-from wifit3.chips.rt3070.rx import read_rx_burst as rt3070_read_rx_burst
-from wifit3.chips.rtl8187.rx import read_rx_burst as rtl8187_read_rx_burst
-from wifit3.chips.rx_reader import RxReaderThread
+from wifang.chips.rt3070.rx import read_rx_burst as rt3070_read_rx_burst
+from wifang.chips.rtl8187.rx import read_rx_burst as rtl8187_read_rx_burst
+from wifang.chips.rx_reader import RxReaderThread
 
 
 @pytest.fixture(params=[rt3070_read_rx_burst, rtl8187_read_rx_burst],

@@ -1,8 +1,8 @@
 """rtl8192fu RX (rxdesc24 + jaguar2 PHY status + C2H) and TX (txdesc40) paths."""
-from wifit3.chips.rtl8192fu import constants as C
-from wifit3.chips.rtl8192fu.core import rtl8xxxu_config_endpoints_no_sie, rtl8xxxu_init_queue_priority
-from wifit3.chips.rtl8192fu.rx import C2H_8723B_BT_INFO, rtl8xxxu_c2hcmd_callback, rtl8xxxu_parse_rxdesc24
-from wifit3.chips.rtl8192fu.tx import RTL8XXXU_TXDESC40_SIZE, rtl8xxxu_tx
+from wifang.chips.rtl8192fu import constants as C
+from wifang.chips.rtl8192fu.core import rtl8xxxu_config_endpoints_no_sie, rtl8xxxu_init_queue_priority
+from wifang.chips.rtl8192fu.rx import C2H_8723B_BT_INFO, rtl8xxxu_c2hcmd_callback, rtl8xxxu_parse_rxdesc24
+from wifang.chips.rtl8192fu.tx import RTL8XXXU_TXDESC40_SIZE, rtl8xxxu_tx
 
 from .fake import make_priv
 

@@ -4,7 +4,7 @@ import asyncio
 import time
 
 from vault_bench import aps, open_vault, terminal_size
-from wifit3.ui.app import WifiteApp
+from wifang.ui.app import WifiteApp
 
 
 async def main() -> None:

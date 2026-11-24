@@ -4,8 +4,8 @@ Kernel reference: mt76x02_mac.c:727-758 (setaddr) and 1232-1238 (set_bssid).
 """
 import pytest
 
-from wifit3.chips.mt76x2u import constants as C
-from wifit3.chips.mt76x2u import mac
+from wifang.chips.mt76x2u import constants as C
+from wifang.chips.mt76x2u import mac
 
 
 class FakeTransport:

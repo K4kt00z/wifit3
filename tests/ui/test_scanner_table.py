@@ -12,12 +12,12 @@ import pytest_asyncio
 from textual.app import App, ComposeResult
 from textual.screen import Screen
 
-from wifit3.models import AccessPoint
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.ui.ap_table import COLUMN_KEYS, COLUMNS, IDENTITY_CELL_MAX, SSID_CELL_MAX, APRow, APTable
-from wifit3.ui.screens.scanner import ScannerView
-from wifit3.ui.encryption_format import EncryptionSummary, EncryptionType
+from wifang.models import AccessPoint
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.ui.ap_table import COLUMN_KEYS, COLUMNS, IDENTITY_CELL_MAX, SSID_CELL_MAX, APRow, APTable
+from wifang.ui.screens.scanner import ScannerView
+from wifang.ui.encryption_format import EncryptionSummary, EncryptionType
 
 _WPA2 = EncryptionSummary(type=EncryptionType.WPA2, akms="PSK", cipher="CCMP",
                           wep_ivs=0, raw="WPA2")

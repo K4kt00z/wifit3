@@ -29,12 +29,12 @@ import libusb_package
 import usb.core
 import usb.util
 
-from wifit3.chips.rtl88xxau_base import registers as R
-from wifit3.chips.rtl88xxau_base import sipi
-from wifit3.chips.rtl88xxau_base.transport import Rtl88xxauTransport
-from wifit3.chips.rtl8812au_dkms import bb, chan, dig, efuse, firmware, mac, monitor, rf, rx, txpower
-from wifit3.chips.rtl8812au_dkms.constants import USB_PID_AWUS036ACH, USB_VID_REALTEK
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.chips.rtl88xxau_base import registers as R
+from wifang.chips.rtl88xxau_base import sipi
+from wifang.chips.rtl88xxau_base.transport import Rtl88xxauTransport
+from wifang.chips.rtl8812au_dkms import bb, chan, dig, efuse, firmware, mac, monitor, rf, rx, txpower
+from wifang.chips.rtl8812au_dkms.constants import USB_PID_AWUS036ACH, USB_VID_REALTEK
+from wifang.dot11.parser import WlanFrameParser
 
 DEFAULT_CANARY = "aa:bb:cc:dd:ee:01"   # documented A/B canary (NETGEAR2G)
 
@@ -85,7 +85,7 @@ def main() -> int:
     try:
         usb.util.claim_interface(dev, 0)
     except usb.core.USBError as e:
-        return _fail(f"claim_interface(0): {e}  (a running wifit3 may hold the card)")
+        return _fail(f"claim_interface(0): {e}  (a running wifang may hold the card)")
 
     t = Rtl88xxauTransport(dev)
     try:

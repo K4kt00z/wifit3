@@ -16,25 +16,25 @@ import pytest_asyncio
 from textual.app import App
 from textual.widgets import Button
 
-from wifit3.campaigns.campaign import Campaign
-from wifit3.campaigns.deauth import DeauthCampaign
-from wifit3.campaigns.eviltwin import EvilTwinCampaign
-from wifit3.campaigns.pbc import WpsPbcCampaign
-from wifit3.campaigns.pin import WpsCampaign
-from wifit3.campaigns.pmkid import PmkidHarvestAttack
-from wifit3.campaigns.verify.psk import VerifyPskCampaign
-from wifit3.campaigns.wep import WepCampaign
-from wifit3.crack.wep import CRACK_READY_THRESHOLD
-from wifit3.models import AccessPoint, CaptureType, Handshake, HandshakeMessage, IdKey, IdSource, PersistedCapture
-from wifit3.persist.ap_state import Key
-from wifit3.ui import focus_model as fm
+from wifang.campaigns.campaign import Campaign
+from wifang.campaigns.deauth import DeauthCampaign
+from wifang.campaigns.eviltwin import EvilTwinCampaign
+from wifang.campaigns.pbc import WpsPbcCampaign
+from wifang.campaigns.pin import WpsCampaign
+from wifang.campaigns.pmkid import PmkidHarvestAttack
+from wifang.campaigns.verify.psk import VerifyPskCampaign
+from wifang.campaigns.wep import WepCampaign
+from wifang.crack.wep import CRACK_READY_THRESHOLD
+from wifang.models import AccessPoint, CaptureType, Handshake, HandshakeMessage, IdKey, IdSource, PersistedCapture
+from wifang.persist.ap_state import Key
+from wifang.ui import focus_model as fm
 from tests.wlan.mocks import build_ap
-from wifit3.ui.screens.focus_v2 import FocusViewV2
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.crack import wpa_psk
-from wifit3.dot11.wpa import derive_pmk
-from wifit3.ui.colors import PASSWORD_MISMATCH_COLOR
+from wifang.ui.screens.focus_v2 import FocusViewV2
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.crack import wpa_psk
+from wifang.dot11.wpa import derive_pmk
+from wifang.ui.colors import PASSWORD_MISMATCH_COLOR
 from tests.hashline_dates import write_hashline_dates
 
 

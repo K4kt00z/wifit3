@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from wifit3.ui.app import WifiteApp
+from wifang.ui.app import WifiteApp
 
 if sys.platform == "win32":
     pytest.skip("POSIX signals only", allow_module_level=True)

@@ -2,12 +2,12 @@
 
 import pytest
 
-from wifit3.campaigns import pbc as pbc_mod
-from wifit3.campaigns.pbc import WpsPbcCampaign
-from wifit3.campaigns.wps.registrar import AttemptOutcome, PinResult
-from wifit3.wlan.lease import Lease
-from wifit3.dot11 import mac_to_str, str_to_mac
-from wifit3.models import AccessPoint
+from wifang.campaigns import pbc as pbc_mod
+from wifang.campaigns.pbc import WpsPbcCampaign
+from wifang.campaigns.wps.registrar import AttemptOutcome, PinResult
+from wifang.wlan.lease import Lease
+from wifang.dot11 import mac_to_str, str_to_mac
+from wifang.models import AccessPoint
 
 
 # ----- capture() arms/restores through the lease (migration guard) -----------

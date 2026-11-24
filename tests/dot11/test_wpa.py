@@ -3,10 +3,10 @@ import hmac
 
 import pytest
 
-from wifit3.dot11.eapol import AES_128_CMAC, HMAC_MD5_RC4, HMAC_SHA1_AES, MIC_OFFSET
-from wifit3.dot11.wpa import build_eapol_m2, derive_pmk, derive_ptk, is_valid_psk
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.packet import EapolPacket
+from wifang.dot11.eapol import AES_128_CMAC, HMAC_MD5_RC4, HMAC_SHA1_AES, MIC_OFFSET
+from wifang.dot11.wpa import build_eapol_m2, derive_pmk, derive_ptk, is_valid_psk
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.packet import EapolPacket
 
 
 def test_derive_ptk_length():

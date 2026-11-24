@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import pytest
 from textual.app import App
 
-from wifit3.ui.screens.focus_v2.eviltwin_modal import (
+from wifang.ui.screens.focus_v2.eviltwin_modal import (
     EvilTwinInputModal, _plus_one, _random_bssid, _CYCLES,
 )
 
@@ -67,8 +67,8 @@ def _card(fake_mac):
 
 @pytest.mark.asyncio
 async def test_modal_stays_visible_and_compacts_on_small_screens():
-    from wifit3.chips.driver import FakeMacSupport
-    from wifit3.dot11.pmf import PmfPosture
+    from wifang.chips.driver import FakeMacSupport
+    from wifang.dot11.pmf import PmfPosture
 
     target = SimpleNamespace(
         channel=6, bssid="94:83:c4:8c:3f:78", pmf_posture=PmfPosture.DISABLED)
@@ -93,8 +93,8 @@ async def test_modal_stays_visible_and_compacts_on_small_screens():
 
 def test_a_card_that_cannot_spoof_a_mac_cannot_host():
     """mt7601u leaves FAKE_MAC at the ABC default, so it is not a valid host."""
-    from wifit3.chips.driver import FakeMacSupport
-    from wifit3.ui.screens.focus_v2.eviltwin_modal import _can_host
+    from wifang.chips.driver import FakeMacSupport
+    from wifang.ui.screens.focus_v2.eviltwin_modal import _can_host
     assert _can_host(_card(FakeMacSupport.NONE)) is False
     assert _can_host(_card(FakeMacSupport.UNIMPLEMENTED)) is False
     assert _can_host(_card(FakeMacSupport.SPOOFABLE)) is True
@@ -107,7 +107,7 @@ def test_the_start_button_refuses_when_no_member_can_host():
     is worse than one that explains itself, so the guard is part of _start_eviltwin."""
     import inspect
 
-    from wifit3.ui.screens.focus_v2 import screen as focus_screen
+    from wifang.ui.screens.focus_v2 import screen as focus_screen
     src = inspect.getsource(focus_screen.FocusViewV2._start_eviltwin)
     assert "any(_can_host(m) for m in array.members)" in src
     # The guard must return before the modal is pushed, or it never fires.

@@ -13,22 +13,22 @@ from types import SimpleNamespace
 import pytest
 import usb.core
 
-from wifit3.chips.driver import Driver, FakeMacSupport
-from wifit3.chips.mt7601u import SUPPORTED_IDS, import_driver
-from wifit3.chips.mt7601u.constants import (
+from wifang.chips.driver import Driver, FakeMacSupport
+from wifang.chips.mt7601u import SUPPORTED_IDS, import_driver
+from wifang.chips.mt7601u.constants import (
     MT_MAC_ADDR_DW0,
     MT_MAC_ADDR_DW1,
     MT_MAC_ADDR_DW1_U2ME_MASK,
 )
-from wifit3.chips.mt7601u.mac import STAT_WORK_INTERVAL_S
-from wifit3.chips.mt7601u.driver import (
+from wifang.chips.mt7601u.mac import STAT_WORK_INTERVAL_S
+from wifang.chips.mt7601u.driver import (
     CALIBRATE_INTERVAL_S,
     RX_BUFFER_SIZE,
     MT7601UDriver,
 )
-from wifit3.chips.mt7601u.tx import TX_NO_STATION, TX_QUEUE_AC_BE, build_tx_dma
+from wifang.chips.mt7601u.tx import TX_NO_STATION, TX_QUEUE_AC_BE, build_tx_dma
 from tests.chips.mt7601u.test_rx import build_segment
-from wifit3.models.device_id import DeviceID
+from wifang.models.device_id import DeviceID
 
 
 @pytest.fixture(name="driver")
@@ -336,14 +336,14 @@ class TestBringUpFailsLoudlyOnAWedgedChip:
     """
 
     def test_a_wedged_chip_raises_instead_of_connecting(self, driver) -> None:
-        from wifit3.errors import BringUpError
+        from wifang.errors import BringUpError
 
         driver.transport.rr = lambda offset: 0xFFFFFFFF
         with pytest.raises(BringUpError, match="no response"):
             driver._require_live_chip()
 
     def test_the_error_names_the_replug_you_actually_need(self, driver) -> None:
-        from wifit3.errors import BringUpError
+        from wifang.errors import BringUpError
 
         driver.transport.rr = lambda offset: 0xFFFFFFFF
         with pytest.raises(BringUpError) as excinfo:
@@ -378,14 +378,14 @@ class TestBringUpRefusesAKernelBoundChip:
             is_kernel_driver_active=lambda iface: bound)
 
     def test_a_kernel_bound_chip_raises_before_claiming(self, driver) -> None:
-        from wifit3.errors import BringUpError
+        from wifang.errors import BringUpError
 
         self._bind(driver, True)
         with pytest.raises(BringUpError, match="kernel mt7601u driver is bound"):
             driver._refuse_kernel_bound_chip()
 
     def test_the_error_says_unloading_is_not_enough(self, driver) -> None:
-        from wifit3.errors import BringUpError
+        from wifang.errors import BringUpError
 
         self._bind(driver, True)
         with pytest.raises(BringUpError) as excinfo:

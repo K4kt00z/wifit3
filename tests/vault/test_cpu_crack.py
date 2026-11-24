@@ -3,12 +3,12 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.crack import wpa_psk
-from wifit3.crack.hc22000_format import parse_hc22000, pmkid_hashline
-from wifit3.crack.passwords import all_ssid_variants, ssid_passwords, ssid_variants
-from wifit3.dot11 import wpa
-from wifit3.dot11.eapol import eapol_key
-from wifit3.dot11.wpa import (
+from wifang.crack import wpa_psk
+from wifang.crack.hc22000_format import parse_hc22000, pmkid_hashline
+from wifang.crack.passwords import all_ssid_variants, ssid_passwords, ssid_variants
+from wifang.dot11 import wpa
+from wifang.dot11.eapol import eapol_key
+from wifang.dot11.wpa import (
     KCK_LEN,
     derive_ptk,
     derive_ptk_sha256,
@@ -16,14 +16,14 @@ from wifit3.dot11.wpa import (
     eapol_mic_aes_cmac,
     eapol_mic_hmac_md5,
 )
-from wifit3.models import Handshake, PersistedCapture, ToolResult, ToolStatus
-from wifit3.models.access_point import CaptureType
-from wifit3.models.jobs import JobAction, JobState
-from wifit3.persist.config import Config
-from wifit3.persist.meta import read_bssid_metas
-from wifit3.persist.exhaustion import (SSID_VARIANTS_IDENTITY, capture_hashline_ids, read_exhaustion,
+from wifang.models import Handshake, PersistedCapture, ToolResult, ToolStatus
+from wifang.models.access_point import CaptureType
+from wifang.models.jobs import JobAction, JobState
+from wifang.persist.config import Config
+from wifang.persist.meta import read_bssid_metas
+from wifang.persist.exhaustion import (SSID_VARIANTS_IDENTITY, capture_hashline_ids, read_exhaustion,
                                        wordlist_identity)
-from wifit3.vault.tools.cpu_crack import CpuCrackTool
+from wifang.vault.tools.cpu_crack import CpuCrackTool
 
 # hashcat wiki example_hashes, mode 22000 (password "hashcat!", essid "hashcat-essid").
 _HASHCAT_PMKID_LINE = (
@@ -84,7 +84,7 @@ def _gate_pmk(mocker) -> tuple[threading.Event, threading.Event]:
         release.wait(_JOIN_SECONDS)
         return real_pmk(psk, ssid)
 
-    mocker.patch("wifit3.dot11.wpa.derive_pmk", side_effect=gated)
+    mocker.patch("wifang.dot11.wpa.derive_pmk", side_effect=gated)
     return entered, release
 
 
@@ -173,7 +173,7 @@ def test_cpu_crack_tries_ssid_variants_before_the_wordlist(tool, tmp_path, mocke
     mac_ap, mac_sta = bytes.fromhex("fc690c158264"), bytes.fromhex("f4747f87f9f4")
     pmkid = wpa_psk.pmkid(wpa.derive_pmk(psk, ssid.encode()), mac_ap, mac_sta)
     line = f"WPA*01*{pmkid.hex()}*{mac_ap.hex()}*{mac_sta.hex()}*{ssid.encode().hex()}***"
-    pmk_spy = mocker.patch("wifit3.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
+    pmk_spy = mocker.patch("wifang.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
 
     job = _launch(tool, tmp_path, [line], [["wrongpass1"]], ap_ssid_passwords=True)
     result = _poll_finished(tool, job)
@@ -189,7 +189,7 @@ def test_cpu_crack_tries_probed_ssid_variants_before_the_wordlist(tool, tmp_path
     essid = b"hashcat-essid"
     pmkid = wpa_psk.pmkid(wpa.derive_pmk(psk, essid), mac_ap, mac_sta)
     line = f"WPA*01*{pmkid.hex()}*{mac_ap.hex()}*{mac_sta.hex()}*{essid.hex()}***"
-    pmk_spy = mocker.patch("wifit3.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
+    pmk_spy = mocker.patch("wifang.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
 
     job = _launch(tool, tmp_path, [line], [["wrongpass1"]], extra_passwords=[probed_ssid])
     result = _poll_finished(tool, job)
@@ -216,7 +216,7 @@ def test_cpu_crack_counts_and_dedupes_the_ssid_passwords_in_the_total(tool, tmp_
 
 
 def test_cpu_crack_derives_one_pmk_per_password_and_essid(tool, tmp_path, mocker):
-    pmk_spy = mocker.patch("wifit3.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
+    pmk_spy = mocker.patch("wifang.dot11.wpa.derive_pmk", wraps=wpa.derive_pmk)
 
     first = _launch(tool, tmp_path, [_HASHCAT_PMKID_LINE, _UNCRACKABLE_PMKID_LINE],
                     [["wrongpass1"]], job_id="first")
@@ -325,7 +325,7 @@ def test_default_passwords_box_runs_the_default_list_before_the_wordlists(tool, 
                                                                          ticked):
     default = tmp_path / "default_passwords.txt"
     default.write_text("hashcat!\n", encoding="utf-8")
-    mocker.patch("wifit3.vault.tools.cpu_crack.DEFAULT_PASSWORDS_PATH", default)
+    mocker.patch("wifang.vault.tools.cpu_crack.DEFAULT_PASSWORDS_PATH", default)
     wordlist = _write(tmp_path / "words.txt", ["unrelated"])
     job = _launch_with(tool, tmp_path, [_HASHCAT_PMKID_LINE], wordlists=[wordlist],
                        default_passwords=ticked, ap_ssid_passwords=False)
@@ -346,7 +346,7 @@ def _capture_exhaustion(job: JobState) -> set[str]:
 def test_each_password_source_is_its_own_queue_entry_recorded_once_exhausted(tool, tmp_path,
                                                                              mocker):
     default = Path(_write(tmp_path / "default_passwords.txt", ["defaultpass", "CafeGuest"]))
-    mocker.patch("wifit3.vault.tools.cpu_crack.DEFAULT_PASSWORDS_PATH", default)
+    mocker.patch("wifang.vault.tools.cpu_crack.DEFAULT_PASSWORDS_PATH", default)
     wordlist = _write(tmp_path / "words.txt", ["unrelated", "CafeGuest"])
     job = _launch_with(tool, tmp_path, [_UNCRACKABLE_SHORT_ESSID_LINE], wordlists=[wordlist],
                        default_passwords=True, ap_ssid_passwords=True,

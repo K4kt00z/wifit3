@@ -17,11 +17,11 @@ import struct
 
 import pytest
 
-from wifit3.dot11.wsc import messages as M
-from wifit3.dot11.wsc import crypto as wc
-from wifit3.campaigns.wps import enrollee
-from wifit3.campaigns.wps.enrollee import UUID_E, WpsEnrollee
-from wifit3.campaigns.wps.registrar import PinResult
+from wifang.dot11.wsc import messages as M
+from wifang.dot11.wsc import crypto as wc
+from wifang.campaigns.wps import enrollee
+from wifang.campaigns.wps.enrollee import UUID_E, WpsEnrollee
+from wifang.campaigns.wps.registrar import PinResult
 
 
 @pytest.fixture(autouse=True)

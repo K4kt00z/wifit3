@@ -14,14 +14,14 @@ import pytest
 import usb.core
 from textual.widgets import Label
 
-import wifit3.device.manager as manager
-from wifit3.chips.driver import DeviceID
-from wifit3.chips.rt2800usb.driver import RT2800USBDriver
-from wifit3.chips.rtl8187.driver import RTL8187Driver
-from wifit3.device.manager import DeviceManager, Status
-from wifit3.errors import BringUpError
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.splash import SplashView
+import wifang.device.manager as manager
+from wifang.chips.driver import DeviceID
+from wifang.chips.rt2800usb.driver import RT2800USBDriver
+from wifang.chips.rtl8187.driver import RTL8187Driver
+from wifang.device.manager import DeviceManager, Status
+from wifang.errors import BringUpError
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.splash import SplashView
 
 
 @pytest.mark.asyncio

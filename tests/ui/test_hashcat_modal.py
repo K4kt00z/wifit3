@@ -7,18 +7,18 @@ from textual.app import App
 from textual.containers import VerticalScroll
 from textual.widgets import Button, Checkbox, Input, Label
 
-import wifit3.ui.vault.modals.hashcat as mod
-from wifit3.crack.passwords import (DEFAULT_PASSWORDS_PATH, all_ssid_variants, read_passwords, ssid_passwords,
+import wifang.ui.vault.modals.hashcat as mod
+from wifang.crack.passwords import (DEFAULT_PASSWORDS_PATH, all_ssid_variants, read_passwords, ssid_passwords,
                                     ssid_variants)
-from wifit3.models import CaptureType, PersistedCapture
-from wifit3.persist.config import Config, ConfigError, HashcatSettings
-from wifit3.persist.meta import update_meta
-from wifit3.ui.vault.modals.cpu_crack import CpuCrackConfigModal
-from wifit3.ui.vault.modals.hashcat import HashcatConfigModal, _default_hashcat_path
-from wifit3.ui.vault.modals.wordlists import _RemoveButton, _UseCheckbox, _exhausted_tooltip
-from wifit3.crack.hc22000_format import hashline_id, parse_hc22000
-from wifit3.persist.ap_state import DatedHashline
-from wifit3.persist.exhaustion import Exhaustion, wordlist_identity
+from wifang.models import CaptureType, PersistedCapture
+from wifang.persist.config import Config, ConfigError, HashcatSettings
+from wifang.persist.meta import update_meta
+from wifang.ui.vault.modals.cpu_crack import CpuCrackConfigModal
+from wifang.ui.vault.modals.hashcat import HashcatConfigModal, _default_hashcat_path
+from wifang.ui.vault.modals.wordlists import _RemoveButton, _UseCheckbox, _exhausted_tooltip
+from wifang.crack.hc22000_format import hashline_id, parse_hc22000
+from wifang.persist.ap_state import DatedHashline
+from wifang.persist.exhaustion import Exhaustion, wordlist_identity
 from tests.ui.wait_until import wait_until
 
 
@@ -73,7 +73,7 @@ def test_default_path_falls_back_per_os(monkeypatch):
 
 
 def test_saved_path_outranks_a_hashcat_found_on_path(monkeypatch):
-    """Someone who points wifit3 at a specific build must not be silently overridden by
+    """Someone who points wifang at a specific build must not be silently overridden by
     whatever happens to be on $PATH."""
     monkeypatch.setattr(mod.shutil, "which", lambda _: "/somewhere/hashcat")
     monkeypatch.setattr(Config.hashcat, "path", r"D:\tools\hashcat\hashcat.exe")

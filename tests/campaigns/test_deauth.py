@@ -7,10 +7,10 @@ counts, so the loop's stop condition fires without building a real 4-way.
 """
 from types import SimpleNamespace
 
-from wifit3.campaigns.deauth import DeauthCampaign
-from wifit3.models import AccessPoint, Handshake
-from wifit3.wlan.interface import DeauthResult
-from wifit3.wlan.lease import Lease
+from wifang.campaigns.deauth import DeauthCampaign
+from wifang.models import AccessPoint, Handshake
+from wifang.wlan.interface import DeauthResult
+from wifang.wlan.lease import Lease
 
 _BSSID = "aa:bb:cc:dd:ee:01"
 

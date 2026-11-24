@@ -3,13 +3,13 @@ live MIC-failure oracle, exactly like WepChopChop's injectable ``_probe``.
 """
 import zlib
 
-from wifit3.campaigns.tkip.chop import REKEY_ABORT_REASON, TkipChop
-from wifit3.dot11.michael import michael
-from wifit3.dot11.mac import mac_to_str
-from wifit3.dot11.packet import EapolPacket
-from wifit3.dot11.tkip import tkip_rc4_key
-from wifit3.dot11.wep.crypto import CRC32_RESIDUE, icv
-from wifit3.crack.wep import rc4_keystream
+from wifang.campaigns.tkip.chop import REKEY_ABORT_REASON, TkipChop
+from wifang.dot11.michael import michael
+from wifang.dot11.mac import mac_to_str
+from wifang.dot11.packet import EapolPacket
+from wifang.dot11.tkip import tkip_rc4_key
+from wifang.dot11.wep.crypto import CRC32_RESIDUE, icv
+from wifang.crack.wep import rc4_keystream
 
 _KNOWN_ARP16 = bytes([
     0xAA, 0xAA, 0x03, 0x00, 0x00, 0x00, 0x08, 0x06,

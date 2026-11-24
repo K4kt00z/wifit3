@@ -1,9 +1,9 @@
 """Tests for the typed auto-save module (persist.save)."""
 from __future__ import annotations
 
-from wifit3.crack.hc22000_format import read_hc22000
-from wifit3.models import AccessPoint, HandshakeMessage, Handshake
-from wifit3.persist.save import (
+from wifang.crack.hc22000_format import read_hc22000
+from wifang.models import AccessPoint, HandshakeMessage, Handshake
+from wifang.persist.save import (
     HcFiles,
     consolidate_hc_files,
     save_handshake,

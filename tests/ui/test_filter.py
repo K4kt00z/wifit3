@@ -3,10 +3,10 @@ import pytest
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Checkbox, Input, Select
 
-from wifit3.models import AccessPoint
-from wifit3.persist.config import Config
-from wifit3.ui.encryption_format import EncryptionType
-from wifit3.ui.screens.filter import EncryptionFilter, FilterBar, ScanFilter, text_matches
+from wifang.models import AccessPoint
+from wifang.persist.config import Config
+from wifang.ui.encryption_format import EncryptionType
+from wifang.ui.screens.filter import EncryptionFilter, FilterBar, ScanFilter, text_matches
 
 
 def _ap(**kw) -> AccessPoint:

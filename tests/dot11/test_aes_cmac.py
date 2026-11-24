@@ -1,5 +1,5 @@
 """AES-128 (FIPS-197 Appendix C.1) and AES-CMAC (RFC 4493 section 4) vectors."""
-from wifit3.dot11.aes_cmac import aes128_encrypt, aes_cmac
+from wifang.dot11.aes_cmac import aes128_encrypt, aes_cmac
 
 _CMAC_KEY = bytes.fromhex("2b7e151628aed2a6abf7158809cf4f3c")
 _CMAC_MESSAGE = bytes.fromhex(

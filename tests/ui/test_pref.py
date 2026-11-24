@@ -4,13 +4,13 @@ import pytest
 from textual.app import App
 from textual.widgets import Button, Checkbox, Select
 
-from wifit3.models import ToolName
-from wifit3.persist import config
-from wifit3.persist.config import Config, ConfigError
-from wifit3.persist.vault import Vault
-from wifit3.ui.pref import PreferencesModal
-from wifit3.ui.vault.modals.cpu_crack import CpuCrackConfigModal
-from wifit3.ui.vault.modals.hashcat import HashcatConfigModal
+from wifang.models import ToolName
+from wifang.persist import config
+from wifang.persist.config import Config, ConfigError
+from wifang.persist.vault import Vault
+from wifang.ui.pref import PreferencesModal
+from wifang.ui.vault.modals.cpu_crack import CpuCrackConfigModal
+from wifang.ui.vault.modals.hashcat import HashcatConfigModal
 from tests.ui.wait_until import wait_until
 
 

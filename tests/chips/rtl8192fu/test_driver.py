@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 
 import usb.util
 
-import wifit3.chips.rtl8192fu.driver as drv
-from wifit3.chips.rtl8192fu import constants as C
-from wifit3.chips.rtl8192fu.core import Nl80211Iftype, Rtl8xxxuPriv
-from wifit3.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
-from wifit3.chips.rtl8192fu.transport import RTL8192FUTransport
+import wifang.chips.rtl8192fu.driver as drv
+from wifang.chips.rtl8192fu import constants as C
+from wifang.chips.rtl8192fu.core import Nl80211Iftype, Rtl8xxxuPriv
+from wifang.chips.rtl8192fu.rtl8192f import rtl8192fu_fops
+from wifang.chips.rtl8192fu.transport import RTL8192FUTransport
 
 from .fake import FakeTransport
 

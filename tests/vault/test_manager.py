@@ -5,12 +5,12 @@ import time
 import pytest
 from concurrent.futures import Future
 from unittest.mock import MagicMock, patch
-from wifit3.vault.manager import JobManager
-from wifit3.models.jobs import JobAction, JobState, ToolCapability, ToolStatus, ToolResult
-from wifit3.models import PersistedCapture
-from wifit3.persist.ap_state import PasswordStatus
-from wifit3.crack import wpa_psk
-from wifit3.dot11.wpa import derive_pmk
+from wifang.vault.manager import JobManager
+from wifang.models.jobs import JobAction, JobState, ToolCapability, ToolStatus, ToolResult
+from wifang.models import PersistedCapture
+from wifang.persist.ap_state import PasswordStatus
+from wifang.crack import wpa_psk
+from wifang.dot11.wpa import derive_pmk
 
 class DummyTool:
     def __init__(self, name="dummy", capabilities=ToolCapability.NONE):
@@ -37,15 +37,15 @@ class DummyTool:
 def manager(mocker):
     vault = MagicMock()
     # Mock save to avoid writing to disk
-    mocker.patch("wifit3.vault.manager.JobManager._save")
-    mocker.patch("wifit3.vault.manager.JobManager._load")
+    mocker.patch("wifang.vault.manager.JobManager._save")
+    mocker.patch("wifang.vault.manager.JobManager._load")
 
     mgr = JobManager(vault)
     mgr.tools["dummy"] = DummyTool()
     return mgr
 
 def test_queued_jobs_share_one_capture_lookup_per_poll(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     captures = [
         PersistedCapture(type=CaptureType.HS, timestamp=0, path=f"capture-{index}.pcap",
                          bssid=f"00:11:22:33:44:{index:02x}")
@@ -63,7 +63,7 @@ def test_queued_jobs_share_one_capture_lookup_per_poll(manager):
 
 
 def test_job_lifecycle(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap", bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
     
@@ -90,7 +90,7 @@ def test_job_lifecycle(manager):
 
 
 def _running_job(manager, actions=JobAction.STOP):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55")
     job_id = manager.submit_job("dummy", cap, {}, [])
@@ -123,7 +123,7 @@ def test_an_action_the_job_does_not_offer_is_refused(manager):
 
 
 def test_actions_of_a_queued_job_are_clear_only(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55")
     job_id = manager.submit_job("dummy", cap, {}, [])
@@ -133,7 +133,7 @@ def test_actions_of_a_queued_job_are_clear_only(manager):
 
 
 def test_poll_offers_the_tools_actions_while_running_and_clear_once_finished(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
@@ -157,7 +157,7 @@ def test_poll_offers_the_tools_actions_while_running_and_clear_once_finished(man
 
 def test_poll_persists_a_tool_that_moved_the_job_on_without_changing_status(manager):
     """The tool advancing its own queue (new pid, new tool_state) must reach jobs.json."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
@@ -180,7 +180,7 @@ def test_poll_persists_a_tool_that_moved_the_job_on_without_changing_status(mana
 
 
 def test_poll_notifies_the_ap_only_when_the_job_moves_to_another_wordlist_or_ends(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
@@ -199,7 +199,7 @@ def test_poll_notifies_the_ap_only_when_the_job_moves_to_another_wordlist_or_end
 
 
 def test_crack_success_persists_key(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55", ssid="TestNet")
     manager.vault.all_captures.return_value = [cap]
@@ -219,7 +219,7 @@ def test_crack_success_persists_key(manager):
 
 
 def test_a_failed_propagation_to_related_aps_is_logged_and_the_job_still_succeeds(manager, caplog):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap",
                            bssid="00:11:22:33:44:55", ssid="TestNet")
     propagation: Future = Future()
@@ -245,7 +245,7 @@ def _pmkid_line(psk: str, ssid: str) -> str:
 
 def test_crack_success_saves_the_key_under_the_ssid_of_the_line_it_cracks(manager):
     """The lossless hashline ESSID of the line the key cracks, not the first line's."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
     manager.vault.all_captures.return_value = [cap]
@@ -274,7 +274,7 @@ def _crack(manager, cap: PersistedCapture, hashlines: list[str], key: str,
 
 
 def test_a_key_that_cracks_lines_of_two_ssids_is_saved_under_both(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
 
@@ -289,7 +289,7 @@ def test_a_key_that_cracks_lines_of_two_ssids_is_saved_under_both(manager):
 
 def test_a_key_no_line_verifies_is_saved_under_the_first_lines_ssid_not_the_filename_one(manager):
     """hashcat's nonce-error-correction cracks lines a plain PMKID/MIC check rejects."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
 
@@ -299,13 +299,13 @@ def test_a_key_no_line_verifies_is_saved_under_the_first_lines_ssid_not_the_file
 
 
 def _ap_state(status: PasswordStatus, key: str) -> MagicMock:
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     return MagicMock(status=status, status_key=MagicMock(value=key), keys=(),
                      key_statuses={(CaptureType.WPA_PSK, key): status})
 
 
 def test_a_running_job_whose_key_makes_the_ap_current_is_stopped(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
     manager.vault.ap_state.return_value = _ap_state(PasswordStatus.CURRENT, "newpass1")
@@ -317,7 +317,7 @@ def test_a_running_job_whose_key_makes_the_ap_current_is_stopped(manager):
 
 
 def test_a_running_job_whose_key_leaves_the_ap_not_verified_keeps_running(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
     manager.vault.ap_state.return_value = _ap_state(PasswordStatus.NOT_VERIFIED, "newpass1")
@@ -329,7 +329,7 @@ def test_a_running_job_whose_key_leaves_the_ap_not_verified_keeps_running(manage
 
 
 def test_a_stopped_job_whose_key_makes_the_ap_current_is_a_success(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
     manager.vault.ap_state.return_value = _ap_state(PasswordStatus.CURRENT, "newpass1")
@@ -340,7 +340,7 @@ def test_a_stopped_job_whose_key_makes_the_ap_current_is_a_success(manager):
 
 
 def test_a_job_whose_capture_is_gone_still_launches_and_saves_its_key_from_its_own_hashlines(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="Cafe_WiFi_00-11-22-33-44-55.hc22000",
                            bssid="00:11:22:33:44:55", ssid="Cafe_WiFi")
     job_id = manager.submit_job("dummy", cap, {}, [_pmkid_line("newpass1", "Cafe WiFi")])
@@ -356,7 +356,7 @@ def test_a_job_whose_capture_is_gone_still_launches_and_saves_its_key_from_its_o
 
 
 def test_a_job_with_neither_capture_nor_hashlines_errors(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.PMKID, timestamp=0, path="gone.hc22000", bssid="00:11:22:33:44:55")
     job_id = manager.submit_job("dummy", cap, {}, [])
     manager.vault.all_captures.return_value = []
@@ -368,7 +368,7 @@ def test_a_job_with_neither_capture_nor_hashlines_errors(manager):
 
 def test_reconcile_recovers_the_key_of_a_hashcat_job_from_an_older_jobs_json(tmp_path):
     """Its hashcat was started on the capture, with the potfile beside it."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     capture = tmp_path / "ASUS_00-11-22-33-44-55.hc22000"
     capture.write_text(f"{_pmkid_line('hunter22', 'ASUS')}\n", encoding="utf-8")
     capture.with_suffix(".potfile").write_text("hash*41535553:hunter22\n", encoding="utf-8")
@@ -391,7 +391,7 @@ def test_reconcile_recovers_the_key_of_a_hashcat_job_from_an_older_jobs_json(tmp
 
 
 def test_reconcile_resolves_dead_running_job(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap", bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
     manager.tools["dummy"].capabilities = ToolCapability.ADOPTABLE
@@ -409,7 +409,7 @@ def test_reconcile_resolves_dead_running_job(manager):
 
 def test_reconcile_adopts_live_running_job(manager):
     """A process still alive at startup (tool reports RUNNING) is kept RUNNING, not resolved."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap", bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
     manager.tools["dummy"].capabilities = ToolCapability.ADOPTABLE
@@ -424,7 +424,7 @@ def test_reconcile_adopts_live_running_job(manager):
 
 def test_reconcile_isolates_a_failing_job(manager):
     """One job whose poll_status raises is marked ERROR without aborting the loop."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap", bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
     manager.tools["dummy"].capabilities = ToolCapability.ADOPTABLE
@@ -438,7 +438,7 @@ def test_reconcile_isolates_a_failing_job(manager):
 
 
 def test_reconcile_stops_a_running_job_of_a_tool_that_cannot_be_adopted(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="test.pcap", bssid="00:11:22:33:44:55")
     manager.vault.all_captures.return_value = [cap]
     job_id = manager.submit_job("dummy", cap, {}, [])
@@ -452,7 +452,7 @@ def test_reconcile_stops_a_running_job_of_a_tool_that_cannot_be_adopted(manager)
 
 
 def test_singleton_tool_runs_one_at_a_time(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     manager.tools["dummy"].capabilities = ToolCapability.SINGLETON
     cap1 = PersistedCapture(type=CaptureType.HS, timestamp=0, path="a.pcap", bssid="00:11:22:33:44:55")
     cap2 = PersistedCapture(type=CaptureType.HS, timestamp=0, path="b.pcap", bssid="00:11:22:33:44:66")
@@ -467,7 +467,7 @@ def test_singleton_tool_runs_one_at_a_time(manager):
 
 
 def test_non_singleton_tool_allows_concurrent_jobs(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap1 = PersistedCapture(type=CaptureType.HS, timestamp=0, path="a.pcap", bssid="00:11:22:33:44:55")
     cap2 = PersistedCapture(type=CaptureType.HS, timestamp=0, path="b.pcap", bssid="00:11:22:33:44:66")
     manager.vault.all_captures.return_value = [cap1, cap2]
@@ -481,7 +481,7 @@ def test_non_singleton_tool_allows_concurrent_jobs(manager):
 
 
 def test_kill_all_running_respects_killable(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     killable = DummyTool(name="killable", capabilities=ToolCapability.KILLABLE)
     headless = DummyTool(name="headless", capabilities=ToolCapability.NONE)
     manager.tools["killable"] = killable
@@ -502,7 +502,7 @@ def test_kill_all_running_respects_killable(manager):
 def test_kill_all_running_leaves_adoptable_alive(manager):
     """An ADOPTABLE tool (e.g. hashcat) is left running on shutdown so its job survives to be
     adopted on the next launch."""
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     adoptable = DummyTool(name="adoptable",
                           capabilities=ToolCapability.KILLABLE | ToolCapability.ADOPTABLE)
     manager.tools["adoptable"] = adoptable
@@ -530,7 +530,7 @@ def test_load_skips_bad_entry_keeps_good(tmp_path):
 
 def test_a_finished_job_loaded_from_disk_can_still_be_cleared(tmp_path, mocker):
     """jobs.json has no actions column: they are derived, so a restart must not strand a job."""
-    mocker.patch("wifit3.vault.manager.JobManager._save")
+    mocker.patch("wifang.vault.manager.JobManager._save")
     (tmp_path / "jobs.json").write_text(json.dumps({"j1": {
         "job_id": "j1", "tool_name": "hashcat", "capture_path": "a.hc22000",
         "status": "FAILURE", "progress_msg": "3 wordlists",
@@ -578,7 +578,7 @@ def test_jobs_json_keeps_the_progress_fields(tmp_path, mocker):
 
 
 def test_submit_job_marks_an_auto_crack_job_and_jobs_json_keeps_it(tmp_path, mocker):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="a.hc22000", bssid="00:11:22:33:44:55")
     manager = JobManager(MagicMock())
     auto_crack_id = manager.submit_job("cpu_crack", cap, {"wordlists": ["w.txt"]}, [], auto_crack=True)
@@ -591,7 +591,7 @@ def test_submit_job_marks_an_auto_crack_job_and_jobs_json_keeps_it(tmp_path, moc
 
 
 def test_submit_job_writes_the_hashlines_in_the_jobs_dir_and_clear_removes_the_jobs_files(tmp_path):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     capture = tmp_path / "a.hc22000"
     capture.write_text("WPA*02*a\n", encoding="utf-8")
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path=str(capture), bssid="00:11:22:33:44:55")
@@ -630,7 +630,7 @@ def test_clearing_a_job_from_an_older_jobs_json_never_deletes_its_capture(tmp_pa
 
 
 def test_jobs_submitted_back_to_back_each_get_their_own_id_and_hashlines_file(manager):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="a.hc22000", bssid="00:11:22:33:44:55")
     lines = ["WPA*02*a", "WPA*02*b", "WPA*02*c"]
 
@@ -642,7 +642,7 @@ def test_jobs_submitted_back_to_back_each_get_their_own_id_and_hashlines_file(ma
 
 
 def test_clearing_a_job_whose_file_cannot_be_removed_still_drops_the_job(tmp_path):
-    from wifit3.models.access_point import CaptureType
+    from wifang.models.access_point import CaptureType
     cap = PersistedCapture(type=CaptureType.HS, timestamp=0, path="a.hc22000", bssid="00:11:22:33:44:55")
     manager = JobManager(MagicMock())
     job_id = manager.submit_job("cpu_crack", cap, {}, ["WPA*02*a"])
@@ -655,7 +655,7 @@ def test_clearing_a_job_whose_file_cannot_be_removed_still_drops_the_job(tmp_pat
 
 
 def test_a_job_saved_before_the_progress_fields_existed_still_loads(tmp_path, mocker):
-    mocker.patch("wifit3.vault.manager.JobManager._save")
+    mocker.patch("wifang.vault.manager.JobManager._save")
     (tmp_path / "jobs.json").write_text(json.dumps({"j1": {
         "job_id": "j1", "tool_name": "hashcat", "capture_path": "a.hc22000",
         "status": "SUCCESS", "progress_msg": "Cracked! Key: k", "display_name": "hashcat (A)",
@@ -669,7 +669,7 @@ def test_a_job_saved_before_the_progress_fields_existed_still_loads(tmp_path, mo
 
 
 def test_a_job_saved_with_the_older_automatic_key_loads_as_auto_crack(tmp_path, mocker):
-    mocker.patch("wifit3.vault.manager.JobManager._save")
+    mocker.patch("wifang.vault.manager.JobManager._save")
     (tmp_path / "jobs.json").write_text(json.dumps({"j1": {
         "job_id": "j1", "tool_name": "cpu_crack", "capture_path": "a.hc22000",
         "status": "SUCCESS", "progress_msg": "Cracked! Key: k", "automatic": True,
@@ -680,7 +680,7 @@ def test_a_job_saved_with_the_older_automatic_key_loads_as_auto_crack(tmp_path, 
 
 def _wait_for_exit(tool, pid, seconds=10.0):
     """The fake hashcat prints one line and exits; on Windows hashcat_console is its parent,
-    so wifit3 has no Popen to wait on."""
+    so wifang has no Popen to wait on."""
     deadline = time.monotonic() + seconds
     while tool._is_running(pid) and time.monotonic() < deadline:
         time.sleep(0.01)
@@ -701,8 +701,8 @@ def _fake_hashcat(tmp_path):
 
 def test_a_queue_of_two_wordlists_runs_both_then_reports_not_found(manager, tmp_path):
     """The whole loop against real processes: launch, exhaust, advance, exhaust, NOT FOUND."""
-    from wifit3.models.access_point import CaptureType
-    from wifit3.vault.tools.hashcat import HashcatTool
+    from wifang.models.access_point import CaptureType
+    from wifang.vault.tools.hashcat import HashcatTool
 
     capture = tmp_path / "ap.hc22000"
     hashline = f"WPA*01*{'aa' * 16}*aabbccddeeff*001122334455*41535553***"

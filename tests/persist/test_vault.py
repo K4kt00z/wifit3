@@ -13,16 +13,16 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.crack import wpa_psk
-from wifit3.crack.hc22000_format import Hc22000Line
-from wifit3.dot11.eapol import LLC_SNAP_EAPOL, NONCE_LEN, data_header, eapol_key
-from wifit3.dot11.wpa import KCK_LEN, derive_pmk, derive_ptk, eapol_mic_hmac_md5
-from wifit3.models import AccessPoint, CaptureType, Handshake, HandshakeMessage, ToolName
-from wifit3.persist.config import Config
-from wifit3.persist.ap_state import PasswordStatus
-from wifit3.persist.meta import meta_path, read_meta, update_meta
-from wifit3.persist.pcap import write_pcap
-from wifit3.persist.vault import Vault, crosses_auto_crack_threshold
+from wifang.crack import wpa_psk
+from wifang.crack.hc22000_format import Hc22000Line
+from wifang.dot11.eapol import LLC_SNAP_EAPOL, NONCE_LEN, data_header, eapol_key
+from wifang.dot11.wpa import KCK_LEN, derive_pmk, derive_ptk, eapol_mic_hmac_md5
+from wifang.models import AccessPoint, CaptureType, Handshake, HandshakeMessage, ToolName
+from wifang.persist.config import Config
+from wifang.persist.ap_state import PasswordStatus
+from wifang.persist.meta import meta_path, read_meta, update_meta
+from wifang.persist.pcap import write_pcap
+from wifang.persist.vault import Vault, crosses_auto_crack_threshold
 from tests.hashline_dates import write_hashline_dates
 
 
@@ -157,7 +157,7 @@ def test_a_change_moves_only_that_aps_revision_and_a_refresh_moves_every_aps(tmp
 @pytest.mark.parametrize("changed_bssid, cached", [("aa:bb:cc:dd:ee:01", True), ("aa:bb:cc:dd:ee:ff", False)])
 def test_ap_state_is_not_cached_only_when_that_ap_changes_while_it_loads(tmp_path, monkeypatch, changed_bssid,
                                                                         cached):
-    import wifit3.persist.ap_state as ap_state_mod
+    import wifang.persist.ap_state as ap_state_mod
     v = Vault()
     home = AccessPoint(bssid="aa:bb:cc:dd:ee:ff", ssid="HomeNet")
     v.save_wep_key(home, b"abcde")
@@ -191,7 +191,7 @@ def test_each_write_notifies_its_ap_and_a_refresh_every_ap(tmp_path):
 
 
 def test_ap_state_lists_the_wordlists_that_ran_out_on_its_uncracked_lines(tmp_path):
-    from wifit3.persist.exhaustion import ExhaustedWordlist, record_exhausted
+    from wifang.persist.exhaustion import ExhaustedWordlist, record_exhausted
     v = Vault()
     ap = _ap_with_hs(pmkid=b"\x11" * 16)
     v.save_pmkid(ap, _CLIENT)
@@ -293,7 +293,7 @@ def test_wpa_psk_has_a_kind_label():
 
 
 def test_vault_records_error_when_index_load_fails(tmp_path, monkeypatch):
-    import wifit3.persist.vault as vault_mod
+    import wifang.persist.vault as vault_mod
 
     def boom():
         raise OSError("disk gone")
@@ -460,7 +460,7 @@ def test_zip_captures_dedupes_shared_path(tmp_path):
 
 def test_open_directory_uses_platform_launcher(tmp_path, mocker):
     mocker.patch.object(sys, "platform", "linux")
-    popen = mocker.patch("wifit3.persist.vault.subprocess.Popen")
+    popen = mocker.patch("wifang.persist.vault.subprocess.Popen")
     Vault().open_directory()
     popen.assert_called_once_with(["xdg-open", str(tmp_path)])
 
@@ -468,7 +468,7 @@ def test_open_directory_uses_platform_launcher(tmp_path, mocker):
 def test_open_directory_raises_file_not_found_before_the_first_capture(tmp_path, mocker,
                                                                       monkeypatch):
     mocker.patch.object(sys, "platform", "linux")
-    popen = mocker.patch("wifit3.persist.vault.subprocess.Popen")
+    popen = mocker.patch("wifang.persist.vault.subprocess.Popen")
     monkeypatch.setattr(Config, "captures_dir", str(tmp_path / "captures"))
     with pytest.raises(FileNotFoundError):
         Vault().open_directory()

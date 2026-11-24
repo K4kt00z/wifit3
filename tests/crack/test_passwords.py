@@ -1,10 +1,10 @@
 """WPA passphrase tests: SSID variants, wordlist streaming."""
 from pathlib import Path
 
-from wifit3.crack import passwords
-from wifit3.crack.default_psks import default_psks
-from wifit3.crack.passwords import expand_wordlists, read_passwords, ssid_variants
-from wifit3.dot11.wpa import is_valid_psk
+from wifang.crack import passwords
+from wifang.crack.default_psks import default_psks
+from wifang.crack.passwords import expand_wordlists, read_passwords, ssid_variants
+from wifang.dot11.wpa import is_valid_psk
 
 
 def test_ssid_variants_start_with_the_cases_and_primary_suffixes():

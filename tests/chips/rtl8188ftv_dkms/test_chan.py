@@ -14,7 +14,7 @@ class FakeT:
 
 
 def test_spur_cal_ch1_skips_psd():
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([0x0] * 4)
     chan.spur_calibration(t, 1, {"cur_ig": 0x20})
     assert t.writes == [(0xC40, 4, 0x1F000000), (0xC40, 4, 0x200),
@@ -22,7 +22,7 @@ def test_spur_cal_ch1_skips_psd():
 
 
 def test_spur_cal_psd_notch_ch7():
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([0x1F78423F, 0x1F78423F, 0x99000000, 0x69553424,
                0x83045700, 0x69553424, 0x76, 0x82045700, 0x69553430,
                0x0, 0x0C000000, 0x100, 0x100C07, 0xCB979975])
@@ -44,7 +44,7 @@ def test_spur_cal_psd_notch_ch7():
 
 def test_spur_cal_psd_notch_ch14():
     # rtl8188f_phycfg.c:961,991-992: ch14 PSD at freq[5] 0xFF9A; :1083-1090: notch D4C 0x00180000
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([0x1F78423F, 0x1F78423F, 0x99000000, 0x69553424,
                0x83045700, 0x69553424, 0x76, 0x82045700, 0x69553430,
                0x0, 0x0C000000, 0x100, 0x100C0E, 0xCB979975])
@@ -64,14 +64,14 @@ def test_spur_cal_psd_notch_ch14():
 
 def test_sw_chnl_ch14_rf18():
     # rtl8188f_phycfg.c:1280-1281: RfRegChnlVal low byte = channel
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([0x0] * 30)
     assert chan.sw_chnl(t, 14, 0x000C01, {"cur_ig": 0x20}) == 0x000C0E
     assert (0x840, 4, (0x18 << 20) | 0x000C0E) in t.writes
 
 
 def test_sw_chnl_threads_channel():
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([0x0] * 30)
     val = chan.sw_chnl(t, 1, 0x000C01, {"cur_ig": 0x20})
     assert val == 0x000C01
@@ -79,7 +79,7 @@ def test_sw_chnl_threads_channel():
 
 
 def test_rf_bandwidth_20_values():
-    from wifit3.chips.rtl8188ftv_dkms import chan
+    from wifang.chips.rtl8188ftv_dkms import chan
     t = FakeT([])
     val = chan.rf_bandwidth_20(t, 0x000001)
     assert val == (0x000001 & 0xFFFFF3FF) | 0xC00

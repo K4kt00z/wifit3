@@ -1,7 +1,7 @@
 from typing import Optional
 
-from wifit3.campaigns.tkip import assess
-from wifit3.models.access_point import AccessPoint
+from wifang.campaigns.tkip import assess
+from wifang.models.access_point import AccessPoint
 
 
 def ap(pairwise: Optional[str], group: Optional[str], wmm: bool) -> AccessPoint:

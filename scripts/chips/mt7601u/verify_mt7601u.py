@@ -21,7 +21,7 @@ from replay_mt7601u import (  # noqa: E402
 
 def _mask_seq(payload: bytes) -> bytes:
     """Zero the MCU command sequence in a bulk-OUT payload."""
-    from wifit3.chips.mt7601u.constants import MT_TXD_CMD_INFO_SEQ
+    from wifang.chips.mt7601u.constants import MT_TXD_CMD_INFO_SEQ
 
     if len(payload) < 4:
         return payload
@@ -108,7 +108,7 @@ class StrictReplayTransport:
 
     def bulk_out(self, data: bytes, timeout_ms: int = 0) -> int:
         op = self._expect("bulk_out")
-        from wifit3.chips.mt7601u import constants as C
+        from wifang.chips.mt7601u import constants as C
         self._sent_seq = C._field_get(
             C.MT_TXD_CMD_INFO_SEQ, int.from_bytes(data[:4], "little"))
         # The MCU command seq is a free-running session counter, not port output: a
@@ -132,7 +132,7 @@ class StrictReplayTransport:
         CMD_DONE words with evt 0 and no payload the driver branches on, so this
         satisfies the await rather than byte-comparing it.
         """
-        from wifit3.chips.mt7601u import constants as C
+        from wifang.chips.mt7601u import constants as C
 
         info = (C._field_prep(C.MT_RXD_CMD_INFO_CMD_SEQ, self._sent_seq)
                 | C._field_prep(C.MT_RXD_CMD_INFO_EVT_TYPE, C.CMD_DONE))
@@ -180,7 +180,7 @@ def main() -> int:
     ops = load_ops(pcap, dev)
     print(f"dev {dev}: {len(ops)} recorded ops")
 
-    from wifit3.chips.mt7601u.eeprom import MT7601UEeprom
+    from wifang.chips.mt7601u.eeprom import MT7601UEeprom
 
     if stage == "eeprom":
         # eeprom_init starts at the first efuse KICK write. The probe also reads
@@ -229,14 +229,14 @@ def wcid_start(ops: list[dict]) -> int:
     init.c runs init_wcid_mem, init_key_mem and init_wcid_attr_mem in that order,
     so the WCID table is the unambiguous opener.
     """
-    from wifit3.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u import constants as C
     want = C.MT_MCU_MEMMAP_WLAN + C.MT_WCID_ADDR_BASE
     return next(i for i, o in enumerate(ops) if is_burst_to(o, want))
 
 
 def burst_addr(op: dict) -> int | None:
     """The destination address of a CMD_BURST_WRITE op, or None for anything else."""
-    from wifit3.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u import constants as C
     if op["kind"] != "bulk_out" or len(op["data"]) < 8:
         return None
     info = int.from_bytes(op["data"][:4], "little")
@@ -256,7 +256,7 @@ def last_burst_in(ops: list[dict], base: int, words: int) -> int:
     Only the first chunk names the base; the rest advance by (LEN-1) words, so
     matching on the base alone finds one op and truncates the stage.
     """
-    from wifit3.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u import constants as C
     lo = C.MT_MCU_MEMMAP_WLAN + base
     hi = lo + words * 4
     return max(i for i, o in enumerate(ops) if (a := burst_addr(o)) is not None and lo <= a < hi)
@@ -264,9 +264,9 @@ def last_burst_in(ops: list[dict], base: int, words: int) -> int:
 
 def verify_wcid(ops: list[dict]) -> int:
     """Replay the three station-memory clears against the capture, strictly."""
-    from wifit3.chips.mt7601u import constants as C
-    from wifit3.chips.mt7601u.mcu import MT7601UMcu
-    from wifit3.chips.mt7601u.wcid import init_station_memory
+    from wifang.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u.mcu import MT7601UMcu
+    from wifang.chips.mt7601u.wcid import init_station_memory
 
     # WCID_ATTR is the last of the three, so the stage ends on its last chunk.
     last = last_burst_in(ops, C.MT_WCID_ATTR_BASE, 256)
@@ -303,8 +303,8 @@ def start_of(ops: list[dict]) -> int:
 
 def verify_firmware(ops: list[dict], start: int, dev: int) -> int:
     """Replay mt7601u_load_firmware against the capture, strictly."""
-    from wifit3.chips.mt7601u import firmware as fw_mod
-    from wifit3.chips.mt7601u.mcu import MT7601UMcu
+    from wifang.chips.mt7601u import firmware as fw_mod
+    from wifang.chips.mt7601u.mcu import MT7601UMcu
 
     # The firmware image lands in the four big bulk-OUT chunks; MCU inband commands
     # share that endpoint, so size is what separates them. The stage ends once

@@ -9,8 +9,8 @@ The acceptance test for all of this is connect() against a real dongle.
 from __future__ import annotations
 
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.cal import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.cal import (
     BBP_TEMP_POLL_LIMIT,
     phy_calibrate,
     read_temp,
@@ -22,10 +22,10 @@ from wifit3.chips.mt7601u.cal import (
     temp_comp,
     tssi_dc_gain_cal,
 )
-from wifit3.chips.mt7601u.mcu import MT7601UMcu
-from wifit3.chips.mt7601u.phy import MT7601UPhy
-from wifit3.chips.mt7601u.eeprom import MT7601UEepromParams
-from wifit3.chips.mt7601u import initvals_phy
+from wifang.chips.mt7601u.mcu import MT7601UMcu
+from wifang.chips.mt7601u.phy import MT7601UPhy
+from wifang.chips.mt7601u.eeprom import MT7601UEepromParams
+from wifang.chips.mt7601u import initvals_phy
 
 
 class FakeTransport:
@@ -273,7 +273,7 @@ class TestTempComp:
 
 class TestBbpTemp:
     def test_it_writes_the_common_table_then_the_bandwidth_one(self) -> None:
-        from wifit3.chips.mt7601u.cal import bbp_temp
+        from wifang.chips.mt7601u.cal import bbp_temp
         phy, tp, _mcu = make()
         phy.temp_mode = C.MT_TEMP_MODE_HIGH
         _phy, _tp, mcu = make()
@@ -284,14 +284,14 @@ class TestBbpTemp:
         assert mcu.reg_pair_batches[1][1] == row[0]
 
     def test_an_unchanged_mode_writes_nothing(self) -> None:
-        from wifit3.chips.mt7601u.cal import bbp_temp
+        from wifang.chips.mt7601u.cal import bbp_temp
         phy, _tp, mcu = make()
         phy.temp_mode = C.MT_TEMP_MODE_LOW
         bbp_temp(phy, C.MT_TEMP_MODE_LOW)
         assert mcu.reg_pair_batches == []
 
     def test_the_cold_threshold_selects_the_low_table(self) -> None:
-        from wifit3.chips.mt7601u.cal import bbp_temp
+        from wifang.chips.mt7601u.cal import bbp_temp
         phy, _tp, _mcu = make()
         phy.temp_mode = C.MT_TEMP_MODE_HIGH
         bbp_temp(phy, C.MT_TEMP_MODE_LOW)

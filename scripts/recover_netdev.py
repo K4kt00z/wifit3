@@ -3,13 +3,13 @@
 
 mt7921e (and similar) can stop delivering frames after repeated monitor<->managed
 flips; the kernel-driver equivalent of the USB "replug" is a module reload. This
-reloads the module bound to each wifit3 netdev card, then hands the interfaces back
+reloads the module bound to each wifang netdev card, then hands the interfaces back
 to NetworkManager.
 
-    uv run python scripts/recover_netdev.py            # all wifit3 PCIe cards
+    uv run python scripts/recover_netdev.py            # all wifang PCIe cards
     uv run python scripts/recover_netdev.py wlp62s0     # one interface
 
-Needs root; it escalates via sudo/doas/pkexec like the rest of wifit3's Linux setup.
+Needs root; it escalates via sudo/doas/pkexec like the rest of wifang's Linux setup.
 """
 import argparse
 import shutil
@@ -18,8 +18,8 @@ import sys
 import time
 from pathlib import Path
 
-from wifit3.device.manager import devices
-from wifit3.setup.linux import _choose_escalation, run_privileged
+from wifang.device.manager import devices
+from wifang.setup.linux import _choose_escalation, run_privileged
 
 
 def _netdev_ifaces() -> list[str]:
@@ -69,7 +69,7 @@ def recover(ifaces: list[str]) -> bool:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Reload the kernel module to un-wedge a PCIe Wi-Fi card.")
-    ap.add_argument("iface", nargs="*", help="interface(s) to recover; default: all wifit3 PCIe cards")
+    ap.add_argument("iface", nargs="*", help="interface(s) to recover; default: all wifang PCIe cards")
     args = ap.parse_args()
     ifaces = args.iface or _netdev_ifaces()
     if not ifaces:

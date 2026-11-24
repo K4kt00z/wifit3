@@ -26,7 +26,7 @@ class FakeT:
 
 
 def test_hal_init_tail():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([0xFF710F80, 0x3F])
     misc.hal_init_tail(t)
     assert t.writes == [(0x652, 1, 0xEB), (0x420, 4, 0xFF711F80),
@@ -34,7 +34,7 @@ def test_hal_init_tail():
 
 
 def test_beacon_params():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([0x0] * 5)
     st: dict = {}
     misc.init_beacon_params(t, st)
@@ -48,7 +48,7 @@ def test_beacon_params():
 
 
 def test_burst_and_agg():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([0x00, 0x00, 0x1C])
     misc.init_burst(t, 512)
     assert (0x290, 1, 0x10 | 0x0E) in t.writes
@@ -66,7 +66,7 @@ def test_burst_and_agg():
 
 def test_init_burst_full_speed_sets_64b_burst_len():
     # usb_halinit.c:636-638: USB_FULL_SPEED_BULK_SIZE and default -> BIT(5)
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     for bulk_out_size in (64, 32):
         t = FakeT([0x30, 0x00, 0x1C])
         misc.init_burst(t, bulk_out_size)
@@ -74,7 +74,7 @@ def test_init_burst_full_speed_sets_64b_burst_len():
 
 
 def test_drop_lifetime_turnon():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([0x00FD0000])
     misc.drop_incorrect_bulk_out(t)
     assert t.writes == [(0x20C, 4, 0x00FD0000 | 0x200)]

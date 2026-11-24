@@ -79,7 +79,7 @@ class TuneReplay:
         # Index the captured CMD_DONEs by their own seq. A message only consumes a
         # response when it awaits one, so positional queuing would drain replies
         # belonging to fire-and-forget commands.
-        from wifit3.chips.mt7601u import constants as C
+        from wifang.chips.mt7601u import constants as C
         self._by_seq: dict[int, bytes] = {}
         for r in (responses or []):
             if len(r) >= 4:
@@ -133,7 +133,7 @@ class TuneReplay:
         return val
 
     def bulk_out(self, data, timeout_ms=0):
-        from wifit3.chips.mt7601u import constants as C
+        from wifang.chips.mt7601u import constants as C
         op = self._expect("bulk_out")
         # MT_TXD_CMD_INFO_SEQ is a free-running session counter: its value depends
         # on how many MCU commands the driver issued before this tune, not on port
@@ -164,7 +164,7 @@ class TuneReplay:
         The seq is a free-running session counter, so the recording's value cannot
         match a replay that started mid-session; the MCU's echo is what matters.
         """
-        from wifit3.chips.mt7601u import constants as C
+        from wifang.chips.mt7601u import constants as C
         raw = self._by_seq.get(self._sent_seq, b"")
         if not raw:
             return b""
@@ -174,7 +174,7 @@ class TuneReplay:
 
 
 def _field_prep_seq(seq: int) -> int:
-    from wifit3.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u import constants as C
     return C._field_prep(C.MT_RXD_CMD_INFO_CMD_SEQ, seq)
 
     def _take(self):
@@ -185,7 +185,7 @@ def _field_prep_seq(seq: int) -> int:
 
 def tune_bounds(ops: list[dict]) -> list[tuple[int, int]]:
     """(start, end) of each tune, delimited on the RF-memmap CMD_RANDOM_WRITE."""
-    from wifit3.chips.mt7601u import constants as C
+    from wifang.chips.mt7601u import constants as C
 
     def is_plan(op) -> bool:
         if op["kind"] != "bulk_out":
@@ -226,11 +226,11 @@ def main() -> int:
     print(f"MCU responses on EP 0x85: {len(responses)}")
     print(f"card dev={dev}: {len(ops)} ops, {len(bounds)} tunes")
 
-    from wifit3.chips.mt7601u.mcu import MT7601UMcu
-    from wifit3.chips.mt7601u.phy import MT7601UPhy
+    from wifang.chips.mt7601u.mcu import MT7601UMcu
+    from wifang.chips.mt7601u.phy import MT7601UPhy
     from verify_mt7601u import StrictReplayTransport as ColdBootTp
     from verify_mt7601u import load_ops
-    from wifit3.chips.mt7601u.eeprom import MT7601UEeprom
+    from wifang.chips.mt7601u.eeprom import MT7601UEeprom
 
     # The tune consumes EEPROM-derived values (per-channel power, LNA gain), so
     # decode the real block from a cold-boot capture rather than guessing them.
@@ -259,7 +259,7 @@ def main() -> int:
         tp = TuneReplay(ops[a:b], responses)
         mcu = MT7601UMcu(tp)
         mcu.mcu_running = True
-        from wifit3.chips.mt7601u.eeprom import MT7601UEepromParams
+        from wifang.chips.mt7601u.eeprom import MT7601UEepromParams
         phy = MT7601UPhy(tp, mcu, params or MT7601UEepromParams())
         # Feed the EEPROM-derived values the tune consumes.
         try:
@@ -278,7 +278,7 @@ def main() -> int:
 
 def _channel_for(plan_op, bounds):
     """Map a tune's freq_plan row back to its 1..14 channel."""
-    from wifit3.chips.mt7601u.phy import FREQ_PLAN
+    from wifang.chips.mt7601u.phy import FREQ_PLAN
     p = plan_op["payload"]
     body = p[4:]
     vals = []

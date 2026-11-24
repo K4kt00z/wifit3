@@ -8,7 +8,7 @@ import asyncio
 
 import pytest
 
-from wifit3.campaigns.campaign import Campaign
+from wifang.campaigns.campaign import Campaign
 
 
 @pytest.fixture(autouse=True)

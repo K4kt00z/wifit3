@@ -12,7 +12,7 @@ def _map(entries=None):
 
 
 def test_sign4():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     assert prom._sign4(0x7) == 7
     assert prom._sign4(0x8) == -8
     assert prom._sign4(0xF) == -1
@@ -20,7 +20,7 @@ def test_sign4():
 
 
 def test_check_invalid_mac():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     assert prom.check_invalid_mac(bytes.fromhex("000000000001"), True) is False
     assert prom.check_invalid_mac(b"\x00" * 6, True) is True
     assert prom.check_invalid_mac(b"\xff" * 6, True) is True
@@ -29,19 +29,19 @@ def test_check_invalid_mac():
 
 
 def test_macaddr_cfg_keeps_valid_efuse_mac():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     assert prom.macaddr_cfg(bytes.fromhex("000000000001")) == bytes.fromhex("000000000001")
 
 
 def test_macaddr_cfg_randomizes_invalid_mac(monkeypatch):
     # rtw_ieee80211.c:1525-1528: *(u32 *)&mac[2] = rtw_random32(); mac[0..2] = 00:e0:4c
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     monkeypatch.setattr(prom, "random32", lambda: 0x44332211)
     assert prom.macaddr_cfg(b"\x00" * 6) == bytes.fromhex("00e04c223344")
 
 
 def test_chnl_group_2g():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     assert [prom.chnl_group_2g(ch) for ch in (1, 2)] == [0, 0]
     assert [prom.chnl_group_2g(ch) for ch in (3, 5)] == [1, 1]
     assert [prom.chnl_group_2g(ch) for ch in (6, 8)] == [2, 2]
@@ -50,7 +50,7 @@ def test_chnl_group_2g():
 
 
 def test_power_value_autoload_fail_defaults():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     out = prom.read_power_value(bytes(512), True)
     assert out.cck_base[0] == [0x2D] * 6
     assert out.bw20_diff[0] == [0x02, 0xFE, 0xFE, 0xFE]
@@ -59,14 +59,14 @@ def test_power_value_autoload_fail_defaults():
 
 
 def test_power_value_ff_forces_fail():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     m = _map({0x11: 0xFF})
     out = prom.read_power_value(m, False)
     assert out.cck_base[0] == [0x2D] * 6
 
 
 def test_thermal_crystal_customer_defaults_on_fail():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = prom.EfuseParams()
     prom.parse_thermal(bytes(512), True, params)
     assert params.thermal == 0x18
@@ -78,7 +78,7 @@ def test_thermal_crystal_customer_defaults_on_fail():
 
 
 def test_power_saving_paths():
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = prom.EfuseParams()
     prom.parse_power_saving(bytes(512), True, params)
     assert params.hw_powerdown is False and params.remote_wakeup is False
@@ -101,8 +101,8 @@ VALID_EFUSE_MAC = "001122334455"
 
 
 def _read_adapter_info(monkeypatch, mac_hex, pg_pwrtrim=0xFF, pg_therm=0xFF):
-    from wifit3.chips.rtl8188ftv_dkms import constants as C
-    from wifit3.chips.rtl8188ftv_dkms import efuse, prom
+    from wifang.chips.rtl8188ftv_dkms import constants as C
+    from wifang.chips.rtl8188ftv_dkms import efuse, prom
     efuse_map = bytearray(_map({0x00: 0x29, 0x01: 0x81}))
     efuse_map[prom.EEPROM_MAC_ADDR_8188FU:prom.EEPROM_MAC_ADDR_8188FU + 6] = bytes.fromhex(mac_hex)
     monkeypatch.setattr(efuse, "get_eeprom_size", lambda t: 4)
@@ -119,7 +119,7 @@ def _read_adapter_info(monkeypatch, mac_hex, pg_pwrtrim=0xFF, pg_therm=0xFF):
 
 def test_read_adapter_info_keeps_valid_efuse_mac(monkeypatch):
     # hal_com.c:3570: a valid hw_addr is copied to EEPROMMACAddr
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = _read_adapter_info(monkeypatch, VALID_EFUSE_MAC)
     assert params.autoload_fail is False
     assert params.mac == bytes.fromhex(VALID_EFUSE_MAC)
@@ -129,7 +129,7 @@ def test_read_adapter_info_keeps_valid_efuse_mac(monkeypatch):
 @pytest.mark.parametrize("mac_hex", INVALID_EFUSE_MACS.values(), ids=INVALID_EFUSE_MACS.keys())
 def test_read_adapter_info_zeroes_invalid_efuse_mac(monkeypatch, mac_hex):
     # hal_com.c:3570-3584: an invalid hw_addr leaves EEPROMMACAddr all-zero
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = _read_adapter_info(monkeypatch, mac_hex)
     assert params.mac == b"\x00" * 6
     monkeypatch.setattr(prom, "random32", lambda: 0x44332211)
@@ -138,7 +138,7 @@ def test_read_adapter_info_zeroes_invalid_efuse_mac(monkeypatch, mac_hex):
 
 def test_parse_kfree_flag_on_bb_gain_zero(monkeypatch):
     # rtl8188f_hal_init.c:4372-4379 + hal_pg.h:29: low nibble 0xF is offset 0, flag still ON
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = _read_adapter_info(monkeypatch, VALID_EFUSE_MAC, pg_pwrtrim=0x0F)
     assert params.kfree_flag == prom.KFREE_FLAG_ON
     assert params.kfree_bb_gain == 0

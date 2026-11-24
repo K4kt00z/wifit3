@@ -10,10 +10,10 @@ from textual.css.query import NoMatches
 from textual.screen import Screen
 from textual.widgets import DataTable, Label
 
-from wifit3.persist.ap_state import ApState
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.vault_drawer import VaultDrawer
-from wifit3.ui.screens.vault_item import VaultItemView, _ApStatePanel, _KeyRow
+from wifang.persist.ap_state import ApState
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.vault_drawer import VaultDrawer
+from wifang.ui.screens.vault_item import VaultItemView, _ApStatePanel, _KeyRow
 
 T = TypeVar("T")
 

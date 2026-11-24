@@ -40,7 +40,7 @@ import libusb_package
 import usb.core
 import usb.util
 
-from wifit3.chips.rtl8187.constants import (
+from wifang.chips.rtl8187.constants import (
     CMD_RX_ENABLE,
     CMD_TX_ENABLE,
     REG_CMD,
@@ -53,14 +53,14 @@ from wifit3.chips.rtl8187.constants import (
     USB_PID_RTL8187,
     USB_VID_REALTEK,
 )
-from wifit3.chips.rtl8187.mac import (
+from wifang.chips.rtl8187.mac import (
     cold_bring_up,
     detect_chip_variant,
     is_chip_warm,
 )
-from wifit3.chips.rtl8187.chan import config_channel
-from wifit3.chips.rtl8187.probe import probe
-from wifit3.chips.rtl8187.tx import (
+from wifang.chips.rtl8187.chan import config_channel
+from wifang.chips.rtl8187.probe import probe
+from wifang.chips.rtl8187.tx import (
     BROADCAST_MAC,
     RATE_1MBPS_CCK,
     build_deauth,
@@ -68,14 +68,14 @@ from wifit3.chips.rtl8187.tx import (
     bulk_out_max_packet_size,
     inject_frame,
 )
-from wifit3.chips.rtl8187.rtl8225 import build_rf_init
-from wifit3.chips.rtl8187.rx import (
+from wifang.chips.rtl8187.rtl8225 import build_rf_init
+from wifang.chips.rtl8187.rx import (
     parse_rx_urb,
     probe_endpoints,
     read_rx_burst,
 )
-from wifit3.chips.rtl8187.transport import RTL8187Transport
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.chips.rtl8187.transport import RTL8187Transport
+from wifang.dot11.parser import WlanFrameParser
 
 
 def setup_logging(debug: bool) -> None:
@@ -256,7 +256,7 @@ def phase_rf(dev, transport: RTL8187Transport) -> None:
     import time as _t
     t0 = _t.perf_counter()
     try:
-        from wifit3.chips.rtl8187.mac import cold_bring_up as _cold
+        from wifang.chips.rtl8187.mac import cold_bring_up as _cold
         _cold(transport, rf_init, pr.chip.is_rtl8187b)
     except (IOError, usb.core.USBError) as e:
         fail(f"cold_bring_up (RF) raised: {type(e).__name__}: {e}")
@@ -376,7 +376,7 @@ def phase_channel(dev, transport: RTL8187Transport) -> None:
     pr = probe(transport, USB_PID_RTL8187, False)
     setup = pr.setup
     rf_init = build_rf_init(transport, setup, pr.power)
-    from wifit3.chips.rtl8187.mac import cold_bring_up as _cold
+    from wifang.chips.rtl8187.mac import cold_bring_up as _cold
     step("cold_bring_up (init_hw + RF init + start)")
     _cold(transport, rf_init, pr.chip.is_rtl8187b)
     cmd = transport.read8(REG_CMD)
@@ -464,7 +464,7 @@ def phase_tx(dev, transport: RTL8187Transport) -> None:
     pr = probe(transport, USB_PID_RTL8187, False)
     setup = pr.setup
     rf_init = build_rf_init(transport, setup, pr.power)
-    from wifit3.chips.rtl8187.mac import cold_bring_up as _cold
+    from wifang.chips.rtl8187.mac import cold_bring_up as _cold
     step("cold_bring_up + tune to channel 11")
     _cold(transport, rf_init, pr.chip.is_rtl8187b)
     config_channel(transport, setup, 11, pr.power)
@@ -582,7 +582,7 @@ def phase_handshake(dev, transport: RTL8187Transport, channel: int, seconds: flo
     pr = probe(transport, USB_PID_RTL8187, False)
     setup = pr.setup
     rf_init = build_rf_init(transport, setup, pr.power)
-    from wifit3.chips.rtl8187.mac import cold_bring_up as _cold
+    from wifang.chips.rtl8187.mac import cold_bring_up as _cold
     step(f"cold_bring_up + tune to channel {channel}")
     _cold(transport, rf_init, pr.chip.is_rtl8187b)
     config_channel(transport, setup, channel, pr.power)
