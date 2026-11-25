@@ -11,73 +11,73 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from wifit3 import chips
-from wifit3.chips.driver import Driver
-from wifit3.dot11.auth_assoc import auth_req
-from wifit3.dot11.deauth import build_deauth
-from wifit3.dot11.mac import BROADCAST_MAC
-from wifit3.dot11.probe import probe_req
-from wifit3.models.device_id import DeviceID
+from wifang import chips
+from wifang.chips.driver import Driver
+from wifang.dot11.auth_assoc import auth_req
+from wifang.dot11.deauth import build_deauth
+from wifang.dot11.mac import BROADCAST_MAC
+from wifang.dot11.probe import probe_req
+from wifang.models.device_id import DeviceID
 
-from wifit3.chips import (
+from wifang.chips import (
     mt7601u, mt76x0u, mt76x2u, mt7921au, mt7925au, rt2500usb, rt2800usb, rt5572, rtl8187,
     rtl8188eus, rtl8188ftv_dkms, rtl8812au, rtl8812au_dkms, rtl8814au_dkms, rtl8821au, rtl8821au_dkms, rtl8821cu_dkms, rtl8822bu, rtl8822bu_dkms, rtl8822cu,
     rtl8192fu, rtl8922au, rtw88_8814au,
 )
-from wifit3.chips.ar9271_v2 import constants as ar9271_constants
-from wifit3.chips.ar9271_v2.driver import AR9271V2Driver
-from wifit3.chips.ar9271_v2.transport import AR9271Transport
-from wifit3.chips.mt7601u.constants import MT_TXWI_ACK_CTL_REQ as MT7601U_ACK_CTL_REQ
-from wifit3.chips.mt7601u.driver import MT7601UDriver
-from wifit3.chips.mt76x0u.constants import MT_TXWI_ACK_CTL_REQ as MT76X0U_ACK_CTL_REQ
-from wifit3.chips.mt76x0u.driver import MT76x0UDriver
-from wifit3.chips.mt76x2u.driver import MT76x2UDriver
-from wifit3.chips.mt76x2u.tx import _TXWI_ACK_CTL_REQ as MT76X2U_ACK_CTL_REQ
-from wifit3.chips.mt7921au.constants import MT_TXD3_NO_ACK as MT7921AU_TXD3_NO_ACK
-from wifit3.chips.mt7921au.driver import MT7921AUDriver
-from wifit3.chips.mt7925au.constants import MT_TXD3_NO_ACK as MT7925AU_TXD3_NO_ACK
-from wifit3.chips.mt7925au.driver import MT7925AUDriver
-from wifit3.chips.rt2500usb.constants import TXD_W0_NEW_SEQ as RT2500USB_TXD_W0_NEW_SEQ
-from wifit3.chips.rt2500usb.driver import RT2500USBDriver
-from wifit3.chips.rt2800usb.constants import RT_RT5390 as RT2800USB_RT5390
-from wifit3.chips.rt2800usb.constants import TXWI_W1_ACK as RT2800USB_TXWI_W1_ACK
-from wifit3.chips.rt2800usb.driver import RT2800USBDriver
-from wifit3.chips.rt2800usb.mac import ChipId as RT2800USBChipId
-from wifit3.chips.rt3070.constants import TXWI_W1_ACK as RT3070_TXWI_W1_ACK
-from wifit3.chips.rt3070.driver import RT3070Driver
-from wifit3.chips.rt3070.transport import RT3070Transport
-from wifit3.chips.rt5370.constants import TXWI_W1_ACK as RT5370_TXWI_W1_ACK
-from wifit3.chips.rt5370.driver import RT5370Driver
-from wifit3.chips.rt5370.transport import RT5370Transport
-from wifit3.chips.rt5372.constants import TXWI_W1_ACK as RT5372_TXWI_W1_ACK
-from wifit3.chips.rt5372.driver import RT5372Driver
-from wifit3.chips.rt5372.transport import RT5372Transport
-from wifit3.chips.rt5572.constants import RT_RT5592 as RT5572_RT5592
-from wifit3.chips.rt5572.constants import TXWI_W1_ACK as RT5572_TXWI_W1_ACK
-from wifit3.chips.rt5572.driver import RT5572Driver
-from wifit3.chips.rt5572.mac import ChipId as RT5572ChipId
-from wifit3.chips.rtl8187.driver import RTL8187Driver
-from wifit3.chips.rtl8187.mac import ChipVariant as RTL8187ChipVariant
-from wifit3.chips.rtl8188eus.constants import TXDESC_BROADMULTICAST as RTL8188EUS_BROADMULTICAST
-from wifit3.chips.rtl8192fu import constants as RTL8192FU_CONSTANTS
-from wifit3.chips.rtl8192fu.core import rtl8xxxu_config_endpoints_no_sie, rtl8xxxu_init_queue_priority
-from wifit3.chips.rtl8192fu.driver import RTL8192FUDriver
-from wifit3.chips.rtl8188eus.driver import RTL8188EUSDriver
-from wifit3.chips.rtl8188eus_dkms.constants import BMC as RTL8188EUS_DKMS_BMC
-from wifit3.chips.rtl8188eus_dkms.driver import Rtl8188eusDkmsDriver
-from wifit3.chips.rtl8188eus_dkms.transport import Rtl8188eusTransport
-from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
-from wifit3.chips.rtl8812au.driver import RTL8812AUDriver
-from wifit3.chips.rtl8812au_dkms.driver import Rtl8812auDkmsDriver
-from wifit3.chips.rtl8814au_dkms.driver import Rtl8814auDkmsDriver
-from wifit3.chips.rtl8821au.driver import RTL8821AUDriver
-from wifit3.chips.rtl8821au_dkms.driver import Rtl8821auDkmsDriver
-from wifit3.chips.rtl8821cu_dkms.driver import Rtl8821cuDkmsDriver
-from wifit3.chips.rtl8822bu.driver import RTL8822BUDriver
-from wifit3.chips.rtl8822bu_dkms.driver import Rtl8822buDkmsDriver
-from wifit3.chips.rtl8822cu.driver import RTL8822CUDriver
-from wifit3.chips.rtl8922au.driver import RTL8922AUDriver
-from wifit3.chips.rtw88_8814au.driver import RTL8814AUDriver
+from wifang.chips.ar9271_v2 import constants as ar9271_constants
+from wifang.chips.ar9271_v2.driver import AR9271V2Driver
+from wifang.chips.ar9271_v2.transport import AR9271Transport
+from wifang.chips.mt7601u.constants import MT_TXWI_ACK_CTL_REQ as MT7601U_ACK_CTL_REQ
+from wifang.chips.mt7601u.driver import MT7601UDriver
+from wifang.chips.mt76x0u.constants import MT_TXWI_ACK_CTL_REQ as MT76X0U_ACK_CTL_REQ
+from wifang.chips.mt76x0u.driver import MT76x0UDriver
+from wifang.chips.mt76x2u.driver import MT76x2UDriver
+from wifang.chips.mt76x2u.tx import _TXWI_ACK_CTL_REQ as MT76X2U_ACK_CTL_REQ
+from wifang.chips.mt7921au.constants import MT_TXD3_NO_ACK as MT7921AU_TXD3_NO_ACK
+from wifang.chips.mt7921au.driver import MT7921AUDriver
+from wifang.chips.mt7925au.constants import MT_TXD3_NO_ACK as MT7925AU_TXD3_NO_ACK
+from wifang.chips.mt7925au.driver import MT7925AUDriver
+from wifang.chips.rt2500usb.constants import TXD_W0_NEW_SEQ as RT2500USB_TXD_W0_NEW_SEQ
+from wifang.chips.rt2500usb.driver import RT2500USBDriver
+from wifang.chips.rt2800usb.constants import RT_RT5390 as RT2800USB_RT5390
+from wifang.chips.rt2800usb.constants import TXWI_W1_ACK as RT2800USB_TXWI_W1_ACK
+from wifang.chips.rt2800usb.driver import RT2800USBDriver
+from wifang.chips.rt2800usb.mac import ChipId as RT2800USBChipId
+from wifang.chips.rt3070.constants import TXWI_W1_ACK as RT3070_TXWI_W1_ACK
+from wifang.chips.rt3070.driver import RT3070Driver
+from wifang.chips.rt3070.transport import RT3070Transport
+from wifang.chips.rt5370.constants import TXWI_W1_ACK as RT5370_TXWI_W1_ACK
+from wifang.chips.rt5370.driver import RT5370Driver
+from wifang.chips.rt5370.transport import RT5370Transport
+from wifang.chips.rt5372.constants import TXWI_W1_ACK as RT5372_TXWI_W1_ACK
+from wifang.chips.rt5372.driver import RT5372Driver
+from wifang.chips.rt5372.transport import RT5372Transport
+from wifang.chips.rt5572.constants import RT_RT5592 as RT5572_RT5592
+from wifang.chips.rt5572.constants import TXWI_W1_ACK as RT5572_TXWI_W1_ACK
+from wifang.chips.rt5572.driver import RT5572Driver
+from wifang.chips.rt5572.mac import ChipId as RT5572ChipId
+from wifang.chips.rtl8187.driver import RTL8187Driver
+from wifang.chips.rtl8187.mac import ChipVariant as RTL8187ChipVariant
+from wifang.chips.rtl8188eus.constants import TXDESC_BROADMULTICAST as RTL8188EUS_BROADMULTICAST
+from wifang.chips.rtl8192fu import constants as RTL8192FU_CONSTANTS
+from wifang.chips.rtl8192fu.core import rtl8xxxu_config_endpoints_no_sie, rtl8xxxu_init_queue_priority
+from wifang.chips.rtl8192fu.driver import RTL8192FUDriver
+from wifang.chips.rtl8188eus.driver import RTL8188EUSDriver
+from wifang.chips.rtl8188eus_dkms.constants import BMC as RTL8188EUS_DKMS_BMC
+from wifang.chips.rtl8188eus_dkms.driver import Rtl8188eusDkmsDriver
+from wifang.chips.rtl8188eus_dkms.transport import Rtl8188eusTransport
+from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+from wifang.chips.rtl8812au.driver import RTL8812AUDriver
+from wifang.chips.rtl8812au_dkms.driver import Rtl8812auDkmsDriver
+from wifang.chips.rtl8814au_dkms.driver import Rtl8814auDkmsDriver
+from wifang.chips.rtl8821au.driver import RTL8821AUDriver
+from wifang.chips.rtl8821au_dkms.driver import Rtl8821auDkmsDriver
+from wifang.chips.rtl8821cu_dkms.driver import Rtl8821cuDkmsDriver
+from wifang.chips.rtl8822bu.driver import RTL8822BUDriver
+from wifang.chips.rtl8822bu_dkms.driver import Rtl8822buDkmsDriver
+from wifang.chips.rtl8822cu.driver import RTL8822CUDriver
+from wifang.chips.rtl8922au.driver import RTL8922AUDriver
+from wifang.chips.rtw88_8814au.driver import RTL8814AUDriver
 
 AP_MAC = bytes.fromhex("020000000001")
 STATION_MAC = bytes.fromhex("020000000002")

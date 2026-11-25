@@ -1,4 +1,4 @@
-from wifit3.chips.rtl8821au_dkms import led
+from wifang.chips.rtl8821au_dkms import led
 
 
 class _FakeRegs:

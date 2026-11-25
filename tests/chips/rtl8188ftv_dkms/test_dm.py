@@ -23,7 +23,7 @@ class FakeT:
 
 
 def test_dm_init_writes():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0x0] * 11)
     dm.dm_init(t)
     assert (0x896, 2, 0xC350) in t.writes
@@ -40,7 +40,7 @@ def test_dm_init_writes():
 
 
 def test_dm_init_reads_masked():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0xFFFFFFFF] * 11)
     cck, rx = dm.common_info_self_init(t)
     assert (cck, rx) == (0x1, 0xF)
@@ -50,14 +50,14 @@ def test_dm_init_reads_masked():
 
 
 def test_tracking_init_second_rereads_swing():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0x390000E4])
     assert dm.tracking_init_second(t) == 0xE4
     assert t.writes == []
 
 
 def test_misc11_tail_gpio():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([])
     misc.misc11_tail(t)
     assert t.writes == [(0x423, 1, 0xFF), (0x4CC, 4, 0x0201FFFF)]

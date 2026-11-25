@@ -7,8 +7,8 @@ into the shared sink, STACK set_channel, SPREAD hop partitioning, and member-los
 import asyncio
 from types import SimpleNamespace
 
-from wifit3.chips.driver import FakeMacSupport
-from wifit3.wlan.array import WlanArray
+from wifang.chips.driver import FakeMacSupport
+from wifang.wlan.array import WlanArray
 
 from tests.frames import pkt
 

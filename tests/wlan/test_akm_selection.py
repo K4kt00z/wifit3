@@ -4,14 +4,14 @@ import struct
 
 import pytest
 
-from wifit3.crack.handshake import (
+from wifang.crack.handshake import (
     crackable_pairs, handshake_uncrackable_label, pmkid_crackable, withheld_capture_label,
 )
-from wifit3.crack.hc22000_format import eapol_hashlines, parse_hc22000, pmkid_hashline
-from wifit3.crack.wpa_psk import pmk_matches
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.wpa import derive_ft_pmk_r0, ft_pmk_r1_name
-from wifit3.wlan.sink import WlanSink
+from wifang.crack.hc22000_format import eapol_hashlines, parse_hc22000, pmkid_hashline
+from wifang.crack.wpa_psk import pmk_matches
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.wpa import derive_ft_pmk_r0, ft_pmk_r1_name
+from wifang.wlan.sink import WlanSink
 
 
 _AP = bytes.fromhex("020000000001")

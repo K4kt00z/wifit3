@@ -5,13 +5,13 @@ from typing import List, Optional
 import pytest
 from textual.app import App
 
-from wifit3.models import AccessPoint
-from wifit3.wlan.sink import WlanSink
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.ui.ap_table import APTable
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.models import AccessPoint
+from wifang.wlan.sink import WlanSink
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.ui.ap_table import APTable
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.scanner import ScannerView
 
 
 @pytest.fixture(autouse=True)
@@ -211,7 +211,7 @@ async def test_cursor_tracking_pins_highlight_on_resort():
 
 @pytest.mark.asyncio
 async def test_forget_row_evicts_ap_and_its_clients():
-    from wifit3.models import Client
+    from wifang.models import Client
     ap1 = _make_ap("aa:bb:cc:00:00:01", ssid="AP1", signal=-40)
     ap2 = _make_ap("aa:bb:cc:00:00:02", ssid="AP2", signal=-60)
     c1 = Client(mac="11:22:33:44:55:01", bssid=ap1.bssid)

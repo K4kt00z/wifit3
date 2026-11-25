@@ -8,8 +8,8 @@ import pytest_asyncio
 from textual.app import App, ComposeResult
 from textual.widgets._header import HeaderTitle
 
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.scanner import _ChannelBar, _ChannelReadout, _ScannerHeader
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.scanner import _ChannelBar, _ChannelReadout, _ScannerHeader
 
 
 def _array(*channels):

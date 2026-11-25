@@ -8,12 +8,12 @@ import struct
 
 import pytest
 
-from wifit3.dot11.mac import str_to_mac
-from wifit3.dot11.wsc import messages as WSC
-from wifit3.models import AccessPoint, IdKey, IdSource
-from wifit3.wlan.sink import WlanSink
-from wifit3.wlan.packet_stats import PACKET_CLASSES
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.dot11.mac import str_to_mac
+from wifang.dot11.wsc import messages as WSC
+from wifang.models import AccessPoint, IdKey, IdSource
+from wifang.wlan.sink import WlanSink
+from wifang.wlan.packet_stats import PACKET_CLASSES
+from wifang.dot11.parser import WlanFrameParser
 
 from tests.frames import pkt
 
@@ -269,7 +269,7 @@ def test_roam_without_new_akm_does_not_reuse_previous_selection():
 
 
 def test_disconnect_invalidates_same_bssid_akm_before_unproven_eapol():
-    from wifit3.crack import handshake as wpa
+    from wifang.crack import handshake as wpa
 
     client = "12:22:33:44:55:66"
     for disconnect_type, source, dest in (
@@ -312,7 +312,7 @@ def test_disconnect_invalidates_same_bssid_akm_before_unproven_eapol():
 
 
 def test_failed_assoc_and_reassoc_responses_invalidate_selected_akm():
-    from wifit3.crack import handshake as wpa
+    from wifang.crack import handshake as wpa
 
     for request_type, response_subtype, response_type in (
         ("assoc_req", 1, "assoc_resp"),
@@ -659,7 +659,7 @@ def test_an_assoc_request_binds_to_an_ap_we_have_not_beaconed():
 
 
 def test_vendor_akm_reaches_handshake_crack_gate():
-    from wifit3.crack import handshake as wpa
+    from wifang.crack import handshake as wpa
 
     s = WlanSink()
     client = "12:22:33:44:55:66"
@@ -688,7 +688,7 @@ def test_vendor_akm_reaches_handshake_crack_gate():
     ("WPA-PSK-TKIP", "PSK", 2, "crackable", None),
 ])
 def test_wpa1_akm_reaches_handshake_crack_gate(encryption, akm_name, akm, verdict, label):
-    from wifit3.crack import handshake as wpa
+    from wifang.crack import handshake as wpa
 
     s = WlanSink()
     client = "12:22:33:44:55:66"

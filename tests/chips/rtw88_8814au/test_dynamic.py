@@ -6,8 +6,8 @@ to the 4 per-path registers); no USB/hardware.
 """
 from __future__ import annotations
 
-from wifit3.chips.rtw88_8814au import constants as C
-from wifit3.chips.rtw88_8814au import dynamic
+from wifang.chips.rtw88_8814au import constants as C
+from wifang.chips.rtw88_8814au import dynamic
 
 
 class FakeTransport:

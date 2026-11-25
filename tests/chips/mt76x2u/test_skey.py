@@ -5,8 +5,8 @@ mt76x2/usb_init.c:169-173 (16×4 clear loop at cold boot).
 """
 import pytest
 
-from wifit3.chips.mt76x2u import constants as C
-from wifit3.chips.mt76x2u import skey
+from wifang.chips.mt76x2u import constants as C
+from wifang.chips.mt76x2u import skey
 
 
 class FakeTransport:
@@ -140,7 +140,7 @@ def test_shared_key_setup_clears_correct_bits_for_vif1_key2():
 
 
 def test_shared_key_setup_with_key_raises_not_implemented():
-    """Wifit3 only does NULL clears (software crypto for the WEP suite)."""
+    """Wifang only does NULL clears (software crypto for the WEP suite)."""
     t = FakeTransport()
     with pytest.raises(NotImplementedError):
         skey.mt76x02_mac_shared_key_setup(

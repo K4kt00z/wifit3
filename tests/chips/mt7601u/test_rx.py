@@ -9,8 +9,8 @@ from __future__ import annotations
 import pytest
 
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.rx import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.rx import (
     MIN_SEGMENT_LEN,
     RXWI_LEN,
     decode_segment,
@@ -195,7 +195,7 @@ class TestHdrlen:
 
     @pytest.mark.parametrize("fc", FRAME_CONTROLS)
     def test_matches_the_kernel_algorithm(self, fc: int) -> None:
-        from wifit3.chips.mt7601u.rx import _hdrlen
+        from wifang.chips.mt7601u.rx import _hdrlen
         assert _hdrlen(fc) == _kernel_hdrlen(fc)
 
     def test_a_management_frame_is_twenty_four_bytes(self) -> None:
@@ -203,12 +203,12 @@ class TestHdrlen:
         the two-byte pad landed inside Addr2 and every injected deauth left the
         dongle corrupted. Nothing upstream could see it: the transfer length and
         the descriptor byte count were both unchanged."""
-        from wifit3.chips.mt7601u.rx import _hdrlen
+        from wifang.chips.mt7601u.rx import _hdrlen
         assert _hdrlen(0x00C0) == 24
 
     def test_a_data_frame_is_never_ten_bytes(self) -> None:
         """Ten bytes is a bare ACK or CTS. A data frame is at least 24."""
-        from wifit3.chips.mt7601u.rx import _hdrlen
+        from wifang.chips.mt7601u.rx import _hdrlen
         for fc in (0x0008, 0x0108, 0x0208, 0x0308):
             assert _hdrlen(fc) >= 24
 

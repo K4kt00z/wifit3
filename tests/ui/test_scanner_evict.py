@@ -3,10 +3,10 @@ import time
 
 import pytest
 
-from wifit3.models import AccessPoint
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.scanner import EVICT_DURATION_S
-from wifit3.wlan.array import WlanArray
+from wifang.models import AccessPoint
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.scanner import EVICT_DURATION_S
+from wifang.wlan.array import WlanArray
 
 
 @pytest.mark.asyncio

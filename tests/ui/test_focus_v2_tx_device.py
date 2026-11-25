@@ -4,10 +4,10 @@ overlay opening within the height-capped Focus layout, which the isolated picker
 WlanArray + WlanInterface (mock driver), no hardware."""
 from textual.app import App
 
-from wifit3.chips.driver import FakeMacSupport
-from wifit3.ui.screens.focus_v2 import FocusViewV2
-from wifit3.wlan.array import WlanArray
-from wifit3.wlan.interface import WlanInterface
+from wifang.chips.driver import FakeMacSupport
+from wifang.ui.screens.focus_v2 import FocusViewV2
+from wifang.wlan.array import WlanArray
+from wifang.wlan.interface import WlanInterface
 
 from tests.frames import pkt
 

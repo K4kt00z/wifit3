@@ -2,7 +2,7 @@
 
 import struct
 
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.dot11.parser import WlanFrameParser
 
 _BSSID = b"\xaa\xbb\xcc\x00\x11\x22"
 _CLIENT = b"\x11\x22\x33\x44\x55\x66"

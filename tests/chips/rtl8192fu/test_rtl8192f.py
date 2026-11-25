@@ -1,9 +1,9 @@
 """rtl8192fu 8192f.c port: EFUSE parse, TX power, LED, kfree."""
 import pytest
 
-from wifit3.chips.rtl8192fu import constants as C
-from wifit3.chips.rtl8192fu.core import LED_OFF, u32_get_bits
-from wifit3.chips.rtl8192fu.rtl8192f import (
+from wifang.chips.rtl8192fu import constants as C
+from wifang.chips.rtl8192fu.core import LED_OFF, u32_get_bits
+from wifang.chips.rtl8192fu.rtl8192f import (
     rtl8192f_set_tx_power,
     rtl8192fu_config_kfree,
     rtl8192fu_led_brightness_set,

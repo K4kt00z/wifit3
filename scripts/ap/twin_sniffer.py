@@ -1,6 +1,6 @@
 """Twin sniffer: a passive third card on the twin's channel, logging what clients do there.
 
-Run it before starting EvilTwin, on a card wifit3 won't use. It never transmits. Per client MAC it
+Run it before starting EvilTwin, on a card wifang won't use. It never transmits. Per client MAC it
 logs (first copy only; retries are counted, not re-logged):
   probes   directed probe requests for --ssid; wildcard probes and probe responses only counted
   twin     auth / assoc / reassoc to --twin-bssid, and the twin's answers (probe resp, auth, assoc, M1)
@@ -32,9 +32,9 @@ except Exception:                                                 # noqa: BLE001
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src"))
 
-from wifit3.device.manager import wlan_ifaces
-from wifit3.dot11.ie import iter_information_elements
-from wifit3.dot11.mac import mac_to_str
+from wifang.device.manager import wlan_ifaces
+from wifang.dot11.ie import iter_information_elements
+from wifang.dot11.mac import mac_to_str
 
 _DATA_SUBTYPES = {0x00: "data", 0x04: "null", 0x08: "qos data", 0x0C: "qos null"}
 _QUIET = ("wildcard probe", "probe-resp")   # every passer-by does these: counted, never logged

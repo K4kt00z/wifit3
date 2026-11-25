@@ -1,5 +1,5 @@
-from wifit3.crack import default_psks as default_psks_module
-from wifit3.crack.default_psks import bssid_as_psk, default_psks
+from wifang.crack import default_psks as default_psks_module
+from wifang.crack.default_psks import bssid_as_psk, default_psks
 
 
 def test_bssid_as_psk_is_the_bssid_then_its_last_10_and_8_hex_digits_in_both_cases():

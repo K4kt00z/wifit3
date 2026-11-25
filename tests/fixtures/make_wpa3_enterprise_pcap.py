@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from wifit3.persist.pcap import write_pcap
+from wifang.persist.pcap import write_pcap
 
 OUI = b"\x00\x0f\xac"
 BROADCAST = b"\xff" * 6

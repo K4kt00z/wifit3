@@ -1,6 +1,6 @@
 from rich.text import Text
 
-from wifit3.ui.screens.focus_v2.packet_dashboard import PacketDashboard
+from wifang.ui.screens.focus_v2.packet_dashboard import PacketDashboard
 
 
 def test_unchanged_footer_does_not_repaint(mocker):

@@ -1,4 +1,4 @@
-# Wifit3 — Features & QoL Backlog
+# Wifang — Features & QoL Backlog
 
 Known bugs live in `BUGS.md`.
 
@@ -185,7 +185,7 @@ covers the same ground from the plugin-system angle.
   cracking is mathematically dead there, and not every such router exposes WPS ([D#61](https://github.com/derv82/wifit3/discussions/61)).
 - Not blind phishing: the entered password is verified against a real captured handshake, so
   the attack self-confirms instead of guessing.
-- Someone already built it: #55's author ran a modified wifit3 and offered the source; laxdog's
+- Someone already built it: #55's author ran a modified wifang and offered the source; laxdog's
   `feat/eviltwin-improvements` was already headed at open-AP + portal-HTML cloning (D#34).
   *(#55 also has a MEGA link to a binary+source drop)*
 
@@ -197,7 +197,7 @@ covers the same ground from the plugin-system angle.
   session lifecycle, and per-client captive-portal-detection quirks.
 - It's a subsystem to maintain forever, natively, without `hostapd` or `apache`; both of which
   are ridiculously complex for a reason. Plus per-brand HTML templates that go stale.
-- It pushes wifit3 way up a stack the maintainer isn't well-versed in.
+- It pushes wifang way up a stack the maintainer isn't well-versed in.
 - *"we're an 802.11 auditing tool, not an entire wifi attack stack."*
 
 **Where this stands:** still leaning **no**, mostly on the scope/maintenance argument, not on the

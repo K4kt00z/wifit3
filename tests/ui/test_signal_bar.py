@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.ui.signal_bar import render_signal_bar
+from wifang.ui.signal_bar import render_signal_bar
 
 WIDTHS = [4, 5, 6, 10, 17, 40]
 

@@ -6,11 +6,11 @@ from pathlib import Path
 
 from make_vault_fixture import UNCRACKED_PSK
 from vault_bench import bssid_of, open_vault, painted, select, shown_state, terminal_size, wait_for
-from wifit3.models import ToolStatus
-from wifit3.models.jobs import ToolName
-from wifit3.persist.ap_state import ApState
-from wifit3.persist.exhaustion import wordlist_identity
-from wifit3.ui.app import WifiteApp
+from wifang.models import ToolStatus
+from wifang.models.jobs import ToolName
+from wifang.persist.ap_state import ApState
+from wifang.persist.exhaustion import wordlist_identity
+from wifang.ui.app import WifiteApp
 
 UNFINISHED = (ToolStatus.QUEUED, ToolStatus.RUNNING)
 

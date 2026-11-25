@@ -2,7 +2,7 @@
 from textual.app import App
 from textual.widgets import Label, ProgressBar
 
-from wifit3.ui.screens.bringup_progress import BringupProgressModal
+from wifang.ui.screens.bringup_progress import BringupProgressModal
 
 
 class _Host(App):

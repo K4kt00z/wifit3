@@ -111,7 +111,7 @@ hostapd-mana / eaphammer, WiFi Pineapple (PineAP, KARMA/Jasager).
 - Default twin is open (MITM / portal). Evil WPA module: clones the SSID only, captures a
   full handshake or PMKID.
 
-## Observed behavior: wifit3 field tests (2026-10-17/18)
+## Observed behavior: wifang field tests (2026-10-17/18)
 
 Sample: 1 router (GL-MT3000, 2.4 GHz, target on CH11), 1 client each of iOS, macOS and
 Windows, 1 run per row unless stated. Passive MT7925AU sniffer on the twin's channel.

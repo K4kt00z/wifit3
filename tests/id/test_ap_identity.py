@@ -1,8 +1,8 @@
 import pytest
 
-from wifit3.id.common import canonical_vendor
-from wifit3.models import AccessPoint, ApIdentity, IdKey, IdSource
-from wifit3.models.identity import clean_text
+from wifang.id.common import canonical_vendor
+from wifang.models import AccessPoint, ApIdentity, IdKey, IdSource
+from wifang.models.identity import clean_text
 
 
 def test_oui_seeded_on_access_point_creation():

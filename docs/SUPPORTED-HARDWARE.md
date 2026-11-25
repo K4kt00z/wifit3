@@ -1,7 +1,7 @@
-# Wifit3 Hardware Testing & Verification
+# Wifang Hardware Testing & Verification
 
-The matrix below captures *how well wifit3 drives each card* right now. Every blemish is
-either a documented Wifit3 bug or a hardware limitation; the deep per-card detail and history
+The matrix below captures *how well wifang drives each card* right now. Every blemish is
+either a documented Wifang bug or a hardware limitation; the deep per-card detail and history
 live in each chip's `<CHIP>.md` (linked under its table).
 
 **✅** works · **⚠️** works, with a caveat · **❌** tried, broken · **⬜** not run yet
@@ -16,9 +16,9 @@ live in each chip's `<CHIP>.md` (linked under its table).
 ## PCIe / M.2 cards (Linux only)
 
 PCIe and M.2 cards are **not** userspace chip ports, so they are not graded in the matrix below.
-They are driven on Linux by the `LinuxNetdevDriver` (`src/wifit3/chips/netdev/`), which rides the
+They are driven on Linux by the `LinuxNetdevDriver` (`src/wifang/chips/netdev/`), which rides the
 card's in-kernel driver via `nl80211`/`iw` and an `AF_PACKET` monitor socket. RX/TX quality
-therefore tracks the kernel driver, not a wifit3 register-level port.
+therefore tracks the kernel driver, not a wifang register-level port.
 
 | Chipset | PCI ID | Bands | Notes |
 |---|---|---|---|
@@ -71,7 +71,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (Addr2-keyed). |
 | Stress | ✅ | 2026-07-29 | 30-min 13-ch soak, flat (trend 0.91). |
 
-→ [AR9271_V2.md](../src/wifit3/chips/ar9271_v2/AR9271_V2.md)
+→ [AR9271_V2.md](../src/wifang/chips/ar9271_v2/AR9271_V2.md)
 
 ## Realtek Chipsets
 ### RTL8187L
@@ -92,7 +92,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | WPS | ✅ | 2026-07-25 | PIN → M7 (4/5, via the silicon-MAC path). |
 | Stress | ✅ | 2026-07-29 | 30-min 13-ch soak, flat (trend 1.06). |
 
-→ [RTL8187L.md](../src/wifit3/chips/rtl8187/RTL8187L.md)
+→ [RTL8187L.md](../src/wifang/chips/rtl8187/RTL8187L.md)
 
 ### RTL8188EUS
 <img align="right" width="96" height="165" src="../assets/cardart/card-tpwn722nv23.png" alt="TP-Link TL-WN722N v2/v3">
@@ -104,7 +104,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 
 > Ported from the [aircrack-ng/rtl8188eus](https://github.com/aircrack-ng/rtl8188eus) vendor/DKMS
 > port. There is a separate (weaker) port for the mainline kernel v6.18 driver (opt-in via
-> `WIFIT3_RTL8188=mainline`), but the default DKMS port out-performs mainline (as expected).
+> `WIFANG_RTL8188=mainline`), but the default DKMS port out-performs mainline (as expected).
 
 | Capability | Status | Date | Notes |
 |---|:--:|---|---|
@@ -118,7 +118,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-10-27 | Auto-ACK forged MAC via active monitor (Addr2-keyed). |
 | Stress | ✅ | 2026-10-27 | 30-min soak, flat (trend 1.00). |
 
-→ [RTL8188EUS_DKMS.md](../src/wifit3/chips/rtl8188eus_dkms/RTL8188EUS_DKMS.md) (default) · [RTL8188EUS.md](../src/wifit3/chips/rtl8188eus/RTL8188EUS.md) (mainline)
+→ [RTL8188EUS_DKMS.md](../src/wifang/chips/rtl8188eus_dkms/RTL8188EUS_DKMS.md) (default) · [RTL8188EUS.md](../src/wifang/chips/rtl8188eus/RTL8188EUS.md) (mainline)
 
 ### RTL8188FTV
 *No-name 0bda:f179 dongle · 2.4 GHz · 1T1R*
@@ -138,7 +138,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | WPS | ✅ | 2026-11-02 | PIN → M7: hostapd 3/3, AirLink 1/1. |
 | Stress | ✅ | 2026-11-02 | 20-min 13-ch soak, OK (trend 1.20), 0 USB errors. |
 
-→ [RTL8188FTV_DKMS.md](../src/wifit3/chips/rtl8188ftv_dkms/RTL8188FTV_DKMS.md)
+→ [RTL8188FTV_DKMS.md](../src/wifang/chips/rtl8188ftv_dkms/RTL8188FTV_DKMS.md)
 
 ### RTL8192FU
 <img align="right" width="140" src="../assets/cardart/card-dlink-an3u-n300.png" alt="D-Link AN3U rev. A1">
@@ -160,14 +160,14 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-10-23 | Auto-ACK forged MAC via active monitor (Addr2-keyed) & silicon (102/100). |
 | Stress | ✅ | 2026-10-23 | 30-min 14-ch soak, flat (trend 1.01). |
 
-→ [RTL8192FU.md](../src/wifit3/chips/rtl8192fu/RTL8192FU.md)
+→ [RTL8192FU.md](../src/wifang/chips/rtl8192fu/RTL8192FU.md)
 
 ### RTL8812AU
 <img align="right" width="109" height="165" src="../assets/cardart/card-awus036ach.png" alt="ALFA AWUS036ACH">
 
 *ALFA AWUS036ACH · 2.4 / 5 GHz*
 
-> **Default = vendor/DKMS port** (table below). `WIFIT3_RTL8812=mainline` opts back. But mainline
+> **Default = vendor/DKMS port** (table below). `WIFANG_RTL8812=mainline` opts back. But mainline
 > **wedges on 2.4↔5 GHz hopping** (RF synth loses lock; confirmed 2026-07-07, ch153/161 dropped), so
 > it's fixed-channel only. DKMS hops clean. *(The DKMS driver won't compile on kernel 6.19, so the
 > same-driver Port baseline couldn't be re-run fresh. Port ✅ is vs the prior linux-DKMS + a clean
@@ -186,7 +186,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | HW-ACK forged MAC (WPS/PMKID). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch dual-band soak, flat (trend 1.08). |
 
-→ [RTL8812AU_DKMS.md](../src/wifit3/chips/rtl8812au_dkms/RTL8812AU_DKMS.md) (default) · [RTL8812AU.md](../src/wifit3/chips/rtl8812au/RTL8812AU.md) (mainline)
+→ [RTL8812AU_DKMS.md](../src/wifang/chips/rtl8812au_dkms/RTL8812AU_DKMS.md) (default) · [RTL8812AU.md](../src/wifang/chips/rtl8812au/RTL8812AU.md) (mainline)
 
 ### RTL8814AU
 <img align="right" width="140" src="../assets/cardart/stack-rtl8814au.png" alt="ALFA AWUS1900 (top) / ASUS USB-AC68 (bottom)">
@@ -197,7 +197,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 > driver itself is not good, and advises not using cards that rely on this driver
 > ([morrownr/8814au#37](https://github.com/morrownr/8814au/issues/37#issuecomment-900581613)).
 
-> **Default = vendor/DKMS port.** `WIFIT3_RTL8814=mainline` opts back.
+> **Default = vendor/DKMS port.** `WIFANG_RTL8814=mainline` opts back.
 
 | Capability | Status | Date | Notes |
 |---|:--:|---|---|
@@ -211,14 +211,14 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (Addr2-keyed). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch flat (trend 1.04). Continuous hopping avoids wedge. |
 
-→ [RTL8814AU.md](../src/wifit3/chips/rtw88_8814au/RTL8814AU.md) (mainline) · [RTL8814AU_DKMS.md](../src/wifit3/chips/rtl8814au_dkms/RTL8814AU_DKMS.md) (default)
+→ [RTL8814AU.md](../src/wifang/chips/rtw88_8814au/RTL8814AU.md) (mainline) · [RTL8814AU_DKMS.md](../src/wifang/chips/rtl8814au_dkms/RTL8814AU_DKMS.md) (default)
 
 ### RTL8821AU
 <img align="right" width="110" src="../assets/cardart/stack-rtl8821au.png" alt="ALFA AWUS036ACS (top) / Archer T2U+ (middle) / Archer T2U (bottom)">
 
 *ALFA AWUS036ACS / Archer T2U+ / Archer T2U · 2.4 / 5 GHz*
 
-> **Default = vendor/DKMS port** (table below). `WIFIT3_RTL8821=mainline` opts back.
+> **Default = vendor/DKMS port** (table below). `WIFANG_RTL8821=mainline` opts back.
 
 | Capability | Status | Date | Notes |
 |---|:--:|---|---|
@@ -232,7 +232,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | HW-ACK forged MAC (WPS/PMKID). |
 | Stress | ✅ | 2026-07-30 | 30-min 22-ch dual-band soak, flat (trend 1.03). |
 
-→ [RTL8821AU.md](../src/wifit3/chips/rtl8821au/RTL8821AU.md) (mainline) · [RTL8821AU_DKMS.md](../src/wifit3/chips/rtl8821au_dkms/RTL8821AU_DKMS.md) (default)
+→ [RTL8821AU.md](../src/wifang/chips/rtl8821au/RTL8821AU.md) (mainline) · [RTL8821AU_DKMS.md](../src/wifang/chips/rtl8821au_dkms/RTL8821AU_DKMS.md) (default)
 
 ### RTL8821CU
 <img align="right" width="140" height="160" src="../assets/cardart/card-auscomer600.png" alt="Auscoumer 600">
@@ -251,14 +251,14 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-06-24 | HW-ACK forged MAC (WPS + 5 GHz PMKID/deauth). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch soak, flat (trend 0.96, no death-detect). |
 
-→ [RTL8821CU_DKMS.md](../src/wifit3/chips/rtl8821cu_dkms/RTL8821CU_DKMS.md)
+→ [RTL8821CU_DKMS.md](../src/wifang/chips/rtl8821cu_dkms/RTL8821CU_DKMS.md)
 
 ### RTL8822BU
 <img align="right" width="140" src="../assets/cardart/stack-rtl8822au.png" alt="TP-Link Archer T3U Plus (top) / TP-Link Archer T4U Plus (bottom)">
 
 *TP-Link Archer T3U Plus v1 / Archer T4U v3 / T4U+ · 2.4 / 5 GHz*
 
-> **Default = vendor/DKMS port** (table below). `WIFIT3_RTL8822=mainline` opts back.
+> **Default = vendor/DKMS port** (table below). `WIFANG_RTL8822=mainline` opts back.
 
 | Capability | Status | Date | Notes |
 |---|:--:|---|---|
@@ -273,7 +273,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (spoofed + silicon). |
 | Stress | ✅ | 2026-07-30 | 30-min 22-ch soak, flat (trend 0.94, no death-detect). |
 
-→ [RTL8822BU_DKMS.md](../src/wifit3/chips/rtl8822bu_dkms/RTL8822BU_DKMS.md) (default) · [RTL8822BU.md](../src/wifit3/chips/rtl8822bu/RTL8822BU.md) (mainline)
+→ [RTL8822BU_DKMS.md](../src/wifang/chips/rtl8822bu_dkms/RTL8822BU_DKMS.md) (default) · [RTL8822BU.md](../src/wifang/chips/rtl8822bu/RTL8822BU.md) (mainline)
 
 ### RTL8822CU
 
@@ -292,7 +292,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-09-02 | Auto-ACKs spoofed mac in AM; TX stops-on-ACK AM both on & off (retry 6). |
 | Stress | ⬜ |  | 30-min soak deferred this pass. |
 
-→ [RTL8822CU.md](../src/wifit3/chips/rtl8822cu/RTL8822CU.md)
+→ [RTL8822CU.md](../src/wifang/chips/rtl8822cu/RTL8822CU.md)
 
 ### RTL8922AU
 <img align="right" width="140" height="154" src="../assets/cardart/card-asusbe93.png" alt="ASUS USB-BE93">
@@ -312,7 +312,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | WPS | ✅ | 2026-07-30 | PIN works. |
 | Stress | ✅ | 2026-07-29 | 30-min USB-A soak, flat (93→102 active, trend ~1.0). USB-3 drops RX to ~15 (2.4 GHz hit hardest). |
 
-→ [RTL8922AU.md](../src/wifit3/chips/rtl8922au/RTL8922AU.md)
+→ [RTL8922AU.md](../src/wifang/chips/rtl8922au/RTL8922AU.md)
 
 ## Mediatek Chipsets
 ### MT7601U
@@ -331,7 +331,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-10-06 | Auto-ACKs a spoofed MAC 100/100 via active monitor; 0/100 with it off and 0/100 to an unowned MAC. |
 | Stress | ✅ | 2026-10-06 | 24-min sustained hop, flat (73–88 APs, ~2.3k frames/min, trend ratio 0.80). |
 
-→ [MT7601U.md](../src/wifit3/chips/mt7601u/MT7601U.md)
+→ [MT7601U.md](../src/wifang/chips/mt7601u/MT7601U.md)
 
 ### MT7610U
 <img align="right" width="124" height="165" src="../assets/cardart/card-awus036achm.png" alt="ALFA AWUS036ACHM">
@@ -350,7 +350,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (spoofed + silicon). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch dual-band soak, flat (trend 1.01). |
 
-→ [MT76X0U.md](../src/wifit3/chips/mt76x0u/MT76X0U.md)
+→ [MT76X0U.md](../src/wifang/chips/mt76x0u/MT76X0U.md)
 
 ### MT7612U
 <img align="right" width="129" height="165" src="../assets/cardart/card-awus036acm.png" alt="ALFA AWUS036ACM">
@@ -369,7 +369,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (spoofed + silicon). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch dual-band soak, flat (trend 0.98, TSSI-on). |
 
-→ [MT76X2U.md](../src/wifit3/chips/mt76x2u/MT76X2U.md)
+→ [MT76X2U.md](../src/wifang/chips/mt76x2u/MT76X2U.md)
 
 ### MT7921AU
 <img align="right" width="140" src="../assets/cardart/stack-mt7921au.png" alt="ALFA AWUS036AXML (top) / Panda PAU0F (bottom)">
@@ -389,7 +389,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (spoofed MAC). |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch dual-band soak, flat (trend 1.08). |
 
-→ [MT7921AU.md](../src/wifit3/chips/mt7921au/MT7921AU.md)
+→ [MT7921AU.md](../src/wifang/chips/mt7921au/MT7921AU.md)
 
 ### MT7925AU
 <img align="right" width="127" height="165" src="../assets/cardart/card-netgeara9000.png" alt="Netgear A9000">
@@ -409,7 +409,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | WEP | ✅ | 2026-07-26 | 2.4 GHz ChopChop + ARP replay ~300 IVs/s. |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch soak, flat (trend 1.01, no death-detect). |
 
-→ [MT7925AU.md](../src/wifit3/chips/mt7925au/MT7925AU.md)
+→ [MT7925AU.md](../src/wifang/chips/mt7925au/MT7925AU.md)
 
 ## Ralink Chipsets
 ### RT2500USB
@@ -432,7 +432,7 @@ therefore tracks the kernel driver, not a wifit3 register-level port.
 | WPS | ✅ | 2026-07-25 | PIN → M7 (5/5) but slow (~4.2 s median, via AP retransmits, no auto-ACK). |
 | Stress | ⚠️ | 2026-07-29 | Solo: 30-min soak, mild late taper. Died at 2m in a 4-card soak (bus contention, not the driver). |
 
-→ [RT2500USB.md](../src/wifit3/chips/rt2500usb/RT2500USB.md)
+→ [RT2500USB.md](../src/wifang/chips/rt2500usb/RT2500USB.md)
 
 ### RT3070
 <img align="right" width="70" height="330" src="../assets/cardart/stack-rt3070.png" alt="ALFA AWUS036NH / D-Link DWA-140">
@@ -456,7 +456,7 @@ Excellent 2.4 GHz front-end (external LNA): strong range, signal, and TX rate.
 | WPS | ✅ | 2026-07-25 | PIN → M7 (5/5). |
 | Stress | ✅ | 2026-07-29 | 30-min 14-ch soak, flat (trend 1.01). |
 
-→ [RT3070.md](../src/wifit3/chips/rt3070/RT3070.md)
+→ [RT3070.md](../src/wifang/chips/rt3070/RT3070.md)
 
 ### RT5370
 <img align="right" width="138" height="165" src="../assets/cardart/card-lotekoo150.png" alt="LOTEKOO 150">
@@ -475,7 +475,7 @@ Excellent 2.4 GHz front-end (external LNA): strong range, signal, and TX rate.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor (stop-on-ACK imperfect). |
 | Stress | ✅ | 2026-07-30 | 30-min 14-ch soak, flat (trend 1.02, no death-detect). |
 
-→ [RT5370.md](../src/wifit3/chips/rt5370/RT5370.md)
+→ [RT5370.md](../src/wifang/chips/rt5370/RT5370.md)
 
 ### RT5372
 <img align="right" width="128" height="165" src="../assets/cardart/card-pau06.png" alt="Panda PAU06">
@@ -495,7 +495,7 @@ Excellent 2.4 GHz front-end (external LNA): strong range, signal, and TX rate.
 | ACKs | ✅ | 2026-07-25 | WPS PIN/PBC → auto-ACK. |
 | Stress | ✅ | 2026-07-30 | 30-min 14-ch soak, flat (PAU05 1.13, PAU06 0.91). |
 
-→ [RT5372.md](../src/wifit3/chips/rt5372/RT5372.md) (default) · [RT2800USB.md](../src/wifit3/chips/rt2800usb/RT2800USB.md) (rt2800usb fallback)
+→ [RT5372.md](../src/wifang/chips/rt5372/RT5372.md) (default) · [RT2800USB.md](../src/wifang/chips/rt2800usb/RT2800USB.md) (rt2800usb fallback)
 
 ### RT5572
 <img align="right" width="140" height="160" src="../assets/cardart/card-pau09n600.png" alt="Panda PAU09 N600">
@@ -518,7 +518,7 @@ Excellent 2.4 GHz front-end (external LNA): strong range, signal, and TX rate.
 | ACKs | ✅ | 2026-07-25 | Auto-ACK forged MAC via active monitor. |
 | Stress | ✅ | 2026-07-29 | 30-min 22-ch soak, flat (trend 1.04). |
 
-→ [RT5572.md](../src/wifit3/chips/rt5572/RT5572.md)
+→ [RT5572.md](../src/wifang/chips/rt5572/RT5572.md)
 
 ## Unsupported
 
@@ -527,7 +527,7 @@ Excellent 2.4 GHz front-end (external LNA): strong range, signal, and TX rate.
 Our only unit (bought 2015) has a blank EFUSE (no factory RF calibration), so it can't
 validate the chip.
 
-→ [RT2800USB.md](../src/wifit3/chips/rt2800usb/RT2800USB.md)
+→ [RT2800USB.md](../src/wifang/chips/rt2800usb/RT2800USB.md)
 
 ## Stress soak
 

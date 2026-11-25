@@ -5,18 +5,18 @@ import asyncio
 import struct
 from types import SimpleNamespace
 
-from wifit3.campaigns.campaign import Campaign
-from wifit3.campaigns.eviltwin import (
+from wifang.campaigns.campaign import Campaign
+from wifang.campaigns.eviltwin import (
     EvilTwinCampaign, EvilTwinInput, PuntMode, default_punt_modes, csa_target_channel,
 )
-from wifit3.dot11.ap import beacon_clone, eapol_m1
-from wifit3.dot11.eapol import eapol_key, data_header, LLC_SNAP_EAPOL
-from wifit3.dot11.ie import ssid_ie, rates_ie, ds_param_ie, GENERIC_RSN_IE
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.crack.handshake import crackable_pairs
-from wifit3.models import AccessPoint, Handshake, HandshakeMessage
-from wifit3.persist.save import save_handshake
-from wifit3.wlan.sink import WlanSink
+from wifang.dot11.ap import beacon_clone, eapol_m1
+from wifang.dot11.eapol import eapol_key, data_header, LLC_SNAP_EAPOL
+from wifang.dot11.ie import ssid_ie, rates_ie, ds_param_ie, GENERIC_RSN_IE
+from wifang.dot11.parser import WlanFrameParser
+from wifang.crack.handshake import crackable_pairs
+from wifang.models import AccessPoint, Handshake, HandshakeMessage
+from wifang.persist.save import save_handshake
+from wifang.wlan.sink import WlanSink
 
 _BSSID = "94:83:c4:8c:3f:78"
 _BSSID_B = bytes.fromhex("9483c48c3f78")

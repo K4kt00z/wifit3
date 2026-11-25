@@ -15,10 +15,10 @@ import pytest
 import pytest_asyncio
 from textual.app import App
 
-from wifit3.models import AccessPoint, Client, Handshake, IdKey, IdSource
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.models import AccessPoint, Client, Handshake, IdKey, IdSource
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.ui.screens.scanner import ScannerView
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -178,7 +178,7 @@ async def test_wps_lock_flip_is_seen(scanner):
 
 async def test_wep_iv_counting_without_last_seen_is_seen(scanner):
     # WepStats.unique_ivs grows in place on every WEP data frame.
-    from wifit3.models import WepStats
+    from wifang.models import WepStats
     app, screen = scanner
     ap = _ap()
     ap.encryption = "WEP"
@@ -210,7 +210,7 @@ async def test_channel_move_is_seen(scanner):
 
 async def test_a_saved_capture_lights_the_badge(scanner):
     # The badges read the vault, which no frame touches — the AP's Vault.revision is their key.
-    from wifit3.models import CaptureType, PersistedCapture
+    from wifang.models import CaptureType, PersistedCapture
     app, screen = scanner
     ap = _ap()
     assert _assert_cache_is_honest(screen, ap).has_pmkid is False

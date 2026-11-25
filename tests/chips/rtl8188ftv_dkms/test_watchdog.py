@@ -26,7 +26,7 @@ class FakeT:
 
 
 def test_false_alarm_stats():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0x48071D40, 0x04030740, 0x350000, 0x2F60642, 0x1702F7,
                0x2E, 0xD3A000, 0xD3B000, 0x154, 0x2005881, 0x80801B04,
                0x6C6C6CEC, 0xEC6C6CEC, 0x84030740, 0x8C030740,
@@ -40,7 +40,7 @@ def test_false_alarm_stats():
 
 
 def test_dig_step():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0x69553420])
     st = {"cur_ig": 0x20}
     dm.dig_step(t, st, {"all": 6000})
@@ -57,7 +57,7 @@ def test_dig_step():
 
 
 def test_adaptivity_edcca():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([0xA03E0346])
     st = {"th_l2h_ini": 0xF5, "adaptivity_ability": False}
     dm.adaptivity_edcca(t, st)
@@ -66,7 +66,7 @@ def test_adaptivity_edcca():
 
 
 def test_cck_pd():
-    from wifit3.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import dm
     t = FakeT([])
     st = {"cur_cck": 0}
     dm.cck_pd(t, st, {"cck_fail": 596})
@@ -81,7 +81,7 @@ def test_cck_pd():
 
 
 def test_rxfifo_check():
-    from wifit3.chips.rtl8188ftv_dkms import misc
+    from wifang.chips.rtl8188ftv_dkms import misc
     t = FakeT([0xA0, 0x0000])
     misc.check_rxfifo_full(t)
     assert t.writes == [(0x667, 1, 0xA0)]
@@ -89,8 +89,8 @@ def test_rxfifo_check():
 
 def test_watchdog_tick_resets_trigger_on_callback_raise(monkeypatch):
     import pytest
-    from wifit3.chips.rtl8188ftv_dkms import dm
-    from wifit3.chips.rtl8188ftv_dkms import track as track_mod
+    from wifang.chips.rtl8188ftv_dkms import dm
+    from wifang.chips.rtl8188ftv_dkms import track as track_mod
     monkeypatch.setattr(dm.misc_mod, "check_rxfifo_full", lambda t: None)
     monkeypatch.setattr(dm, "false_alarm_stats",
                         lambda t: {"all": 0, "cca": 1, "cck_fail": 0})

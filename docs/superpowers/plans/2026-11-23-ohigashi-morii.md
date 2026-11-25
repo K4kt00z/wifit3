@@ -33,7 +33,7 @@
 ### Task 1: WMM-relaxable pre-check
 
 **Files:**
-- Modify: `src/wifit3/campaigns/tkip/precheck.py` (`assess`)
+- Modify: `src/wifang/campaigns/tkip/precheck.py` (`assess`)
 - Test: `tests/campaigns/tkip/test_precheck.py` (extend)
 
 **Interfaces:**
@@ -66,7 +66,7 @@ def test_no_client_not_attackable_mitm_path():
 ### Task 2: Transparent-repeater frame decision + rewrite (pure core)
 
 **Files:**
-- Create: `src/wifit3/campaigns/tkip_mitm/__init__.py`, `src/wifit3/campaigns/tkip_mitm/relay.py`
+- Create: `src/wifang/campaigns/tkip_mitm/__init__.py`, `src/wifang/campaigns/tkip_mitm/relay.py`
 - Test: `tests/campaigns/tkip_mitm/test_relay.py`
 
 **Interfaces:**
@@ -103,7 +103,7 @@ def test_rewrite_preserves_bssid():
 ### Task 3: MITM chop driver
 
 **Files:**
-- Create: `src/wifit3/campaigns/tkip_mitm/chop.py`
+- Create: `src/wifang/campaigns/tkip_mitm/chop.py`
 - Test: `tests/campaigns/tkip_mitm/test_chop.py`
 
 **Interfaces:**
@@ -131,8 +131,8 @@ async def test_mitm_aborts_on_rekey():
 ### Task 4: OhigashiMoriiCampaign
 
 **Files:**
-- Modify: `src/wifit3/campaigns/tkip_mitm/__init__.py` (export `OhigashiMoriiCampaign`)
-- Create: `src/wifit3/campaigns/tkip_mitm/campaign.py`, `src/wifit3/campaigns/tkip_mitm/README.md`
+- Modify: `src/wifang/campaigns/tkip_mitm/__init__.py` (export `OhigashiMoriiCampaign`)
+- Create: `src/wifang/campaigns/tkip_mitm/campaign.py`, `src/wifang/campaigns/tkip_mitm/README.md`
 - Test: `tests/campaigns/tkip_mitm/test_campaign.py`
 
 **Interfaces:**
@@ -163,7 +163,7 @@ def test_visible_only_for_tkip():
 ### Task 5: Focus UI wiring
 
 **Files:**
-- Modify: `src/wifit3/ui/focus_model.py` (`BUTTON_CAMPAIGNS`), `src/wifit3/ui/screens/focus_v2/screen.py` (button registries, `_start_tkip_mitm`/`_on_tkip_mitm_input` mirroring `_start_eviltwin`/`_on_eviltwin_input`, `_finish_tkip_mitm` reap, Bindings), `src/wifit3/ui/screens/focus_v2/campaign_controls.py` (a bespoke `elif` branch, required)
+- Modify: `src/wifang/ui/focus_model.py` (`BUTTON_CAMPAIGNS`), `src/wifang/ui/screens/focus_v2/screen.py` (button registries, `_start_tkip_mitm`/`_on_tkip_mitm_input` mirroring `_start_eviltwin`/`_on_eviltwin_input`, `_finish_tkip_mitm` reap, Bindings), `src/wifang/ui/screens/focus_v2/campaign_controls.py` (a bespoke `elif` branch, required)
 - Test: `tests/ui/test_tkip_mitm_wiring.py`
 
 **Interfaces:**

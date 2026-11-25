@@ -5,8 +5,8 @@ import struct
 import threading
 import time
 
-from wifit3.chips.ar9271_v2 import wmi as W
-from wifit3.chips.ar9271_v2.transport import AR9271Transport
+from wifang.chips.ar9271_v2 import wmi as W
+from wifang.chips.ar9271_v2.transport import AR9271Transport
 
 
 class FakeDev:

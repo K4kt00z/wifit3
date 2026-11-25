@@ -1,6 +1,6 @@
 """TKIP key mixing vectors: IEEE 802.11-2012 Annex M.6.3 TK/TA, outputs from
 hostap wlantest/tkip.c."""
-from wifit3.dot11.tkip import tkip_rc4_key, tsc_to_iv
+from wifang.dot11.tkip import tkip_rc4_key, tsc_to_iv
 
 _TK = bytes.fromhex("12345678901234567890123456789012")
 _TA = bytes.fromhex("020304050607")

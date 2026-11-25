@@ -1,5 +1,5 @@
-from wifit3.campaigns.tkip.campaign import TkipInject
-from wifit3.models.access_point import AccessPoint
+from wifang.campaigns.tkip.campaign import TkipInject
+from wifang.models.access_point import AccessPoint
 
 
 def ap(pairwise, group, wmm=True) -> AccessPoint:

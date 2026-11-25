@@ -3,18 +3,18 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from wifit3.campaigns.verify.campaign import VerifyOutcome
-from wifit3.campaigns.verify.pin import VerifyPinCampaign
-from wifit3.campaigns.verify.psk import VerifyPskCampaign
-from wifit3.campaigns.verify.wep import VerifyWepCampaign
-from wifit3.campaigns.wps.registrar import AttemptOutcome, PinResult
-from wifit3.crack.wep import rc4_keystream
-from wifit3.dot11 import str_to_mac
-from wifit3.dot11.eapol import HMAC_MD5_RC4, HMAC_SHA1_AES, KeyDescriptorVersion
-from wifit3.dot11.packet import DeauthPacket, EapolPacket, WepDataPacket
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.wep.crypto import icv
-from wifit3.models import AccessPoint
+from wifang.campaigns.verify.campaign import VerifyOutcome
+from wifang.campaigns.verify.pin import VerifyPinCampaign
+from wifang.campaigns.verify.psk import VerifyPskCampaign
+from wifang.campaigns.verify.wep import VerifyWepCampaign
+from wifang.campaigns.wps.registrar import AttemptOutcome, PinResult
+from wifang.crack.wep import rc4_keystream
+from wifang.dot11 import str_to_mac
+from wifang.dot11.eapol import HMAC_MD5_RC4, HMAC_SHA1_AES, KeyDescriptorVersion
+from wifang.dot11.packet import DeauthPacket, EapolPacket, WepDataPacket
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.wep.crypto import icv
+from wifang.models import AccessPoint
 
 BSSID = "00:11:22:33:44:55"
 OUR_MAC = "00:aa:bb:cc:dd:ee"
@@ -22,7 +22,7 @@ OUR_MAC = "00:aa:bb:cc:dd:ee"
 
 @pytest.fixture(autouse=True)
 def _no_leaving_echo_wait(monkeypatch):
-    monkeypatch.setattr("wifit3.campaigns.verify.campaign._LEAVING_ECHO_S", 0)
+    monkeypatch.setattr("wifang.campaigns.verify.campaign._LEAVING_ECHO_S", 0)
 
 
 class _FakeLease:
@@ -64,7 +64,7 @@ def _eapol_from_ap(msg_num: int, replay: int,
 
 
 def _associates(monkeypatch, associated: bool = True):
-    monkeypatch.setattr("wifit3.wlan.station.Association.associate", AsyncMock(return_value=associated))
+    monkeypatch.setattr("wifang.wlan.station.Association.associate", AsyncMock(return_value=associated))
 
 
 async def _run(campaign_class, array, value):
@@ -207,7 +207,7 @@ async def test_verify_errors_when_the_ap_is_not_heard():
 async def test_a_crashed_exchange_is_an_error_and_still_sends_the_leaving_deauth(monkeypatch):
     iface = _iface()
     array = _array(iface)
-    monkeypatch.setattr("wifit3.wlan.station.Association.associate",
+    monkeypatch.setattr("wifang.wlan.station.Association.associate",
                         AsyncMock(side_effect=OSError("USB gone")))
 
     campaign = await _run(VerifyPskCampaign, array, "pw")
@@ -226,7 +226,7 @@ async def test_verify_pin(monkeypatch, result, outcome):
     array = _array(_iface())
     _associates(monkeypatch)
     try_pin = AsyncMock(return_value=AttemptOutcome(result, pin="12345670"))
-    monkeypatch.setattr("wifit3.campaigns.verify.pin.WpsRegistrar.try_pin", try_pin)
+    monkeypatch.setattr("wifang.campaigns.verify.pin.WpsRegistrar.try_pin", try_pin)
 
     campaign = await _run(VerifyPinCampaign, array, "12345670")
 
@@ -238,7 +238,7 @@ async def test_verify_pin_tries_an_empty_pin(monkeypatch):
     array = _array(_iface())
     _associates(monkeypatch)
     try_pin = AsyncMock(return_value=AttemptOutcome(PinResult.SUCCESS, pin=""))
-    monkeypatch.setattr("wifit3.campaigns.verify.pin.WpsRegistrar.try_pin", try_pin)
+    monkeypatch.setattr("wifang.campaigns.verify.pin.WpsRegistrar.try_pin", try_pin)
 
     campaign = await _run(VerifyPinCampaign, array, "")
 
@@ -249,7 +249,7 @@ async def test_verify_pin_tries_an_empty_pin(monkeypatch):
 async def test_verify_pin_session_failure_is_an_error(monkeypatch):
     array = _array(_iface())
     _associates(monkeypatch)
-    monkeypatch.setattr("wifit3.campaigns.verify.pin.WpsRegistrar.try_pin",
+    monkeypatch.setattr("wifang.campaigns.verify.pin.WpsRegistrar.try_pin",
                         AsyncMock(return_value=AttemptOutcome(PinResult.PROTO_ERROR, pin="1", detail="AP locked")))
 
     campaign = await _run(VerifyPinCampaign, array, "12345670")
@@ -290,7 +290,7 @@ async def test_verify_wep_key_that_decrypts_nothing_is_rejected(monkeypatch):
 
     array.next_frame = next_frame
     _associates(monkeypatch)
-    monkeypatch.setattr("wifit3.campaigns.verify.wep.asyncio.sleep", AsyncMock())
+    monkeypatch.setattr("wifang.campaigns.verify.wep.asyncio.sleep", AsyncMock())
 
     campaign = await _run(VerifyWepCampaign, array, "0987654321")
 

@@ -1,6 +1,6 @@
 """Pure-spec tests for the Probe Request / Probe Response builders."""
-from wifit3.dot11.ie import ds_param_ie, ext_rates_ie, rates_ie, ssid_ie
-from wifit3.dot11.probe import probe_req, probe_resp
+from wifang.dot11.ie import ds_param_ie, ext_rates_ie, rates_ie, ssid_ie
+from wifang.dot11.probe import probe_req, probe_resp
 
 _BSSID = bytes.fromhex("112233445566")
 _OUR_MAC = bytes.fromhex("021122334455")

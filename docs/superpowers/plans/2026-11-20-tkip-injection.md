@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a single-radio Beck-Tews TKIP attack to wifit3 that recovers a frame's keystream + Michael MIC key from a live network and drives an operator injection session (ARP-spoof default), covering WPA1-TKIP and WPA/WPA2 group-cipher-downgrade targets.
+**Goal:** Add a single-radio Beck-Tews TKIP attack to wifang that recovers a frame's keystream + Michael MIC key from a live network and drives an operator injection session (ARP-spoof default), covering WPA1-TKIP and WPA/WPA2 group-cipher-downgrade targets.
 
 **Architecture:** Pure-spec crypto (`dot11/michael.py`, `dot11/tkip.py`) and an offline-testable recovery core (`crack/tkip_beck_tews.py`) sit under a radio-owning campaign (`campaigns/tkip/`) that mirrors the WEP chopchop's RX-callback + injectable-`probe` seams but drives a boolean MIC-failure oracle with per-byte countermeasure pacing. A vulnerability pre-check gates it; a new capture kind and a Focus modal surface it.
 
@@ -34,7 +34,7 @@
 ### Task 1: Michael MIC + inverse (`dot11/michael.py`)
 
 **Files:**
-- Create: `src/wifit3/dot11/michael.py`
+- Create: `src/wifang/dot11/michael.py`
 - Test: `tests/dot11/test_michael.py`
 
 **Interfaces:**
@@ -63,7 +63,7 @@ def test_michael_key_recovery_roundtrips():
 ### Task 2: TKIP per-packet key mixing + TSC (`dot11/tkip.py`)
 
 **Files:**
-- Create: `src/wifit3/dot11/tkip.py`
+- Create: `src/wifang/dot11/tkip.py`
 - Test: `tests/dot11/test_tkip.py`
 
 **Interfaces:**
@@ -80,7 +80,7 @@ def test_michael_key_recovery_roundtrips():
 ### Task 3: Recognize inbound MIC-failure report (`dot11/parser.py`, `dot11/packet.py`)
 
 **Files:**
-- Modify: `src/wifit3/dot11/parser.py` (`_parse_eapol`, `_classify_eapol_msg`), `src/wifit3/dot11/packet.py` (`EapolPacket`)
+- Modify: `src/wifang/dot11/parser.py` (`_parse_eapol`, `_classify_eapol_msg`), `src/wifang/dot11/packet.py` (`EapolPacket`)
 - Test: `tests/dot11/test_parser_mic_failure.py`
 
 **Interfaces:**
@@ -111,7 +111,7 @@ def test_real_m4_still_classified_m4():
 ### Task 4: Group-cipher plumbing (RsnElement → AccessPoint)
 
 **Files:**
-- Modify: `src/wifit3/dot11/parser.py` (`_parse_tags`), `src/wifit3/dot11/packet.py` (`BeaconPacket`), `src/wifit3/wlan/sink.py` (`_on_beacon_frame`), `src/wifit3/models/access_point.py` (`AccessPoint`)
+- Modify: `src/wifang/dot11/parser.py` (`_parse_tags`), `src/wifang/dot11/packet.py` (`BeaconPacket`), `src/wifang/wlan/sink.py` (`_on_beacon_frame`), `src/wifang/models/access_point.py` (`AccessPoint`)
 - Test: `tests/dot11/test_group_cipher.py`
 
 **Interfaces:**
@@ -137,7 +137,7 @@ def test_mixed_ap_exposes_tkip_group_cipher():
 ### Task 5: WMM presence + usable TID (`dot11/parser.py`)
 
 **Files:**
-- Modify: `src/wifit3/dot11/parser.py` (vendor-IE handling in `_parse_tags`), `src/wifit3/dot11/packet.py` (`BeaconPacket`), `src/wifit3/models/access_point.py`, `src/wifit3/wlan/sink.py`
+- Modify: `src/wifang/dot11/parser.py` (vendor-IE handling in `_parse_tags`), `src/wifang/dot11/packet.py` (`BeaconPacket`), `src/wifang/models/access_point.py`, `src/wifang/wlan/sink.py`
 - Test: `tests/dot11/test_wmm.py`
 
 **Interfaces:**
@@ -154,7 +154,7 @@ def test_mixed_ap_exposes_tkip_group_cipher():
 ### Task 6: Beck-Tews recovery core (`crack/tkip_beck_tews.py`)
 
 **Files:**
-- Create: `src/wifit3/crack/tkip_beck_tews.py`
+- Create: `src/wifang/crack/tkip_beck_tews.py`
 - Test: `tests/crack/test_tkip_beck_tews.py`
 
 **Interfaces:**
@@ -189,7 +189,7 @@ def test_walk_stops_at_known_prefix_floor():
 ### Task 7: Vulnerability pre-check (`campaigns/tkip/precheck.py`)
 
 **Files:**
-- Create: `src/wifit3/campaigns/tkip/__init__.py`, `src/wifit3/campaigns/tkip/precheck.py`
+- Create: `src/wifang/campaigns/tkip/__init__.py`, `src/wifang/campaigns/tkip/precheck.py`
 - Test: `tests/campaigns/tkip/test_precheck.py`
 
 **Interfaces:**
@@ -226,7 +226,7 @@ def test_no_wmm_not_attackable():
 ### Task 8: Forge + inject payloads (`campaigns/tkip/inject.py`)
 
 **Files:**
-- Create: `src/wifit3/campaigns/tkip/inject.py`
+- Create: `src/wifang/campaigns/tkip/inject.py`
 - Test: `tests/campaigns/tkip/test_inject.py`
 
 **Interfaces:**
@@ -244,7 +244,7 @@ def test_no_wmm_not_attackable():
 ### Task 9: Chop-loop campaign (`campaigns/tkip/chop.py`, `campaigns/tkip/campaign.py`)
 
 **Files:**
-- Create: `src/wifit3/campaigns/tkip/chop.py`, `src/wifit3/campaigns/tkip/campaign.py`, `src/wifit3/campaigns/tkip/README.md`
+- Create: `src/wifang/campaigns/tkip/chop.py`, `src/wifang/campaigns/tkip/campaign.py`, `src/wifang/campaigns/tkip/README.md`
 - Test: `tests/campaigns/tkip/test_chop.py`, `tests/campaigns/tkip/test_campaign.py`
 
 **Interfaces:**
@@ -277,7 +277,7 @@ def test_campaign_visible_only_for_attackable(mocker):
 ### Task 10: New capture kind (`models/`, `persist/`)
 
 **Files:**
-- Modify: `src/wifit3/models/access_point.py` (`CaptureType`), `src/wifit3/persist/common.py` (`LEGACY_CAPTURE_RE`), `src/wifit3/persist/capture_history.py` (`_parse_file`, `summarize`), `src/wifit3/persist/save.py`
+- Modify: `src/wifang/models/access_point.py` (`CaptureType`), `src/wifang/persist/common.py` (`LEGACY_CAPTURE_RE`), `src/wifang/persist/capture_history.py` (`_parse_file`, `summarize`), `src/wifang/persist/save.py`
 - Test: `tests/persist/test_tkip_capture.py`
 
 **Interfaces:**
@@ -294,8 +294,8 @@ def test_campaign_visible_only_for_attackable(mocker):
 ### Task 11: Focus UI — button, modal, wiring
 
 **Files:**
-- Create: `src/wifit3/ui/screens/focus_v2/tkip_modal.py`
-- Modify: `src/wifit3/ui/focus_model.py` (`BUTTON_CAMPAIGNS`), `src/wifit3/ui/screens/focus_v2/screen.py` (`_ATTACK_BUTTONS`, `_BUTTON_TIPS`, `_SHORT_BUTTON_LABELS`, `_campaign_toggles`, `on_button_pressed`, a `_finish_tkip` reap handler, Bindings), `src/wifit3/ui/encryption_format.py`
+- Create: `src/wifang/ui/screens/focus_v2/tkip_modal.py`
+- Modify: `src/wifang/ui/focus_model.py` (`BUTTON_CAMPAIGNS`), `src/wifang/ui/screens/focus_v2/screen.py` (`_ATTACK_BUTTONS`, `_BUTTON_TIPS`, `_SHORT_BUTTON_LABELS`, `_campaign_toggles`, `on_button_pressed`, a `_finish_tkip` reap handler, Bindings), `src/wifang/ui/encryption_format.py`
 - Test: `tests/ui/test_tkip_wiring.py`
 
 **Interfaces:**

@@ -14,7 +14,7 @@ class FakeT:
 
 
 def test_invalidate_cam_all():
-    from wifit3.chips.rtl8188ftv_dkms import sec
+    from wifang.chips.rtl8188ftv_dkms import sec
     t = FakeT([])
     sec.invalidate_cam_all(t)
     assert t.writes == [(0x670, 4, 0xC0000000)]

@@ -3,18 +3,18 @@ import subprocess
 import pytest
 from textual.app import App
 
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.clipboard import copy_copyq_text, copy_macos_text
+from wifang.ui.app import WifiteApp
+from wifang.ui.clipboard import copy_copyq_text, copy_macos_text
 
 
 @pytest.fixture(autouse=True)
 def copyq_mirror(mocker):
-    return mocker.patch("wifit3.ui.app.copy_copyq_text", return_value=False)
+    return mocker.patch("wifang.ui.app.copy_copyq_text", return_value=False)
 
 
 def test_copyq_adds_utf8_text_from_stdin(mocker):
-    mocker.patch("wifit3.ui.clipboard.shutil.which", return_value="/usr/bin/copyq")
-    run = mocker.patch("wifit3.ui.clipboard.subprocess.run")
+    mocker.patch("wifang.ui.clipboard.shutil.which", return_value="/usr/bin/copyq")
+    run = mocker.patch("wifang.ui.clipboard.subprocess.run")
 
     assert copy_copyq_text("pässword")
     run.assert_called_once_with(
@@ -26,8 +26,8 @@ def test_copyq_adds_utf8_text_from_stdin(mocker):
 
 
 def test_copyq_unavailable_or_failed_is_ignored(mocker):
-    which = mocker.patch("wifit3.ui.clipboard.shutil.which", return_value=None)
-    run = mocker.patch("wifit3.ui.clipboard.subprocess.run")
+    which = mocker.patch("wifang.ui.clipboard.shutil.which", return_value=None)
+    run = mocker.patch("wifang.ui.clipboard.subprocess.run")
     assert not copy_copyq_text("password")
     run.assert_not_called()
 
@@ -37,7 +37,7 @@ def test_copyq_unavailable_or_failed_is_ignored(mocker):
 
 
 def test_native_windows_clipboard_skips_terminal_fallback(mocker, copyq_mirror):
-    native_copy = mocker.patch("wifit3.ui.app.copy_windows_text", return_value=True)
+    native_copy = mocker.patch("wifang.ui.app.copy_windows_text", return_value=True)
     terminal_copy = mocker.patch.object(App, "copy_to_clipboard")
 
     app = WifiteApp()
@@ -49,8 +49,8 @@ def test_native_windows_clipboard_skips_terminal_fallback(mocker, copyq_mirror):
 
 
 def test_macos_clipboard_uses_pbcopy(mocker):
-    mocker.patch("wifit3.ui.clipboard.sys.platform", "darwin")
-    run = mocker.patch("wifit3.ui.clipboard.subprocess.run")
+    mocker.patch("wifang.ui.clipboard.sys.platform", "darwin")
+    run = mocker.patch("wifang.ui.clipboard.subprocess.run")
 
     assert copy_macos_text("pässword")
     run.assert_called_once_with(
@@ -62,8 +62,8 @@ def test_macos_clipboard_uses_pbcopy(mocker):
 
 
 def test_failed_native_clipboard_uses_terminal_fallback(mocker):
-    mocker.patch("wifit3.ui.app.copy_windows_text", return_value=False)
-    mocker.patch("wifit3.ui.app.copy_macos_text", return_value=False)
+    mocker.patch("wifang.ui.app.copy_windows_text", return_value=False)
+    mocker.patch("wifang.ui.app.copy_macos_text", return_value=False)
     terminal_copy = mocker.patch.object(App, "copy_to_clipboard")
 
     app = WifiteApp()

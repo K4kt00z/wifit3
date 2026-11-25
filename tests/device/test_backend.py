@@ -5,7 +5,7 @@ import pytest
 import usb.core
 
 from tests.device.fakes import FakeBackend
-from wifit3.device import backend
+from wifang.device import backend
 
 
 def test_libusb_backend_enumerates(monkeypatch):

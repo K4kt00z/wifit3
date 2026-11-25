@@ -1,9 +1,9 @@
 """Tests for the TKIP injection-capability capture kind (save + parse + summarize)."""
 from __future__ import annotations
 
-from wifit3.models import AccessPoint, CaptureType, PersistedCapture
-from wifit3.persist.capture_history import load_capture_index, summarize
-from wifit3.persist.save import save_tkip_capability
+from wifang.models import AccessPoint, CaptureType, PersistedCapture
+from wifang.persist.capture_history import load_capture_index, summarize
+from wifang.persist.save import save_tkip_capability
 
 _BSSID_COLON = "aa:bb:cc:dd:ee:ff"
 

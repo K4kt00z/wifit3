@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 from textual.app import App, ComposeResult
 
-from wifit3.ui.screens.focus_v2.router_endpoint import RouterEndpoint
+from wifang.ui.screens.focus_v2.router_endpoint import RouterEndpoint
 
 
 class _Host(App):

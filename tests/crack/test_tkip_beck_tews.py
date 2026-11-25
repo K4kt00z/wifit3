@@ -7,12 +7,12 @@ for the AP's MIC-failure report).
 """
 import zlib
 
-from wifit3.campaigns.tkip.campaign import _KNOWN_ARP_PREFIX
-from wifit3.crack.tkip_beck_tews import BeckTewsWalk, Recovered, recover
-from wifit3.crack.wep import rc4_keystream
-from wifit3.dot11.michael import michael
-from wifit3.dot11.tkip import tkip_rc4_key
-from wifit3.dot11.wep.crypto import CRC32_RESIDUE, icv
+from wifang.campaigns.tkip.campaign import _KNOWN_ARP_PREFIX
+from wifang.crack.tkip_beck_tews import BeckTewsWalk, Recovered, recover
+from wifang.crack.wep import rc4_keystream
+from wifang.dot11.michael import michael
+from wifang.dot11.tkip import tkip_rc4_key
+from wifang.dot11.wep.crypto import CRC32_RESIDUE, icv
 
 _KNOWN_ARP16 = bytes([
     0xAA, 0xAA, 0x03, 0x00, 0x00, 0x00, 0x08, 0x06,

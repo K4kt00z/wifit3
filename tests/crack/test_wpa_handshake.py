@@ -1,8 +1,8 @@
 """Unit tests for crack/handshake.py: the single source of truth for
 WPA 4-way crackability + hc22000 emission."""
-from wifit3.models import HandshakeMessage, Handshake
-from wifit3.crack import handshake as wpa
-from wifit3.crack import hc22000_format as hc
+from wifang.models import HandshakeMessage, Handshake
+from wifang.crack import handshake as wpa
+from wifang.crack import hc22000_format as hc
 
 ANONCE = b"\xaa" * 32
 SNONCE = b"\x02" * 32

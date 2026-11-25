@@ -19,7 +19,7 @@
 #
 set -euo pipefail
 
-CONF=/etc/modprobe.d/wifit3-mt76-disable-sg.conf
+CONF=/etc/modprobe.d/wifang-mt76-disable-sg.conf
 PARAM=/sys/module/mt76_usb/parameters/disable_usb_sg
 
 if [[ ${EUID:-$(id -u)} -ne 0 ]]; then

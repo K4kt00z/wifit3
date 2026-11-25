@@ -7,13 +7,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from wifit3.crack.hc22000_format import parse_hc22000
-from wifit3.models import CaptureType, JobAction, JobState, PersistedCapture, ToolStatus
-from wifit3.persist.config import Config
-from wifit3.vault.manager import JobManager
-from wifit3.vault.tools import hashtopolis as ht
-from wifit3.vault.tools import hashtopolis_api as api_module
-from wifit3.vault.tools.hashtopolis_api import (HashtopolisApi, HashtopolisError,
+from wifang.crack.hc22000_format import parse_hc22000
+from wifang.models import CaptureType, JobAction, JobState, PersistedCapture, ToolStatus
+from wifang.persist.config import Config
+from wifang.vault.manager import JobManager
+from wifang.vault.tools import hashtopolis as ht
+from wifang.vault.tools import hashtopolis_api as api_module
+from wifang.vault.tools.hashtopolis_api import (HashtopolisApi, HashtopolisError,
                                                 HashtopolisUnreachable, ServerFile, TaskProgress,
                                                 user_api_endpoint)
 
@@ -216,8 +216,8 @@ def test_job_without_a_task_cannot_be_adopted(server, tmp_path):
 
 
 def test_manager_adopts_a_running_hashtopolis_job(server, tmp_path, mocker):
-    mocker.patch("wifit3.vault.manager.JobManager._save")
-    mocker.patch("wifit3.vault.manager.JobManager._load")
+    mocker.patch("wifang.vault.manager.JobManager._save")
+    mocker.patch("wifang.vault.manager.JobManager._load")
     manager = JobManager(MagicMock())
     job = _job(_capture(tmp_path, _PMKID))
     job.api_id = "50"

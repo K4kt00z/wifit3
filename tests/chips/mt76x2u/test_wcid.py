@@ -6,8 +6,8 @@ cold boot).
 """
 import pytest
 
-from wifit3.chips.mt76x2u import constants as C
-from wifit3.chips.mt76x2u import wcid
+from wifang.chips.mt76x2u import constants as C
+from wifang.chips.mt76x2u import wcid
 
 
 class FakeTransport:

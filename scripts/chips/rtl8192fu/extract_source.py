@@ -10,7 +10,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 SOURCE = REPO / "driver_sources/rtl8xxxu-source-v6.19.14"
-PACKAGE = REPO / "src/wifit3/chips/rtl8192fu"
+PACKAGE = REPO / "src/wifang/chips/rtl8192fu"
 TABLES = (
     ("rtl8192f_mac_init_table", 4, 2),
     ("rtl8192fu_phy_init_table", 4, 8),

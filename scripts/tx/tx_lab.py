@@ -38,16 +38,16 @@ except Exception:                                                 # noqa: BLE001
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src"))
 
-from wifit3.campaigns.eviltwin.fake_ap import FakeAP
-from wifit3.device.manager import wlan_ifaces
-from wifit3.dot11.mac import mac_header
-from wifit3.dot11.probe import probe_req, probe_resp
+from wifang.campaigns.eviltwin.fake_ap import FakeAP
+from wifang.device.manager import wlan_ifaces
+from wifang.dot11.mac import mac_header
+from wifang.dot11.probe import probe_req, probe_resp
 
 MARK_SRC = "02:7a:7a:00:00:01"    # the test card injects marker frames as this (Addr2)
 TWIN_BSSID = "02:7a:7a:00:00:02"  # FakeAP's BSSID in the beacon + responder tests
 PROBE_SRC = "02:b0:b0:00:00:00"   # the sniffer's probe requests come from this, last byte = probe index
 BOGUS = "02:00:00:00:00:01"       # unicast, nobody owns it: never ACKed, so retried to the limit
-LAB_SSID = "wifit3-tx-lab"
+LAB_SSID = "wifang-tx-lab"
 BROADCAST = b"\xff" * 6
 MARKER = b"TXLAB"
 COUNT = 100

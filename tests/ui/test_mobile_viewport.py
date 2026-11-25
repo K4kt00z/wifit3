@@ -4,11 +4,11 @@ from textual.widgets import Button
 
 from tests.ui.test_focus_v2_layout import _Host
 from tests.wlan.mocks import build_ap, mock_array
-from wifit3.persist.vault import Vault
-from wifit3.ui.ap_table import APRow, APTable
-from wifit3.ui.encryption_format import EncryptionSummary, EncryptionType
-from wifit3.ui.screens.channel_filter import ChannelFilterDialog
-from wifit3.ui.screens.splash import SplashView
+from wifang.persist.vault import Vault
+from wifang.ui.ap_table import APRow, APTable
+from wifang.ui.encryption_format import EncryptionSummary, EncryptionType
+from wifang.ui.screens.channel_filter import ChannelFilterDialog
+from wifang.ui.screens.splash import SplashView
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 

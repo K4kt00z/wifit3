@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from textual.app import SuspendNotSupported
 
-from wifit3.ui.bringup_prompter import BringupPrompter
+from wifang.ui.bringup_prompter import BringupPrompter
 
 
 class _App:

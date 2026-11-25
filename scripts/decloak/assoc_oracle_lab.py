@@ -38,10 +38,10 @@ sys.path.insert(0, str(_HERE.parent.parent / "src"))
 sys.path.insert(0, str(_HERE.parent))  # scripts/ for dev.py
 
 from dev import select_device
-from wifit3.device.manager import wlan_ifaces, wlan_close
-from wifit3.dot11.auth_assoc import auth_req, assoc_req, status_description
-from wifit3.dot11.probe import probe_req
-from wifit3.dot11.packet import AuthPacket, AssocRespPacket, DeauthPacket
+from wifang.device.manager import wlan_ifaces, wlan_close
+from wifang.dot11.auth_assoc import auth_req, assoc_req, status_description
+from wifang.dot11.probe import probe_req
+from wifang.dot11.packet import AuthPacket, AssocRespPacket, DeauthPacket
 
 
 def _mac(s: str) -> bytes:
@@ -219,7 +219,7 @@ async def run(iface, args) -> int:
     print(f"  active monitor as : {_macs(probe_mac)}")
 
     wrong = args.ssid + "-WRONG"
-    control = "wifit3-" + os.urandom(6).hex()
+    control = "wifang-" + os.urandom(6).hex()
 
     print("\n[B] directed Probe Request: does probe-based decloak work at all?")
     answered_right = await probe_for(iface, tap, bssid, probe_mac, args.ssid,

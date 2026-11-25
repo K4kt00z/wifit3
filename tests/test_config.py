@@ -2,9 +2,9 @@ import copy
 
 import pytest
 
-import wifit3.persist.config as cfg
-from wifit3.models import ToolName
-from wifit3.persist.config import (Config, ConfigError, CpuCrackSettings, HashcatSettings,
+import wifang.persist.config as cfg
+from wifang.models import ToolName
+from wifang.persist.config import (Config, ConfigError, CpuCrackSettings, HashcatSettings,
                                    HashtopolisSettings)
 
 _DEFAULTS = {n: copy.deepcopy(getattr(Config, n))

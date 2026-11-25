@@ -1,4 +1,4 @@
-# Wifit3: Known Bugs & QoL
+# Wifang: Known Bugs & QoL
 
 Tracked defects and design debt. Each entry is a **problem statement**, not a prescribed
 solution. The fix is whatever's simplest, tackled one at a time. Where a simple direction is
@@ -36,7 +36,7 @@ gets wrong values with no error raised: little or no RX/TX, or wedging.
 Chipsets confirmed to honor EFUSE: RTL8821AU, RTL8822BU, RTL8822CU, RTL8192FU, AR9271.
 RTL8192FU is verified only on its RFE type 5 reference card; RFE type 1 needs hardware validation.
 
-Direction: per driver, list the EFUSE fields the vendor driver reads, compare against the wifit3
+Direction: per driver, list the EFUSE fields the vendor driver reads, compare against the wifang
 driver, port what is missing. The vendor's per field parsers are uniformly named, so the field list
 comes out of the vendored source directly:
 
@@ -141,7 +141,7 @@ Focus channel. The Focus target's beacons stay at 0 until the Vault is closed, t
 ## PSK-SHA384 and FT-PSK-SHA384 handshakes are not yet supported
 
 **Problem.** AKM 20 (PSK-SHA384) and AKM 19 (FT-PSK-SHA384) derive the KCK and MIC with SHA-384
-(24-byte MIC). `-m 22000` has no SHA-384 path in released hashcat, so wifit3 withholds these
+(24-byte MIC). `-m 22000` has no SHA-384 path in released hashcat, so wifang withholds these
 captures as "not yet supported". Hashcat mainline added one ([hashcat#4931](https://github.com/hashcat/hashcat/issues/4931)).
 
 **Direction.** Once a hashcat release ships it, add the hashline format and drop the withhold.
@@ -197,7 +197,7 @@ operation as-is, so a 5 GHz target that advertises a wider channel gets a twin t
 ## 40/80 MHz APs may be invisible to the scanner
 
 **Problem.** An AP that defaults to 40 MHz is not seen. 40/80 MHz was never ported because it was
-unclear how scanning should use those widths. Unconfirmed as a bug: the wifit3-vs-Linux tests
+unclear how scanning should use those widths. Unconfirmed as a bug: the wifang-vs-Linux tests
 showed about the same AP counts.
 
 **Direction.** Reproduce with the 40 MHz AP, then decide whether scanning needs wide-channel support.

@@ -7,11 +7,11 @@ the LLC/SNAP + ARP-reply layout.
 """
 import pytest
 
-from wifit3.campaigns.tkip.inject import arp_spoof_plaintext, forge_tkip_frame
-from wifit3.crack.tkip_beck_tews import Recovered
-from wifit3.dot11.michael import michael
-from wifit3.dot11.tkip import tsc_to_iv
-from wifit3.dot11.wep.crypto import icv
+from wifang.campaigns.tkip.inject import arp_spoof_plaintext, forge_tkip_frame
+from wifang.crack.tkip_beck_tews import Recovered
+from wifang.dot11.michael import michael
+from wifang.dot11.tkip import tsc_to_iv
+from wifang.dot11.wep.crypto import icv
 
 _MIC_KEY = bytes.fromhex("0102030405060708")
 _TSC = 0x0000000000AB

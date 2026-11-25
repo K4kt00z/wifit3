@@ -49,9 +49,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))
 import libusb_package
 import usb.core
 
-from wifit3.chips.mt76x0u.constants import USB_IDS_MT76X0U
-from wifit3.chips.mt76x0u.driver import MT76x0UDriver
-from wifit3.chips.driver import DeviceID
+from wifang.chips.mt76x0u.constants import USB_IDS_MT76X0U
+from wifang.chips.mt76x0u.driver import MT76x0UDriver
+from wifang.chips.driver import DeviceID
 
 
 # ---------------------------------------------------------------------------

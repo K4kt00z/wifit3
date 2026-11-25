@@ -1,6 +1,6 @@
 import pytest
 
-hashcat_console = pytest.importorskip("wifit3.vault.tools.hashcat_console",
+hashcat_console = pytest.importorskip("wifang.vault.tools.hashcat_console",
                                       reason="a console input buffer is Windows-only")
 
 

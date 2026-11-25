@@ -5,13 +5,13 @@ import pytest
 
 
 def _driver():
-    from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+    from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
     d = Rtl8188ftvDkmsDriver(MagicMock())
     return d
 
 
 def test_firmware_asset_loads():
-    from wifit3.chips.rtl8188ftv_dkms import firmware as fw
+    from wifang.chips.rtl8188ftv_dkms import firmware as fw
     blob = fw.load_firmware_blob()
     assert len(blob) == 21020
     assert fw.parse_header(blob)[:3] == (4, 0, 0x88F1)
@@ -23,8 +23,8 @@ def _rx_desc(n: int) -> bytes:
 
 
 def test_rx_dispatch_control_frames_parse_to_none():
-    from wifit3.chips.rtl8188ftv_dkms import rx as rx_mod
-    from wifit3.dot11.parser import WlanFrameParser
+    from wifang.chips.rtl8188ftv_dkms import rx as rx_mod
+    from wifang.dot11.parser import WlanFrameParser
     # Synthetic bulk-IN buffer: two control frames, 8-byte aligned entries
     # (recorded frame 3747 held the same b4/c4 pair at lengths 20/14).
     p1 = b"\xb4\x00" + bytes(18)
@@ -38,8 +38,8 @@ def test_rx_dispatch_control_frames_parse_to_none():
 
 
 def test_rx_dispatch_beacon_bssid():
-    from wifit3.chips.rtl8188ftv_dkms import rx as rx_mod
-    from wifit3.dot11.parser import WlanFrameParser
+    from wifang.chips.rtl8188ftv_dkms import rx as rx_mod
+    from wifang.dot11.parser import WlanFrameParser
     # Synthetic beacon for the log-known AP: 24B header + 12B fixed params
     # + SSID IE, wrapped in one RX descriptor entry.
     bssid = bytes.fromhex("020000000002")
@@ -61,7 +61,7 @@ def test_rx_dispatch_beacon_bssid():
 
 def test_set_channel_threads_hal():
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import chan as chan_mod
+    from wifang.chips.rtl8188ftv_dkms import chan as chan_mod
     d = _driver()
     d.transport = MagicMock()
     d.params = MagicMock()
@@ -85,7 +85,7 @@ def test_set_channel_failure_returns_false():
     d.transport = MagicMock()
     d.hal = {}
     d.params, d.by_rate = MagicMock(), MagicMock()
-    from wifit3.chips.rtl8188ftv_dkms import chan as chan_mod
+    from wifang.chips.rtl8188ftv_dkms import chan as chan_mod
     orig = chan_mod.switch_channel
     try:
         def boom(*a, **k):
@@ -109,7 +109,7 @@ def test_stamp_tx_seq_uses_mgnt_seq_without_advancing():
 
 def test_inject_frame_sends_mgnt_urb_and_advances_seq():
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import tx as tx_mod
+    from wifang.chips.rtl8188ftv_dkms import tx as tx_mod
     d = _driver()
     d.transport = MagicMock()
     d.hal = {"mgnt_seq": 5}
@@ -167,8 +167,8 @@ def test_watchdog_close_with_no_task_started():
 
 def test_watchdog_loop_ticks_shared_hal_then_stops():
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import dm as dm_mod
-    from wifit3.chips.rtl8188ftv_dkms import driver as drv_mod
+    from wifang.chips.rtl8188ftv_dkms import dm as dm_mod
+    from wifang.chips.rtl8188ftv_dkms import driver as drv_mod
     calls = []
     orig_tick, orig_period = dm_mod.watchdog_tick, drv_mod.WATCHDOG_PERIOD_S
     try:
@@ -198,8 +198,8 @@ def test_watchdog_loop_ticks_shared_hal_then_stops():
 
 def test_watchdog_loop_skips_faulty_tick():
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import dm as dm_mod
-    from wifit3.chips.rtl8188ftv_dkms import driver as drv_mod
+    from wifang.chips.rtl8188ftv_dkms import dm as dm_mod
+    from wifang.chips.rtl8188ftv_dkms import driver as drv_mod
     calls = []
     results = [IOError("usb gone"), {"all": 3}]
 
@@ -237,7 +237,7 @@ def test_watchdog_loop_skips_faulty_tick():
 def _stubbed_bring_up_modules(monkeypatch, calls):
     """Stub every module function `_bring_up` touches; record FW#C2H/off."""
     import types
-    from wifit3.chips.rtl8188ftv_dkms import driver as drv_mod
+    from wifang.chips.rtl8188ftv_dkms import driver as drv_mod
     params = types.SimpleNamespace(
         vid=0x0BDA, pid=0xF179, mac=bytes.fromhex("020000000001"),
         thermal=0x1A, crystal=0x1D, kfree_flag=0, kfree_bb_gain=0,
@@ -324,8 +324,8 @@ def test_bring_up_applies_kfree_trim_when_flag_on(monkeypatch, kfree_bb_gain):
     import asyncio
     import types
     from unittest.mock import MagicMock
-    from wifit3.chips.rtl8188ftv_dkms import prom as prom_mod
-    from wifit3.chips.rtl8188ftv_dkms import track as track_mod
+    from wifang.chips.rtl8188ftv_dkms import prom as prom_mod
+    from wifang.chips.rtl8188ftv_dkms import track as track_mod
     calls = []
     _stubbed_bring_up_modules(monkeypatch, calls)
     monkeypatch.setattr(
@@ -347,8 +347,8 @@ def test_bring_up_applies_kfree_trim_when_flag_on(monkeypatch, kfree_bb_gain):
 def test_bring_up_init_burst_takes_enumerated_bulk_out_size(monkeypatch):
     # usb_halinit.c:632: _InitBurstPktLen switches on UsbBulkOutSize
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import misc as misc_mod
-    from wifit3.chips.rtl8188ftv_dkms import tx as tx_mod
+    from wifang.chips.rtl8188ftv_dkms import misc as misc_mod
+    from wifang.chips.rtl8188ftv_dkms import tx as tx_mod
     calls = []
     _stubbed_bring_up_modules(monkeypatch, calls)
     monkeypatch.setattr(tx_mod, "bulk_out_size", lambda dev: 64)
@@ -365,7 +365,7 @@ def test_bring_up_offers_ch1_to_14_whatever_the_efuse_chplan(monkeypatch):
     # Like the sibling ports: the EFUSE plan (0x22: ch1-11 in the vendor) is logged, not applied
     import asyncio
     import types
-    from wifit3.chips.rtl8188ftv_dkms import prom as prom_mod
+    from wifang.chips.rtl8188ftv_dkms import prom as prom_mod
     calls = []
     _stubbed_bring_up_modules(monkeypatch, calls)
     monkeypatch.setattr(
@@ -383,10 +383,10 @@ def test_bring_up_offers_ch1_to_14_whatever_the_efuse_chplan(monkeypatch):
 def test_connect_runs_cold_bring_up_on_warm_chip(monkeypatch):
     # usb_halinit.c:2240: the vendor probe runs FW#1 + hidden report + power off on every attach
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import driver as drv_mod
+    from wifang.chips.rtl8188ftv_dkms import driver as drv_mod
     calls = []
     _stubbed_bring_up_modules(monkeypatch, calls)
-    monkeypatch.setenv("WIFIT3_RTL8188FTV_WATCHDOG", "off")
+    monkeypatch.setenv("WIFANG_RTL8188FTV_WATCHDOG", "off")
     monkeypatch.setattr(drv_mod, "RxReaderThread", MagicMock())
     d = _driver()
     d.transport = MagicMock()
@@ -402,7 +402,7 @@ def test_connect_runs_cold_bring_up_on_warm_chip(monkeypatch):
 def test_bring_up_skips_kfree_when_flag_off(monkeypatch):
     # hal_com.c:3693: rtw_rf_apply_tx_gain_offset only if kfree_data->flag & KFREE_FLAG_ON
     import asyncio
-    from wifit3.chips.rtl8188ftv_dkms import track as track_mod
+    from wifang.chips.rtl8188ftv_dkms import track as track_mod
     calls = []
     _stubbed_bring_up_modules(monkeypatch, calls)
     seen = []
@@ -414,8 +414,8 @@ def test_bring_up_skips_kfree_when_flag_off(monkeypatch):
 
 
 def test_fake_mac_is_spoofable():
-    from wifit3.chips.driver import FakeMacSupport
-    from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+    from wifang.chips.driver import FakeMacSupport
+    from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
     assert Rtl8188ftvDkmsDriver.FAKE_MAC is FakeMacSupport.SPOOFABLE
 
 
@@ -445,8 +445,8 @@ def test_exit_active_monitor_restores_own_mac():
 def _bring_up_with_efuse(monkeypatch, mac_hex):
     import asyncio
     import types
-    from wifit3.chips.rtl8188ftv_dkms import prom as prom_mod
-    from wifit3.chips.rtl8188ftv_dkms import queues as queues_mod
+    from wifang.chips.rtl8188ftv_dkms import prom as prom_mod
+    from wifang.chips.rtl8188ftv_dkms import queues as queues_mod
     init_macaddr = queues_mod.init_macaddr
     _stubbed_bring_up_modules(monkeypatch, [])
     monkeypatch.setattr(queues_mod, "init_macaddr", init_macaddr)

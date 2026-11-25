@@ -1,6 +1,6 @@
 import pytest
 
-from wifit3.id.ssid import strip_suffix
+from wifang.id.ssid import strip_suffix
 
 
 @pytest.mark.parametrize("ssid, expected", [

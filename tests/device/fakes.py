@@ -1,7 +1,7 @@
 """Shared fake UsbBackend for tests."""
 from typing import Any, Dict, Iterable, List, Optional
 
-from wifit3.device.backend import UsbBackend
+from wifang.device.backend import UsbBackend
 
 
 class FakeBackend(UsbBackend):

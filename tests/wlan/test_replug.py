@@ -2,8 +2,8 @@
 modal. Driven with a scripted devices() list, no hardware."""
 from dataclasses import replace
 
-from wifit3.chips.driver import DeviceID
-from wifit3.device.watch import DeviceWatch
+from wifang.chips.driver import DeviceID
+from wifang.device.watch import DeviceWatch
 
 _DEV = DeviceID(0x148F, 0x5370, "RT5370", bus=1, address=5)
 

@@ -1,10 +1,10 @@
 """TKIP attack button/modal wiring: registry entries + the attackable label."""
-from wifit3.campaigns.tkip import TkipInject
-from wifit3.models import AccessPoint
-from wifit3.ui import focus_model as fm
-from wifit3.ui.encryption_format import format_encryption_markup
-from wifit3.ui.screens.focus_v2 import screen as screen_mod
-from wifit3.ui.screens.focus_v2.tkip_modal import TkipModal, available_tids
+from wifang.campaigns.tkip import TkipInject
+from wifang.models import AccessPoint
+from wifang.ui import focus_model as fm
+from wifang.ui.encryption_format import format_encryption_markup
+from wifang.ui.screens.focus_v2 import screen as screen_mod
+from wifang.ui.screens.focus_v2.tkip_modal import TkipModal, available_tids
 
 
 def _ap(**kw) -> AccessPoint:

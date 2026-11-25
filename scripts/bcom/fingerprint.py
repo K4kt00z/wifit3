@@ -19,10 +19,10 @@ sys.path.insert(0, str(_HERE.parent))  # scripts/ for dev.py
 
 from dev import select_device
 
-from wifit3.device.manager import wlan_close, wlan_ifaces
-from wifit3.dot11.ie import iter_information_elements
-from wifit3.dot11.packet import Packet
-from wifit3.dot11.wsc.messages import (
+from wifang.device.manager import wlan_close, wlan_ifaces
+from wifang.dot11.ie import iter_information_elements
+from wifang.dot11.packet import Packet
+from wifang.dot11.wsc.messages import (
     ATTR_DEV_NAME, ATTR_MANUFACTURER, ATTR_MODEL_NAME, ATTR_MODEL_NUMBER, ATTR_SERIAL_NUMBER,
     ATTR_UUID_E, ATTR_UUID_R, iter_wsc_tlvs,
 )

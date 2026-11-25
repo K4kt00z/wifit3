@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from wifit3.device.manager import DeviceManager
+from wifang.device.manager import DeviceManager
 
 _ID = SimpleNamespace(chipset="mt7601u")
 

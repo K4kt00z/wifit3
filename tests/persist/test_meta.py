@@ -4,8 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from wifit3.persist.common import AGGREGATED_HC22000_RE, LEGACY_CAPTURE_RE
-from wifit3.persist.meta import bssid_meta_paths, meta_path, read_meta, update_meta
+from wifang.persist.common import AGGREGATED_HC22000_RE, LEGACY_CAPTURE_RE
+from wifang.persist.meta import bssid_meta_paths, meta_path, read_meta, update_meta
 
 
 def test_meta_path_sorts_next_to_the_captures(tmp_path):

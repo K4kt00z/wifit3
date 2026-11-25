@@ -1,9 +1,9 @@
 """DeviceWatch: the multiset diff and poll's change / pause / fatal behaviour."""
 import asyncio
 import threading
-from wifit3.chips.driver import DeviceID
-from wifit3.device.watch import DeviceWatch, _diff
-from wifit3.errors import WifiteFatalError
+from wifang.chips.driver import DeviceID
+from wifang.device.watch import DeviceWatch, _diff
+from wifang.errors import WifiteFatalError
 
 # Live instances as devices() returns them: tagged with a (bus, address). A and A2 are the same
 # model on two ports (a real twin pair); B is a different card.

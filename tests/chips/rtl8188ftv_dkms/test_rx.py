@@ -5,7 +5,7 @@ CAPDESC = bytes.fromhex("1400048400000f1074e140000030000000000000"
 
 
 def test_decode_desc():
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     a = rx.decode_desc(CAPDESC)
     assert a["pkt_len"] == 20
     assert a["drvinfo_sz"] == 32
@@ -16,7 +16,7 @@ def test_decode_desc():
 
 def test_iter_rx_two_packets():
     import struct
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
 
     def desc(n):
         return struct.pack("<IIIIII", n, 0, 0, 0, 0, 0)
@@ -33,7 +33,7 @@ def test_iter_rx_two_packets():
 
 def test_iter_rx_skips_frame_shorter_than_fcs():
     import struct
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
 
     def desc(n):
         return struct.pack("<IIIIII", n, 0, 0, 0, 0, 0)
@@ -45,7 +45,7 @@ def test_iter_rx_skips_frame_shorter_than_fcs():
 
 def test_iter_rx_keeps_c2h_payload_whole():
     import struct
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     report = bytes(range(8))
     buf = struct.pack("<IIIIII", len(report), 0, 1 << 28, 0, 0, 0) + report
     assert [p for _, p in rx.iter_rx(buf)] == [report]
@@ -53,7 +53,7 @@ def test_iter_rx_keeps_c2h_payload_whole():
 
 def test_iter_rx_stops_on_crc():
     import struct
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     bad = struct.pack("<I", 0x4000) + bytes(20)
     assert list(rx.iter_rx(CAPDESC + bytes(32) + bytes(20) + bad)) != []
     got = list(rx.iter_rx(bad + CAPDESC + bytes(32) + bytes(20)))
@@ -61,7 +61,7 @@ def test_iter_rx_stops_on_crc():
 
 
 def test_cck_rssi_table():
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     assert rx.cck_rssi_dbm(0x72) == -56
     assert rx.cck_rssi_dbm((7 << 5) | 27) == -100
     assert rx.cck_rssi_dbm((1 << 5) | 19) == -44
@@ -69,7 +69,7 @@ def test_cck_rssi_table():
 
 
 def test_signal_dbm_ofdm():
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     assert rx.signal_dbm(bytes([0, 0, 0, 0, 0x78, 0]), 0x04) == -50
     assert rx.signal_dbm(bytes([0]), 0x04) is None
 
@@ -90,7 +90,7 @@ class _FltT:
 
 
 def test_admit_and_drop_ack_frames():
-    from wifit3.chips.rtl8188ftv_dkms import rx
+    from wifang.chips.rtl8188ftv_dkms import rx
     t = _FltT(0x0400)                       # post-monitor-entry default (PS-Poll only)
     rx.admit_ack_frames(t)
     assert t.writes[-1] == (0x06A2, 0x0400 | (1 << 13))   # ACK bit set, PS-Poll kept

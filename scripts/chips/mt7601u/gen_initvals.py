@@ -101,7 +101,7 @@ def main() -> None:
 
     out.insert(8, "from .constants import MT_MCU_MEMMAP_RF")
 
-    target = REPO / "src" / "wifit3" / "chips" / "mt7601u" / "initvals_phy.py"
+    target = REPO / "src" / "wifang" / "chips" / "mt7601u" / "initvals_phy.py"
     target.write_text("\n".join(out) + "\n")
     print(f"wrote {target}")
     # The temperature-mode tables: flat { reg, value } lists chained in one C
@@ -224,7 +224,7 @@ def generate_mac() -> None:
     out += [f"    {n}," for n in names]
     out += [")", ""] + body
 
-    target = REPO / "src" / "wifit3" / "chips" / "mt7601u" / "initvals_mac.py"
+    target = REPO / "src" / "wifang" / "chips" / "mt7601u" / "initvals_mac.py"
     target.write_text("\n".join(out) + "\n")
     print(f"wrote {target}")
     for name, _base in tables:

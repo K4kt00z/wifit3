@@ -1,11 +1,11 @@
 import os
 import time
 
-from wifit3.crack.hc22000_format import hashline_id
-from wifit3.models import CaptureType, PersistedCapture
-from wifit3.persist.meta import meta_path, read_bssid_metas, read_meta, update_meta
-from wifit3.persist.config import Config
-from wifit3.persist.exhaustion import (ExhaustedWordlist, Exhaustion, capture_hashline_ids, read_exhaustion,
+from wifang.crack.hc22000_format import hashline_id
+from wifang.models import CaptureType, PersistedCapture
+from wifang.persist.meta import meta_path, read_bssid_metas, read_meta, update_meta
+from wifang.persist.config import Config
+from wifang.persist.exhaustion import (ExhaustedWordlist, Exhaustion, capture_hashline_ids, read_exhaustion,
                                        read_exhausted_wordlists, record_exhausted, wordlist_identity)
 
 _BSSID = "02:00:00:00:00:01"

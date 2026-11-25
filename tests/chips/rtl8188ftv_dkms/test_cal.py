@@ -20,7 +20,7 @@ class FakeT:
 
 
 def test_lc_worker_tx_pause_branch():
-    from wifit3.chips.rtl8188ftv_dkms import cal
+    from wifang.chips.rtl8188ftv_dkms import cal
     t = FakeT([0x04, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0])
     cal.worker(t)
     assert t.writes[0] == (0x522, 1, 0xFF)
@@ -29,7 +29,7 @@ def test_lc_worker_tx_pause_branch():
 
 
 def test_lc_calibrate_gates():
-    from wifit3.chips.rtl8188ftv_dkms import cal
+    from wifang.chips.rtl8188ftv_dkms import cal
     t = FakeT([])
     cal.lc_calibrate(t, single_tone=True)
     cal.lc_calibrate(t, ability=False)

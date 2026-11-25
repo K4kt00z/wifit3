@@ -3,13 +3,13 @@ import asyncio
 
 import pytest
 
-from wifit3.campaigns.eviltwin import FakeAP, ClientPhase
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.probe import probe_req
-from wifit3.dot11.ap import auth_resp
-from wifit3.dot11.auth_assoc import auth_req, assoc_req
-from wifit3.dot11.eapol import eapol_key, data_header, LLC_SNAP_EAPOL
-from wifit3.dot11.ie import GENERIC_RSN_IE
+from wifang.campaigns.eviltwin import FakeAP, ClientPhase
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.probe import probe_req
+from wifang.dot11.ap import auth_resp
+from wifang.dot11.auth_assoc import auth_req, assoc_req
+from wifang.dot11.eapol import eapol_key, data_header, LLC_SNAP_EAPOL
+from wifang.dot11.ie import GENERIC_RSN_IE
 
 _BSSID = bytes.fromhex("9483c48c3f78")
 _CLIENT = bytes.fromhex("02aabbccddee")

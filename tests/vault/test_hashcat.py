@@ -7,16 +7,16 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.crack.passwords import DEFAULT_PASSWORDS_PATH, all_ssid_variants, ssid_passwords
-from wifit3.persist.config import Config
-from wifit3.persist.exhaustion import SSID_VARIANTS_IDENTITY, wordlist_identity
-from wifit3.vault.tools.hashcat import (
+from wifang.crack.passwords import DEFAULT_PASSWORDS_PATH, all_ssid_variants, ssid_passwords
+from wifang.persist.config import Config
+from wifang.persist.exhaustion import SSID_VARIANTS_IDENTITY, wordlist_identity
+from wifang.vault.tools.hashcat import (
     HashcatTool, _TERMINATE_WAIT_SECONDS, _read_log_tail, _split_args,
 )
-from wifit3.models import PersistedCapture
-from wifit3.models.access_point import CaptureType
-from wifit3.models.jobs import JobAction, JobState, ToolStatus
-from wifit3.vault.tools.base import job_file
+from wifang.models import PersistedCapture
+from wifang.models.access_point import CaptureType
+from wifang.models.jobs import JobAction, JobState, ToolStatus
+from wifang.vault.tools.base import job_file
 
 
 _PMKID_LINE = f"WPA*01*{'aa' * 16}*aabbccddeeff*001122334455*41535553***"
@@ -62,7 +62,7 @@ def _fake_spawn(mocker, pid=4242, alive=True, stdin_path=""):
     proc = mocker.Mock()
     proc.pid = pid
     proc.poll.return_value = None if alive else 1
-    spawn = mocker.patch("wifit3.vault.tools.hashcat_keypress.spawn",
+    spawn = mocker.patch("wifang.vault.tools.hashcat_keypress.spawn",
                          return_value=(proc, pid, stdin_path))
     spawn.proc = proc
     return spawn
@@ -70,7 +70,7 @@ def _fake_spawn(mocker, pid=4242, alive=True, stdin_path=""):
 
 def _fake_keys(mocker, delivered=True):
     """Stand in for hashcat_keypress.send; records every keypress sent to hashcat."""
-    return mocker.patch("wifit3.vault.tools.hashcat_keypress.send", return_value=delivered)
+    return mocker.patch("wifang.vault.tools.hashcat_keypress.send", return_value=delivered)
 
 
 def _live_tool(mocker, pid=4242) -> HashcatTool:
@@ -341,7 +341,7 @@ def test_launch_runs_the_default_passwords_then_the_ssid_passwords_first(tmp_pat
 
     ssid_passwords_path = Path(job.tool_state["ssid_passwords_path"])
     assert ssid_passwords_path.parent == Path(tempfile.gettempdir())
-    assert ssid_passwords_path.name.startswith("wifit3-")
+    assert ssid_passwords_path.name.startswith("wifang-")
     assert job.tool_state["wordlists"] == [str(DEFAULT_PASSWORDS_PATH.resolve()),
                                            str(ssid_passwords_path),
                                            str(wordlist.resolve())]
@@ -364,7 +364,7 @@ def test_launch_runs_the_default_passwords_then_the_ssid_passwords_first(tmp_pat
 
 
 def test_launch_with_only_the_ssid_passwords_and_a_failed_spawn_removes_them(tmp_path, mocker):
-    mocker.patch("wifit3.vault.tools.hashcat_keypress.spawn", side_effect=OSError("no hashcat"))
+    mocker.patch("wifang.vault.tools.hashcat_keypress.spawn", side_effect=OSError("no hashcat"))
     mkstemp = mocker.spy(tempfile, "mkstemp")
     job = _sources_job(tmp_path, [], ap_ssid_passwords=True)
 

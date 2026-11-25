@@ -3,17 +3,17 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-from wifit3.persist.vault import Vault
+from wifang.persist.vault import Vault
 from tests.wlan.mocks import build_ap, mock_array
-from wifit3.ui import focus_model as fm
-from wifit3.campaigns.pmkid import PmkidHarvestAttack
-from wifit3.campaigns.deauth import DeauthCampaign
-from wifit3.campaigns.eviltwin import EvilTwinCampaign
-from wifit3.campaigns.wep import WepCampaign
-from wifit3.campaigns.pbc import WpsPbcCampaign
-from wifit3.campaigns.pin import WpsCampaign
-from wifit3.models import AccessPoint
-from wifit3.ui.screens.focus_v2.screen import FocusViewV2
+from wifang.ui import focus_model as fm
+from wifang.campaigns.pmkid import PmkidHarvestAttack
+from wifang.campaigns.deauth import DeauthCampaign
+from wifang.campaigns.eviltwin import EvilTwinCampaign
+from wifang.campaigns.wep import WepCampaign
+from wifang.campaigns.pbc import WpsPbcCampaign
+from wifang.campaigns.pin import WpsCampaign
+from wifang.models import AccessPoint
+from wifang.ui.screens.focus_v2.screen import FocusViewV2
 
 
 def test_recovered_wps_psk_shows_in_status():
@@ -78,10 +78,10 @@ def test_save_line_joins_natively_instead_of_gluing_a_slash(monkeypatch):
     save directory was absolute."""
     import os
     from pathlib import Path
-    from wifit3.persist.save import SaveResult
+    from wifang.persist.save import SaveResult
 
-    from wifit3.persist.config import Config
-    from wifit3.ui.screens.focus_v2.screen import _save_line
+    from wifang.persist.config import Config
+    from wifang.ui.screens.focus_v2.screen import _save_line
 
     result = SaveResult(path=Path("ignored/AP_30-85-a9-a9-a9-a9_1700000000_pmkid.hc22000"),
                         was_new=True)

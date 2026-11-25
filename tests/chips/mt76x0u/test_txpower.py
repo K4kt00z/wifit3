@@ -1,6 +1,6 @@
 """mt76x0_phy_set_txpower against the Linux driver's writes for one card's EEPROM (AWUS036ACHM)."""
-from wifit3.chips.mt76x0u.eeprom import EEPROMCache
-from wifit3.chips.mt76x0u.phy import mt76x0_chan_max_power, mt76x0_phy_set_txpower
+from wifang.chips.mt76x0u.eeprom import EEPROMCache
+from wifang.chips.mt76x0u.phy import mt76x0_chan_max_power, mt76x0_phy_set_txpower
 
 # The card's TX power EEPROM words only; everything else unburned.
 _AWUS_POWER_BYTES = {

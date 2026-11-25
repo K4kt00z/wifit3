@@ -10,11 +10,11 @@ from pathlib import Path
 # Add src to sys.path so it works without editable install
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from wifit3.device.manager import devices, wlan_iface
-from wifit3.errors import BringUpError
-from wifit3.models.device_id import DeviceID
+from wifang.device.manager import devices, wlan_iface
+from wifang.errors import BringUpError
+from wifang.models.device_id import DeviceID
 
-logger = logging.getLogger("wifit3.bringup")
+logger = logging.getLogger("wifang.bringup")
 
 
 def configure_logging(debug: bool) -> None:

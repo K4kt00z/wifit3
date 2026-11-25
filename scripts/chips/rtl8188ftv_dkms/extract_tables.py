@@ -12,7 +12,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 SRC = REPO / "driver_captures" / "captures_rtl8188fu_dkms" / "driver-source"
-OUTDIR = REPO / "src" / "wifit3" / "chips" / "rtl8188ftv_dkms"
+OUTDIR = REPO / "src" / "wifang" / "chips" / "rtl8188ftv_dkms"
 
 TABLES = [
     ("hal/phydm/rtl8188f/halhwimg8188f_mac.c",

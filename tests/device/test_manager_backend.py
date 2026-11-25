@@ -2,9 +2,9 @@
 import pytest
 import usb.core
 
-import wifit3.device.manager as manager
+import wifang.device.manager as manager
 from tests.device.fakes import FakeBackend
-from wifit3.chips.driver import DeviceID
+from wifang.chips.driver import DeviceID
 
 
 def _dev(vid=0x148F, pid=0x5370, bus=1, address=2):
@@ -18,13 +18,13 @@ def _no_backend():
 
 def test_devices_empty(monkeypatch):
     monkeypatch.setattr(manager, "usb_backend", lambda: FakeBackend())
-    monkeypatch.setattr("wifit3.device.windows_pnp.present_usb_ids", lambda: set())
+    monkeypatch.setattr("wifang.device.windows_pnp.present_usb_ids", lambda: set())
     assert manager.devices() == []
 
 
 def test_devices_uses_the_backend(monkeypatch):
     monkeypatch.setattr(manager, "usb_backend", lambda: FakeBackend([_dev()]))
-    monkeypatch.setattr("wifit3.device.windows_pnp.present_usb_ids", lambda: set())
+    monkeypatch.setattr("wifang.device.windows_pnp.present_usb_ids", lambda: set())
     out = manager.devices()
     assert [d.chipset for d in out] == ["RT5370"]
     assert (out[0].bus, out[0].address) == (1, 2)

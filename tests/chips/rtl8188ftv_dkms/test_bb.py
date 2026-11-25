@@ -17,7 +17,7 @@ class FakeT:
 
 
 def test_bit_shift():
-    from wifit3.chips.rtl8188ftv_dkms import bb
+    from wifang.chips.rtl8188ftv_dkms import bb
     assert bb.bit_shift(0xFF) == 0
     assert bb.bit_shift(1 << 20) == 20
     assert bb.bit_shift(0xFFFF0000) == 16
@@ -25,14 +25,14 @@ def test_bit_shift():
 
 
 def test_full_dword_skips_readback():
-    from wifit3.chips.rtl8188ftv_dkms import bb
+    from wifang.chips.rtl8188ftv_dkms import bb
     t = FakeT([])
     bb.set_bb_reg(t, 0x100, 0xFFFFFFFF, 0x12345678)
     assert t.writes == [(0x100, 0x12345678)]
 
 
 def test_masked_rmw_places_value():
-    from wifit3.chips.rtl8188ftv_dkms import bb
+    from wifang.chips.rtl8188ftv_dkms import bb
     t = FakeT([0xFF00FF00])
     bb.set_bb_reg(t, 0x64, 0x00F00000, 0x0)
     assert t.writes == [(0x64, 0xFF00FF00 & ~0x00F00000)]
@@ -42,7 +42,7 @@ def test_masked_rmw_places_value():
 
 
 def test_antenna_selection_order():
-    from wifit3.chips.rtl8188ftv_dkms import mac
+    from wifang.chips.rtl8188ftv_dkms import mac
     t = FakeT([0x0] * 9)
     mac.init_antenna_selection(t)
     addrs = [a for a, _ in t.writes]
@@ -76,7 +76,7 @@ class FakeTB:
 
 
 def test_bb_config_phase_order():
-    from wifit3.chips.rtl8188ftv_dkms import bb
+    from wifang.chips.rtl8188ftv_dkms import bb
     t = FakeTB([0xFC14, 0x00000000])
     bb.bb_config(t, 0x1D, 1, 7)
     assert t.writes[0] == (0x02, 2, 0xFC14 | 0x2003)
@@ -89,7 +89,7 @@ def test_bb_config_phase_order():
 
 
 def test_rf_serial_word():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([])
     rf.serial_write(t, 0, 0x1, 0x780)
     assert t.writes == [(0x840, 4, 0x100780)]
@@ -102,7 +102,7 @@ def test_rf_serial_word():
 
 
 def test_rf_serial_read_sequence():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([0xAAAAAAAA, 0xBBBBBBBB, 0x00, 0x00054321])
     assert rf.serial_read(t, 0, 0x5) == 0x54321
     assert t.writes[0][0] == 0x824
@@ -111,14 +111,14 @@ def test_rf_serial_read_sequence():
 
 
 def test_rf_first_write_clears_edge():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([0x390204, 0x390204, 0x00, 0x00])
     rf.serial_read(t, 0, 0xB2)
     assert t.writes[0] == (0x824, 4, 0x59390204)
 
 
 def test_query_rf_reg_shifts():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([0x0, 0x0, 0x00, 0x000BCDE])
     assert rf.query_rf_reg(t, 0, 0xB6, 0xFF000) == 0x0B
     t = FakeTB([0x0, 0x0, 0x00, 0x000BCDE])
@@ -126,14 +126,14 @@ def test_query_rf_reg_shifts():
 
 
 def test_config_rf_reg_plain_row():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([])
     rf.config_rf_reg(t, 0x18, 0x12345)
     assert t.writes == [(0x840, 4, (0x18 << 20) | 0x12345)]
 
 
 def test_config_rf_reg_b6_match_first_try():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     data = 0x34C00
     t = FakeTB([0x0, 0x0, 0x00, data])
     rf.config_rf_reg(t, 0xB6, data)
@@ -141,7 +141,7 @@ def test_config_rf_reg_b6_match_first_try():
 
 
 def test_config_rf_reg_b2_retries_with_lck_kick():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     data = 0x10000
     t = FakeTB([0x0, 0x0, 0x00, 0x00000,
                 0x0, 0x0, 0x00, data])
@@ -151,7 +151,7 @@ def test_config_rf_reg_b2_retries_with_lck_kick():
 
 
 def test_rf_config_prologue_restore_and_tables():
-    from wifit3.chips.rtl8188ftv_dkms import rf
+    from wifang.chips.rtl8188ftv_dkms import rf
     t = FakeTB([0x0] * 4000)
     tables = rf.rf_config(t, 1, 7)
     assert sorted(tables.keys()) == sorted([

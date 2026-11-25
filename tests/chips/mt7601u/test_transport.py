@@ -8,8 +8,8 @@ from __future__ import annotations
 from array import array
 
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.transport import MT7601UTransport
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.transport import MT7601UTransport
 
 
 class FakeUsbDevice:
@@ -40,7 +40,7 @@ class TestReadControlTransferReturnShape:
 
     def test_an_array_return_is_read_as_a_full_register(self) -> None:
         """An array of MT_VEND_BUF bytes is a successful read."""
-        from wifit3.chips.mt7601u.transport import MT_VEND_BUF
+        from wifang.chips.mt7601u.transport import MT_VEND_BUF
         fake = FakeUsbDevice(in_return=array("B", [0x78, 0x56, 0x34, 0x12] + [0] * (MT_VEND_BUF - 4)))
         tp = make_device(fake)
         tp._in_buf = bytearray(MT_VEND_BUF)
@@ -48,7 +48,7 @@ class TestReadControlTransferReturnShape:
 
     def test_an_array_return_never_raises_a_type_error(self) -> None:
         """The bug this pins: `elif got > 0` compared an array to an int."""
-        from wifit3.chips.mt7601u.transport import MT_VEND_BUF
+        from wifang.chips.mt7601u.transport import MT_VEND_BUF
         fake = FakeUsbDevice(in_return=array("B", [0] * MT_VEND_BUF))
         tp = make_device(fake)
         tp._in_buf = bytearray(MT_VEND_BUF)
@@ -56,7 +56,7 @@ class TestReadControlTransferReturnShape:
 
     def test_a_short_read_returns_all_ones(self) -> None:
         """usb.c:137 returns ~0 when the transfer did not deliver a full word."""
-        from wifit3.chips.mt7601u.transport import MT_VEND_BUF
+        from wifang.chips.mt7601u.transport import MT_VEND_BUF
         fake = FakeUsbDevice(in_return=array("B", [0xAB, 0xCD]))
         tp = make_device(fake)
         tp._in_buf = bytearray(MT_VEND_BUF)
@@ -80,7 +80,7 @@ class TestWriteSplitsHalves:
         assert [t["wIndex"] for t in outs] == [0x13B0, 0x13B2]
 
     def test_the_request_type_matches_the_register_write_constant(self) -> None:
-        from wifit3.chips.mt7601u.transport import MT_VEND_WRITE
+        from wifang.chips.mt7601u.transport import MT_VEND_WRITE
         fake = FakeUsbDevice(in_return=None, out_return=0)
         tp = make_device(fake)
         tp.wr(0x0013B0, 0x1)
@@ -114,7 +114,7 @@ class TestBulkInRxIsInterruptible:
     """
 
     def test_the_read_timeout_is_finite(self) -> None:
-        from wifit3.chips.mt7601u.transport import _RX_TIMEOUT_MS
+        from wifang.chips.mt7601u.transport import _RX_TIMEOUT_MS
         assert 0 < _RX_TIMEOUT_MS < 1500, "must expire well inside the reader's join timeout"
 
     def test_a_quiet_interval_returns_no_bytes_rather_than_raising(self) -> None:

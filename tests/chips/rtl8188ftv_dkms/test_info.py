@@ -15,7 +15,7 @@ class FakeT:
 
 
 def test_recorded_sys_cfg_decodes():
-    from wifit3.chips.rtl8188ftv_dkms import info
+    from wifang.chips.rtl8188ftv_dkms import info
     version = info.read_chip_version(FakeT(0x04441525))   # capture-2 op0
     assert version.test_chip is False
     assert version.vendor == info.VENDOR_SMIC
@@ -25,7 +25,7 @@ def test_recorded_sys_cfg_decodes():
 
 
 def test_vendor_arms():
-    from wifit3.chips.rtl8188ftv_dkms import info
+    from wifang.chips.rtl8188ftv_dkms import info
     assert info.read_chip_version(FakeT(0x00000000)).vendor == info.VENDOR_TSMC
     assert info.read_chip_version(FakeT(0x00040000)).vendor == info.VENDOR_SMIC
     assert info.read_chip_version(FakeT(0x00080000)).vendor == info.VENDOR_UMC
@@ -33,5 +33,5 @@ def test_vendor_arms():
 
 
 def test_test_chip_arm():
-    from wifit3.chips.rtl8188ftv_dkms import info
+    from wifang.chips.rtl8188ftv_dkms import info
     assert info.read_chip_version(FakeT(0x00800000)).test_chip is True

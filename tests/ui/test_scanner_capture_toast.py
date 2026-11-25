@@ -1,10 +1,10 @@
 """ScannerView's ApEventDetected handler, and the app's decloak persistence."""
 import pytest
 
-from wifit3.ui.app import WifiteApp
-from wifit3.watchers.ap_watcher import UncrackableHandshakeSeen
-from wifit3.models import AccessPoint
-from wifit3.wlan.array import WlanArray
+from wifang.ui.app import WifiteApp
+from wifang.watchers.ap_watcher import UncrackableHandshakeSeen
+from wifang.models import AccessPoint
+from wifang.wlan.array import WlanArray
 
 
 @pytest.mark.asyncio
@@ -33,7 +33,7 @@ async def test_scanner_withheld_handshake_is_log_only_no_toast():
 async def test_a_passive_decloak_reaches_disk():
     """Any reveal the sink makes (beacon leak, probe response, a reassoc after a deauth) must
     be offered as a candidate next launch, not just one the Decloak campaign won."""
-    from wifit3.persist.config import Config, _PATH
+    from wifang.persist.config import Config, _PATH
 
     app = WifiteApp()
     async with app.run_test() as pilot:

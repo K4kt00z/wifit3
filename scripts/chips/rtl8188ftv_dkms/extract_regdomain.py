@@ -2,7 +2,7 @@
 """Extract the reg-domain tables for the rtl8188ftv_dkms port, verbatim.
 
 Reads the pinned vendor tree (driver_captures/captures_rtl8188fu_dkms/driver-source)
-and emits src/wifit3/chips/rtl8188ftv_dkms/regdomain.py. Re-run after any
+and emits src/wifang/chips/rtl8188ftv_dkms/regdomain.py. Re-run after any
 source re-pin and diff the output.
 
 Build config assumed (matches the capture): RTW_DEF_MODULE_REGULATORY_CERT=0,
@@ -16,7 +16,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 SRC = REPO / "driver_captures" / "captures_rtl8188fu_dkms" / "driver-source"
-OUT = REPO / "src" / "wifit3" / "chips" / "rtl8188ftv_dkms" / "regdomain.py"
+OUT = REPO / "src" / "wifang" / "chips" / "rtl8188ftv_dkms" / "regdomain.py"
 
 RD_2G = {"NULL": 0, "WORLD": 1, "ETSI1": 2, "FCC1": 3, "MKK1": 4,
          "ETSI2": 5, "GLOBAL": 6, "MKK2": 7, "FCC2": 8}

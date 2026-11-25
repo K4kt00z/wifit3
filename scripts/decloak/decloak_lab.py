@@ -33,13 +33,13 @@ sys.path.insert(0, str(_HERE.parent.parent / "src"))
 sys.path.insert(0, str(_HERE.parent))
 
 from dev import select_device
-from wifit3.wlan.station import Association, AssocState, build_client_leaving
-from wifit3.device.manager import wlan_ifaces, wlan_close
-from wifit3.dot11 import mac_to_str, str_to_mac
-from wifit3.dot11.mac import BROADCAST_MAC, random_client_mac
-from wifit3.dot11.probe import probe_req
-from wifit3.models import AccessPoint
-from wifit3.wlan.array import WlanArray
+from wifang.wlan.station import Association, AssocState, build_client_leaving
+from wifang.device.manager import wlan_ifaces, wlan_close
+from wifang.dot11 import mac_to_str, str_to_mac
+from wifang.dot11.mac import BROADCAST_MAC, random_client_mac
+from wifang.dot11.probe import probe_req
+from wifang.models import AccessPoint
+from wifang.wlan.array import WlanArray
 
 PROBE_RESPONSE_WAIT_S = 0.15
 BEACON_LISTEN_S = 2.0
@@ -187,7 +187,7 @@ async def claim_names(iface, ap: AccessPoint, args, our_mac: bytes) -> int:
         print(f"[a] authenticated as {mac_to_str(our_mac)}, state={association.state.name}")
         verdicts: dict[str, list[Optional[int]]] = {"sentinel": [], "target": []}
         for _ in range(args.probes):
-            for label, ssid in (("sentinel", f"wifit3-control-{os.urandom(8).hex()}"),
+            for label, ssid in (("sentinel", f"wifang-control-{os.urandom(8).hex()}"),
                                 ("target", args.ssid)):
                 if association.state is AssocState.UNAUTHENTICATED:
                     if not await association.authenticate():
@@ -199,7 +199,7 @@ async def claim_names(iface, ap: AccessPoint, args, our_mac: bytes) -> int:
             accepted = sum(1 for s in got if s == 0)
             silent = sum(1 for s in got if s is None)
             codes = sorted({s for s in got if s not in (0, None)})
-            name = args.ssid if label == "target" else "wifit3-control-<random>"
+            name = args.ssid if label == "target" else "wifang-control-<random>"
             print(f"[a] {label:8} {name!r}: accepted {accepted}/{len(got)}, "
                   f"refused with status {codes or '-'}, no answer {silent}")
         if any(s == 0 for s in verdicts["sentinel"]):

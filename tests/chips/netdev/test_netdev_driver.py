@@ -2,8 +2,8 @@ import struct
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from wifit3.chips.netdev.driver import LinuxNetdevDriver, parse_radiotap
-from wifit3.models.device_id import DeviceID
+from wifang.chips.netdev.driver import LinuxNetdevDriver, parse_radiotap
+from wifang.models.device_id import DeviceID
 
 
 def _build_radiotap(mpdu: bytes, rssi: int = -42, has_fcs: bool = False) -> bytes:
@@ -89,7 +89,7 @@ async def test_driver_connect_when_already_monitor(mock_id):
             progress = MagicMock()
             mock_loop = MagicMock()
             with patch("asyncio.get_running_loop", return_value=mock_loop), \
-                    patch("wifit3.chips.netdev.driver.RxReaderThread") as mock_reader_cls:
+                    patch("wifang.chips.netdev.driver.RxReaderThread") as mock_reader_cls:
                 ok = await driver.connect(progress_cb=progress)
                 assert ok is True
                 mock_sock.bind.assert_called_once_with(("wlp62s0", 0))
@@ -160,7 +160,7 @@ async def test_driver_close_restores_networkmanager(mock_id):
     driver = LinuxNetdevDriver.from_netdev("wlp62s0", mock_id)
     driver._changed_mode = True
     driver._nm_unmanaged = True
-    with patch("wifit3.chips.netdev.driver.subprocess.run") as run:
+    with patch("wifang.chips.netdev.driver.subprocess.run") as run:
         await driver.close()
     restore_cmd = run.call_args[0][0]
     assert "nmcli dev set wlp62s0 managed yes" in restore_cmd

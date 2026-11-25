@@ -7,11 +7,11 @@ PMKID-less M1 (no retry: the same AP would only re-send the same empty M1). We o
 rotate the MAC + retry when the AP stays silent (no M1).
 """
 from types import SimpleNamespace
-from wifit3.dot11.parser import WlanFrameParser
+from wifang.dot11.parser import WlanFrameParser
 
-from wifit3.campaigns.pmkid import PmkidFail, PmkidHarvestAttack
-from wifit3.dot11.ie import force_psk_akm
-from wifit3.models import AccessPoint
+from wifang.campaigns.pmkid import PmkidFail, PmkidHarvestAttack
+from wifang.dot11.ie import force_psk_akm
+from wifang.models import AccessPoint
 
 _BSSID = "aa:bb:cc:dd:ee:01"
 _BSSID_B = bytes.fromhex("aabbccddee01")
@@ -55,7 +55,7 @@ class _FakeIface:
         pass
 
     def lease(self, channel=None, fake_mac=None, bssid=None, ack_tally=False, iface=None):
-        from wifit3.wlan.lease import Lease
+        from wifang.wlan.lease import Lease
         return Lease(self, iface or self, channel=channel, fake_mac=fake_mac,
                      bssid=bssid, ack_tally=ack_tally)
 

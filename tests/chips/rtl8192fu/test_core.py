@@ -1,6 +1,6 @@
 """rtl8192fu core.c port: filter, queue priority, EFUSE decode, CFO watchdog."""
-from wifit3.chips.rtl8192fu import constants as C
-from wifit3.chips.rtl8192fu.core import (
+from wifang.chips.rtl8192fu import constants as C
+from wifang.chips.rtl8192fu.core import (
     MONITOR_FILTER_FLAGS,
     rtl8xxxu_config_endpoints_no_sie,
     rtl8xxxu_configure_filter,

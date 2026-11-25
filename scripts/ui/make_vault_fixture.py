@@ -6,15 +6,15 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-from wifit3.crack.hc22000_format import hashline_id
-from wifit3.crack.wpa_psk import pmkid
-from wifit3.dot11.eapol import eapol_key, set_mic
-from wifit3.dot11.wpa import KCK_LEN, derive_pmk, derive_ptk, eapol_mic
-from wifit3.persist.common import bssid_to_dashed, safe_ssid
-from wifit3.persist.config import Config
-from wifit3.persist.exhaustion import SSID_VARIANTS_IDENTITY, SSID_VARIANTS_NAME
-from wifit3.persist.meta import update_meta
-from wifit3.persist.pcap import write_pcap
+from wifang.crack.hc22000_format import hashline_id
+from wifang.crack.wpa_psk import pmkid
+from wifang.dot11.eapol import eapol_key, set_mic
+from wifang.dot11.wpa import KCK_LEN, derive_pmk, derive_ptk, eapol_mic
+from wifang.persist.common import bssid_to_dashed, safe_ssid
+from wifang.persist.config import Config
+from wifang.persist.exhaustion import SSID_VARIANTS_IDENTITY, SSID_VARIANTS_NAME
+from wifang.persist.meta import update_meta
+from wifang.persist.pcap import write_pcap
 
 FIRST_EPOCH = 1_790_000_000
 UNCRACKED_PSK = "not-in-the-vault"

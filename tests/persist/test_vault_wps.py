@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from wifit3.crack import wpa_psk
-from wifit3.dot11.wpa import derive_pmk
-from wifit3.models import AccessPoint, CaptureType, Handshake, ToolName
-from wifit3.persist.ap_state import ApState, PasswordStatus
-from wifit3.persist.config import Config
-from wifit3.persist.vault import HashlineSaveResult, Vault
+from wifang.crack import wpa_psk
+from wifang.dot11.wpa import derive_pmk
+from wifang.models import AccessPoint, CaptureType, Handshake, ToolName
+from wifang.persist.ap_state import ApState, PasswordStatus
+from wifang.persist.config import Config
+from wifang.persist.vault import HashlineSaveResult, Vault
 from tests.hashline_dates import write_hashline_dates
 
 _BSSID = "aa:bb:cc:dd:ee:ff"

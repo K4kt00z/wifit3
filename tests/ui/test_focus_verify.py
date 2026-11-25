@@ -5,16 +5,16 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from wifit3.campaigns.campaign import Campaign
-from wifit3.campaigns.verify.campaign import VerifyOutcome
-from wifit3.campaigns.verify.pin import VerifyPinCampaign
-from wifit3.campaigns.verify.psk import VerifyPskCampaign
-from wifit3.campaigns.verify.wep import VerifyWepCampaign
-from wifit3.models import AccessPoint, CaptureType, PersistedCapture
-from wifit3.persist.ap_state import Key
-from wifit3.ui.screens.focus_v2.campaign_controls import CampaignControls
-from wifit3.ui.screens.focus_v2.screen import FocusViewV2
-from wifit3.ui.screens.focus_v2.verify_menu import key_option_prompts
+from wifang.campaigns.campaign import Campaign
+from wifang.campaigns.verify.campaign import VerifyOutcome
+from wifang.campaigns.verify.pin import VerifyPinCampaign
+from wifang.campaigns.verify.psk import VerifyPskCampaign
+from wifang.campaigns.verify.wep import VerifyWepCampaign
+from wifang.models import AccessPoint, CaptureType, PersistedCapture
+from wifang.persist.ap_state import Key
+from wifang.ui.screens.focus_v2.campaign_controls import CampaignControls
+from wifang.ui.screens.focus_v2.screen import FocusViewV2
+from wifang.ui.screens.focus_v2.verify_menu import key_option_prompts
 
 BSSID = "00:11:22:33:44:55"
 

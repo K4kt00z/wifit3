@@ -9,14 +9,14 @@ import pytest_asyncio
 from textual.app import App
 from textual.widgets import Button, Checkbox, Input, Label, Select
 
-from wifit3.models import AccessPoint, IdKey, IdSource
-from wifit3.wlan.sink import WlanSink
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.ui.ap_table import APTable
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.filter import EncryptionFilter, FilterBar, ScanFilter
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.models import AccessPoint, IdKey, IdSource
+from wifang.wlan.sink import WlanSink
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.ui.ap_table import APTable
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.filter import EncryptionFilter, FilterBar, ScanFilter
+from wifang.ui.screens.scanner import ScannerView
 from tests.ui.wait_until import wait_until
 
 

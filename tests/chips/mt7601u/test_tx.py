@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.tx import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.tx import (
     DMA_INFO_LEN,
     TRAILER_LEN,
     TX_NO_STATION,

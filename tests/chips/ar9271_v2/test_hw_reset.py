@@ -2,9 +2,9 @@
 RTC/RC register sequence (single FORCE_WAKE, the two multi-write batches, the STATUS poll)."""
 import struct
 
-from wifit3.chips.ar9271_v2 import hw, reg as R
-from wifit3.chips.ar9271_v2.transport import AR9271Transport
-from wifit3.chips.ar9271_v2.wmi import WMI
+from wifang.chips.ar9271_v2 import hw, reg as R
+from wifang.chips.ar9271_v2.transport import AR9271Transport
+from wifang.chips.ar9271_v2.wmi import WMI
 
 
 class FakeDev:
@@ -55,7 +55,7 @@ def test_getnf_uses_signed_eeprom_threshold(caplog):
     reads = iter((0, ((-80) & 0x1FF) << 20, 0))
     ath.read = lambda _reg: next(reads)
 
-    with caplog.at_level("DEBUG", logger="wifit3.chips.ar9271_v2.hw"):
+    with caplog.at_level("DEBUG", logger="wifang.chips.ar9271_v2.hw"):
         assert ath.getnf(None)
     assert "noise floor -80 above EEPROM threshold -90" in caplog.text
 

@@ -25,8 +25,8 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import rtw88_pcap_replay as rp
-from wifit3.chips.rtl8188ftv_dkms import dm, prom, queues, tx
-from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+from wifang.chips.rtl8188ftv_dkms import dm, prom, queues, tx
+from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
 
 # dm.watchdog_tick head: misc.check_rxfifo_full (0x667/0x664) + false_alarm_stats hold (0xC00/0xD00).
 TICK_HEAD = [("R", 0x667, 1), ("W", 0x667, 1), ("R", 0x664, 2),

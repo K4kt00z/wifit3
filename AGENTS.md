@@ -8,7 +8,7 @@ This file provides guidance to coding agents when working with code in this repo
 - **Naming modules/classes/methods/variables**: "Intention-revealing, exact names" applies everywhere. Examples: `array` of `devices` instead of a `pool` of `cards`, `device` instead of `radio`, `sink` or `aggregator` instead of `picture` or `airspace`.
 - **Human-facing docs** (any non-chipset `.md`): agents may edit them; say so in the hand-off so a human reviews the wording.
 - **Planning docs** (NOT auto-loaded, open as needed): `docs/planning/FEATURES.md`, `docs/planning/BUGS.md`, `docs/SUPPORTED-HARDWARE.md` (+ the grading process: `docs/GRADING.md`).
-- **Porting a driver, or editing `src/wifit3/chips/`**: read `docs/porting/METHODOLOGY.md` completely before starting; `chips/` code follows its "Code style in `chips/`", not the code style above.
+- **Porting a driver, or editing `src/wifang/chips/`**: read `docs/porting/METHODOLOGY.md` completely before starting; `chips/` code follows its "Code style in `chips/`", not the code style above.
 
 ## Commands
 
@@ -19,7 +19,7 @@ This repo uses **`uv`** for env management. Always run Python via `uv run` (or `
 uv sync --group dev               # preferred; or: pip install -e ".[dev]"
 
 # Run
-uv run wifit3                     # or: uv run python -m wifit3
+uv run wifang                     # or: uv run python -m wifang
 
 # Tests
 uv run pytest                          # all tests
@@ -30,7 +30,7 @@ uv run pytest tests/wlan/test_parser.py::test_wlan_frame_parser_extracts_ssid
 uv run ruff check src/
 
 # Textual live dev (hot-reload)
-uv run textual run --dev wifit3.ui.app:WifiteApp
+uv run textual run --dev wifang.ui.app:WifiteApp
 ```
 
 Tests require no hardware: all USB interactions are mocked via `pytest-mock`. `asyncio_mode = "auto"` is set globally, so async tests require no decorator.
@@ -39,7 +39,7 @@ Tests require no hardware: all USB interactions are mocked via `pytest-mock`. `a
 
 ## Architecture Overview
 
-Wifit3 is an 802.11 auditing tool. For USB wireless devices it is a userland stack that communicates
+Wifang is an 802.11 auditing tool. For USB wireless devices it is a userland stack that communicates
 directly with the hardware via **PyUSB**. For PCIe/M.2 cards (Linux only) it instead rides the card's
 in-kernel driver through a netdev backend (`AF_PACKET` + `nl80211`/`iw`); see `chips/netdev/`.
 The TUI is built on **Textual**.
@@ -48,9 +48,9 @@ The TUI is built on **Textual**.
 
 Not a clean top-to-bottom stack (the real flow is more tangled), but the points of interest.
 
-**Core engine**: generic and wifit3-agnostic, meant to be split out into a separate `wifit3-drivers`
+**Core engine**: generic and wifang-agnostic, meant to be split out into a separate `wifang-drivers`
 package. Not off-limits, but changes here stay generic: no imports from the app layer (`ui/`, `id/`,
-`vault/`, `persist/`, `campaigns/`), no wifit3 UI or product concepts.
+`vault/`, `persist/`, `campaigns/`), no wifang UI or product concepts.
 
 ```
 dot11/   pure 802.11 / WSC spec: frame parsing and building, no device or asyncio
@@ -61,7 +61,7 @@ chips/   driver.py is the Driver ABC; one dir per chip subclasses it. netdev/ is
          the Linux PCIe/M.2 backend that rides the in-kernel driver, not a userspace USB chip port
 ```
 
-**App layer**: wifit3 itself, built on the core engine.
+**App layer**: wifang itself, built on the core engine.
 
 ```
 ui/      Textual screens (Splash → Scanner → Focus); WifiteApp holds the DeviceManager + active interface

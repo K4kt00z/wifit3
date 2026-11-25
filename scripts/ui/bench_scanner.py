@@ -14,9 +14,9 @@ from unittest.mock import patch
 from rich.console import Console
 from textual.app import App
 
-from wifit3.models import AccessPoint
-from wifit3.persist.vault import Vault
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.models import AccessPoint
+from wifang.persist.vault import Vault
+from wifang.ui.screens.scanner import ScannerView
 
 TERMINAL = (179, 52)          # matches the phone profiling geometry
 CHANNELS = [1, 6, 11, 36, 40, 44, 48, 149, 153, 157, 161]

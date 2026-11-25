@@ -31,8 +31,8 @@ except Exception:                                                 # noqa: BLE001
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src"))
 
-from wifit3.device.manager import wlan_ifaces
-from wifit3.dot11 import build_deauth
+from wifang.device.manager import wlan_ifaces
+from wifang.dot11 import build_deauth
 
 PROBE_SRC = "02:b0:b0:00:00:01"   # the prober injects as this; the DUT's ACK comes back to it
 SPOOF = "02:ac:ac:00:00:01"       # the spoofed MAC the DUT active-monitors

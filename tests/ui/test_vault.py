@@ -12,22 +12,22 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import DataTable, Label
 
-from wifit3.crack.hc22000_format import hashline_id
-from wifit3.models import AccessPoint, CaptureType, ToolName
-from wifit3.models.jobs import JobState, ToolStatus
-from wifit3.persist.ap_state import PasswordStatus
-from wifit3.persist.exhaustion import record_exhausted
-from wifit3.persist.meta import update_meta
-from wifit3.persist.vault import Vault
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.screens.vault_drawer import VaultDrawer, _ap_contents_text
-from wifit3.ui.screens.vault_table import VaultTable
-from wifit3.ui.screens.vault_item import (DeleteKeyPressed, VaultItemView, date_text, hashline_groups, _ApStatePanel,
+from wifang.crack.hc22000_format import hashline_id
+from wifang.models import AccessPoint, CaptureType, ToolName
+from wifang.models.jobs import JobState, ToolStatus
+from wifang.persist.ap_state import PasswordStatus
+from wifang.persist.exhaustion import record_exhausted
+from wifang.persist.meta import update_meta
+from wifang.persist.vault import Vault
+from wifang.ui.app import WifiteApp
+from wifang.ui.screens.vault_drawer import VaultDrawer, _ap_contents_text
+from wifang.ui.screens.vault_table import VaultTable
+from wifang.ui.screens.vault_item import (DeleteKeyPressed, VaultItemView, date_text, hashline_groups, _ApStatePanel,
                                           _CrackerButton, _exhausted_count_text, _exhausted_names, _hashline_prompt,
                                           _KeyRow, _no_crackable_text, _UncrackedList)
-from wifit3.ui.vault.modals.add_credential import ManualCredential
-from wifit3.crack import wpa_psk
-from wifit3.dot11.wpa import derive_pmk
+from wifang.ui.vault.modals.add_credential import ManualCredential
+from wifang.crack import wpa_psk
+from wifang.dot11.wpa import derive_pmk
 from tests.hashline_dates import write_hashline_dates
 
 _EAPOL_LINE = ("WPA*02*" + "0" * 32 + "*aabbccddeeff*112233445566*5465737431*" + "a" * 64 + "*"
@@ -51,8 +51,8 @@ def _pmkid_line(psk: str, mac_ap: str) -> str:
 
 def _m1m2_line(psk: str) -> str:
     """A HomeNet M1+M2 EAPOL line whose MIC ``psk`` makes."""
-    from wifit3.dot11.eapol import eapol_key
-    from wifit3.dot11.wpa import KCK_LEN, derive_ptk, eapol_mic_hmac_md5
+    from wifang.dot11.eapol import eapol_key
+    from wifang.dot11.wpa import KCK_LEN, derive_ptk, eapol_mic_hmac_md5
 
     aa, spa, anonce, snonce = (bytes.fromhex(h) for h in ("aabbccddeeff", "021122334455", "a0" * 32, "5b" * 32))
     eapol = eapol_key(key_info=0x0109, key_len=0, replay=1, nonce=snonce,

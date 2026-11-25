@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.firmware import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.firmware import (
     FirmwareError,
     FW_HEADER_LEN,
     describe,
     validate,
 )
-from wifit3.chips.mt7601u.mcu import (
+from wifang.chips.mt7601u.mcu import (
     MCU_FW_URB_MAX_PAYLOAD,
     MT7601UMcu,
     McuTimeout,

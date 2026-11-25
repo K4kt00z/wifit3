@@ -5,8 +5,8 @@ Full byte-for-byte replay (incl. the watchdog-filtered stream) lives in
 """
 import pytest
 
-from wifit3.chips.rtl8188eus_dkms import efuse
-from wifit3.chips.rtl8188eus_dkms.constants import (
+from wifang.chips.rtl8188eus_dkms import efuse
+from wifang.chips.rtl8188eus_dkms.constants import (
     CMD_READ_EFUSE_MAP,
     DEFAULT_CRYSTAL_CAP,
     EFUSE_ACCESS_OFF,

@@ -8,8 +8,8 @@ import usb.backend
 import usb.core
 import pytest
 
-from wifit3.errors import BringUpError, BringUpPermissionsError, is_permission_error
-from wifit3.wlan.interface import WlanInterface
+from wifang.errors import BringUpError, BringUpPermissionsError, is_permission_error
+from wifang.wlan.interface import WlanInterface
 
 
 class _Driver:

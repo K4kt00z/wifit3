@@ -1,9 +1,9 @@
 from types import SimpleNamespace
 
 from tests.wlan.mocks import build_ap
-from wifit3.persist.ap_state import PasswordStatus
-from wifit3.persist.config import Config
-from wifit3.ui.app import WifiteApp
+from wifang.persist.ap_state import PasswordStatus
+from wifang.persist.config import Config
+from wifang.ui.app import WifiteApp
 
 
 def _app(status: PasswordStatus, pbc_enabled: bool) -> SimpleNamespace:

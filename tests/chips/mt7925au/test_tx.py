@@ -11,9 +11,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from wifit3.chips.mt7925au import tx
-from wifit3.chips.mt7925au.constants import MT792x_BASIC_RATES_TBL, MT792x_WTBL_RESERVED
-from wifit3.chips.mt7925au.driver import MT7925AUDriver
+from wifang.chips.mt7925au import tx
+from wifang.chips.mt7925au.constants import MT792x_BASIC_RATES_TBL, MT792x_WTBL_RESERVED
+from wifang.chips.mt7925au.driver import MT7925AUDriver
 
 # The TX captures' monitor vif came up on 5 GHz: mt7925/main.c:383, mt76_rates[4] OFDM 6 Mbps.
 OFDM_6M = MT792x_BASIC_RATES_TBL + 4

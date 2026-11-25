@@ -26,8 +26,8 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import mt76_verify_replay as E
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.tx import TX_NO_STATION, TX_QUEUE_INJECT, build_tx_dma
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.tx import TX_NO_STATION, TX_QUEUE_INJECT, build_tx_dma
 
 DEFAULT_CAP = (REPO / "driver_captures" / "captures_mt7601u_superwang" / "capture-1.pcap")
 

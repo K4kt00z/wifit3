@@ -1,9 +1,9 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from wifit3.device.manager import _pci_netdev_devices, devices, supported_ids, wlan_iface
-from wifit3.models.device_id import DeviceID
-from wifit3.setup.linux import SetupLinux
+from wifang.device.manager import _pci_netdev_devices, devices, supported_ids, wlan_iface
+from wifang.models.device_id import DeviceID
+from wifang.setup.linux import SetupLinux
 
 
 def test_pci_netdev_devices_enumerates_matching_cards(tmp_path: Path):
@@ -52,7 +52,7 @@ def test_wlan_iface_constructs_netdev_driver():
     assert iface.name == "wlan_pci0"
     assert iface.chipset == "MT7922"
     assert iface.bus == "pci"
-    from wifit3.chips.netdev.driver import LinuxNetdevDriver
+    from wifang.chips.netdev.driver import LinuxNetdevDriver
     assert isinstance(iface.driver, LinuxNetdevDriver)
 
 
@@ -88,16 +88,16 @@ def test_devices_includes_both_usb_and_pci():
         address="0000:3e:00.0",
         extras={"iface": "wlp62s0", "bus_type": "pci"},
     )
-    with patch("wifit3.device.manager._bus_devices", return_value=[]):
-        with patch("wifit3.device.manager._pnp_only_devices", return_value=[mock_usb_dev]):
-            with patch("wifit3.device.manager._pci_netdev_devices", return_value=[mock_pci_dev]):
+    with patch("wifang.device.manager._bus_devices", return_value=[]):
+        with patch("wifang.device.manager._pnp_only_devices", return_value=[mock_usb_dev]):
+            with patch("wifang.device.manager._pci_netdev_devices", return_value=[mock_pci_dev]):
                 all_devs = devices()
                 assert mock_usb_dev in all_devs
                 assert mock_pci_dev in all_devs
 
 
 def test_usb_iface_names_maps_busnum_devnum_to_iface(tmp_path: Path):
-    from wifit3.device.manager import _usb_iface_names
+    from wifang.device.manager import _usb_iface_names
     net_dir = tmp_path / "net"
     wlan = net_dir / "wlan0"
     (wlan / "wireless").mkdir(parents=True)
@@ -112,7 +112,7 @@ def test_usb_iface_names_maps_busnum_devnum_to_iface(tmp_path: Path):
 
 
 def test_usb_iface_names_skips_a_device_without_busnum(tmp_path: Path):
-    from wifit3.device.manager import _usb_iface_names
+    from wifang.device.manager import _usb_iface_names
     net_dir = tmp_path / "net"
     wlan = net_dir / "wlp62s0"
     (wlan / "wireless").mkdir(parents=True)
@@ -126,11 +126,11 @@ def test_usb_iface_names_skips_a_device_without_busnum(tmp_path: Path):
 def test_devices_attaches_kernel_iface_name_to_usb_card():
     from types import SimpleNamespace
     mock_usb = SimpleNamespace(idVendor=0x0E8D, idProduct=0x7961, bus=1, address=5)
-    with patch("wifit3.device.manager._require_backend", return_value=MagicMock()), \
-         patch("wifit3.device.manager._bus_devices", return_value=[mock_usb]), \
-         patch("wifit3.device.manager._pnp_only_devices", return_value=[]), \
-         patch("wifit3.device.manager._pci_netdev_devices", return_value=[]), \
-         patch("wifit3.device.manager._usb_iface_names", return_value={(1, 5): "wlan0"}):
+    with patch("wifang.device.manager._require_backend", return_value=MagicMock()), \
+         patch("wifang.device.manager._bus_devices", return_value=[mock_usb]), \
+         patch("wifang.device.manager._pnp_only_devices", return_value=[]), \
+         patch("wifang.device.manager._pci_netdev_devices", return_value=[]), \
+         patch("wifang.device.manager._usb_iface_names", return_value={(1, 5): "wlan0"}):
         found = devices()
 
     usb = next(d for d in found if (d.vid, d.pid) == (0x0E8D, 0x7961))

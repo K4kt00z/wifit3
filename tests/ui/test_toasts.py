@@ -1,5 +1,5 @@
-from wifit3.ui.toasts import Toasts
-from wifit3.watchers.ap_watcher import (
+from wifang.ui.toasts import Toasts
+from wifang.watchers.ap_watcher import (
     HandshakeCaptured, PbcWindowOpened, PmkidCaptured, WepKeyRecovered, WpsPbcPskRecovered, WpsPinRecovered,
     WpsPskRecovered,
 )

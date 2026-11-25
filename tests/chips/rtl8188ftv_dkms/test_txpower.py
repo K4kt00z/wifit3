@@ -14,7 +14,7 @@ class FakeT:
 
 
 def _params(cck=0x1D, bw40=0x20, ofdm=3, bw20=1):
-    from wifit3.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import prom
     params = prom.EfuseParams()
     params.cck_base_ch = [[cck] * 14]
     params.bw40_base_ch = [[bw40] * 14]
@@ -24,7 +24,7 @@ def _params(cck=0x1D, bw40=0x20, ofdm=3, bw20=1):
 
 
 def test_rate_values_bcd():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     assert T.rate_values(0xE00, 0xFFFFFFFF, 0x34363636) == [
         (T.MGN_6M, 36), (T.MGN_9M, 36), (T.MGN_12M, 36), (T.MGN_18M, 34)]
     assert T.rate_values(0xE08, 0xFF00, 0x3200) == [(T.MGN_1M, 32)]
@@ -38,7 +38,7 @@ def test_rate_values_bcd():
 
 
 def test_load_convert_get_round_trip():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     tables = T.load_pg_tables([
         (0, 0, 0, 0xE04, 0xFFFFFFFF, 0x28303234),
         (0, 0, 0, 0xE10, 0xFFFFFFFF, 0x30343434),
@@ -52,7 +52,7 @@ def test_load_convert_get_round_trip():
 
 
 def test_default_pg_tables_match_recorded():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     tables = T.load_default_pg_tables()
     assert tables.get(0, 0, 0, T.MGN_6M) == 8
     assert tables.get(0, 0, 0, T.MGN_18M) == 6
@@ -60,7 +60,7 @@ def test_default_pg_tables_match_recorded():
 
 
 def test_index_base_and_get_index():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     params = _params()
     tables = T.load_default_pg_tables()
     assert T.get_index(params, tables, 0, T.MGN_1M, 1) == 0x1D
@@ -82,7 +82,7 @@ def test_index_base_and_get_index():
 
 
 def test_remnant_offsets():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     params = _params()
     tables = T.load_default_pg_tables()
     assert T.get_index(params, tables, 0, T.MGN_1M, 7, rem_cck=1) == 0x1E
@@ -92,7 +92,7 @@ def test_remnant_offsets():
 
 
 def test_set_level_writes_twenty_rates():
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     params = _params()
     tables = T.load_default_pg_tables()
     t = FakeT([0x0] * 20)
@@ -104,8 +104,8 @@ def test_set_level_writes_twenty_rates():
 
 def test_ch14_cck_base_is_efuse_group5():
     # rtl8188f_hal_init.c:4119-4121: ch14 CCK base = IndexCCK_Base[5]; BW40 group 4 (:3865)
-    from wifit3.chips.rtl8188ftv_dkms import prom
-    from wifit3.chips.rtl8188ftv_dkms import txpower as T
+    from wifang.chips.rtl8188ftv_dkms import prom
+    from wifang.chips.rtl8188ftv_dkms import txpower as T
     m = bytearray([0xFF] * 512)
     m[prom.EEPROM_TX_PWR_INX_8188F:prom.EEPROM_TX_PWR_INX_8188F + 12] = bytes(
         [0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x31, 0x32, 0x33, 0x34, 0x35, 0x00])

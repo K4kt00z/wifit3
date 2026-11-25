@@ -2,7 +2,7 @@
 
 
 def _walk(table, cut_version, package_type):
-    from wifit3.chips.rtl8188ftv_dkms import phy_cond
+    from wifang.chips.rtl8188ftv_dkms import phy_cond
     out = []
     phy_cond.walk_table(table, lambda a, v: out.append((a, v)), cut_version, package_type)
     return out
@@ -40,21 +40,21 @@ def test_if_else_endif_other_branch():
 
 
 def test_driver1_matches_check_positive_layout():
-    from wifit3.chips.rtl8188ftv_dkms import phy_cond
+    from wifang.chips.rtl8188ftv_dkms import phy_cond
     # halhwimg8188f_mac.c:41-46: cut [27:24], platform [23:16], package [15:12], interface [11:8]
     assert phy_cond.driver1(1, 7) == 0x01047200
     assert phy_cond.driver1(2, 0) == 0x02040200
 
 
 def test_check_positive_compares_package_type():
-    from wifit3.chips.rtl8188ftv_dkms import phy_cond
+    from wifang.chips.rtl8188ftv_dkms import phy_cond
     assert phy_cond.check_positive(0x00007000, 0, 0, 1, 7) is True
     assert phy_cond.check_positive(0x00007000, 0, 0, 1, 1) is False
     assert phy_cond.check_positive(0x00001000, 0, 0, 1, 1) is True
 
 
 def test_rf_table_cut_selects_rf51_row():
-    from wifit3.chips.rtl8188ftv_dkms import rf_radio_a_tbl
+    from wifang.chips.rtl8188ftv_dkms import rf_radio_a_tbl
     # halhwimg8188f_rf.c Array_MP_8188F_RadioA: `if cut 1` RF 0x51 = 0xE8231, else 0xE8333
     b_cut = _walk(rf_radio_a_tbl.TABLE, 1, 7)
     c_cut = _walk(rf_radio_a_tbl.TABLE, 2, 7)
@@ -64,7 +64,7 @@ def test_rf_table_cut_selects_rf51_row():
 
 
 def test_tables_have_no_package_condition():
-    from wifit3.chips.rtl8188ftv_dkms import (bb_agc_tab_tbl, bb_phy_reg_tbl, mac_reg_tbl,
+    from wifang.chips.rtl8188ftv_dkms import (bb_agc_tab_tbl, bb_phy_reg_tbl, mac_reg_tbl,
                                               rf_radio_a_tbl)
     for tbl in (mac_reg_tbl, bb_phy_reg_tbl, bb_agc_tab_tbl, rf_radio_a_tbl):
         for package_type in range(8):
@@ -72,7 +72,7 @@ def test_tables_have_no_package_condition():
 
 
 def test_package_type_from_hidden_report():
-    from wifit3.chips.rtl8188ftv_dkms import c2h
+    from wifang.chips.rtl8188ftv_dkms import c2h
     report = bytes([0, 0, 0, 0, 0x72, 0, 0, 0])   # byte 4: package 7, HCI USB
     assert c2h.get_c2h_mac_hidden_rpt_package_type(report) == 7
     assert c2h.get_c2h_mac_hidden_rpt_package_type(b"") == 0

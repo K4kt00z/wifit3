@@ -5,7 +5,7 @@ import asyncio
 from textual.app import App
 from textual.widgets import Button
 
-from wifit3.ui.screens.replug import ReplugModal
+from wifang.ui.screens.replug import ReplugModal
 
 
 async def _fast(present):

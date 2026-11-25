@@ -2,11 +2,11 @@
 -> AccessPoint.group_cipher, surfacing a TKIP-downgraded group cipher on a CCMP-pairwise AP."""
 import struct
 
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.dot11.packet import BeaconPacket
-from wifit3.dot11.rsn import AKM_PSK, CIPHER_CCMP, CIPHER_TKIP
-from wifit3.models import AccessPoint
-from wifit3.wlan.sink import WlanSink
+from wifang.dot11.parser import WlanFrameParser
+from wifang.dot11.packet import BeaconPacket
+from wifang.dot11.rsn import AKM_PSK, CIPHER_CCMP, CIPHER_TKIP
+from wifang.models import AccessPoint
+from wifang.wlan.sink import WlanSink
 
 from tests.frames import pkt
 

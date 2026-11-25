@@ -26,21 +26,21 @@ class FakeT:
 
 
 def test_thermal_trigger():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     t = FakeT([0x0, 0x0, 0x0, 0x0])
     track.thermal_trigger(t)
     assert t.writes[-1] == (0x840, 4, 0x4230000)
 
 
 def test_kfree_gain_offset_clears_tx_gain_bits():
-    from wifit3.chips.rtl8188ftv_dkms import track
+    from wifang.chips.rtl8188ftv_dkms import track
     t = FakeT([0x8C390204, 0x2AB90204, 0x1000100, 0x182060])
     track.kfree_gain_offset(t)
     assert t.writes[-1] == (0x840, 4, 0x5502060)
 
 
 def test_enter_monitor():
-    from wifit3.chips.rtl8188ftv_dkms import mode
+    from wifang.chips.rtl8188ftv_dkms import mode
     t = FakeT([0x02])
     st = {"isMonitor": False}
     mode.enter_monitor(t, st)
@@ -50,7 +50,7 @@ def test_enter_monitor():
 
 
 def test_set_station_opmode():
-    from wifit3.chips.rtl8188ftv_dkms import mode
+    from wifang.chips.rtl8188ftv_dkms import mode
     t = FakeT([0x10, 0x02])
     st = {"isMonitor": False, "fw_hw_tx_q_ctrl": 0x71, "reg542": 0x00}
     mode.set_station_opmode(t, st)
@@ -62,7 +62,7 @@ def test_set_station_opmode():
 
 def test_set_station_opmode_after_monitor_resets_rcr():
     # rtl8188f_hal_init.c:4868-4871: static isMonitor -> RCR = ReceiveConfig, then cleared
-    from wifit3.chips.rtl8188ftv_dkms import mode
+    from wifang.chips.rtl8188ftv_dkms import mode
     t = FakeT([0x10, 0x02])
     st = {"isMonitor": True, "fw_hw_tx_q_ctrl": 0x71, "reg542": 0x00}
     mode.set_station_opmode(t, st)

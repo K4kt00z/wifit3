@@ -23,8 +23,8 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "porting"))
 
 import rtw88_pcap_replay as rp
-from wifit3.chips.rtl8188ftv_dkms import tx
-from wifit3.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
+from wifang.chips.rtl8188ftv_dkms import tx
+from wifang.chips.rtl8188ftv_dkms.driver import Rtl8188ftvDkmsDriver
 
 SHOWN_DIVERGENCES = 10
 

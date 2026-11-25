@@ -2,9 +2,9 @@
 8-word REG_READ_MULTI address batches."""
 import struct
 
-from wifit3.chips.ar9271_v2 import eeprom, hw, phy, reg as R
-from wifit3.chips.ar9271_v2.transport import AR9271Transport
-from wifit3.chips.ar9271_v2.wmi import WMI
+from wifang.chips.ar9271_v2 import eeprom, hw, phy, reg as R
+from wifang.chips.ar9271_v2.transport import AR9271Transport
+from wifang.chips.ar9271_v2.wmi import WMI
 
 from .test_txpower import EEPROM
 

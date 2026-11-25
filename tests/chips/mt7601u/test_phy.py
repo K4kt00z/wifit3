@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import pytest
 
-from wifit3.chips.mt7601u import constants as C
-from wifit3.chips.mt7601u.eeprom import MT7601UEepromParams
-from wifit3.chips.mt7601u.mcu import MT7601UMcu
-from wifit3.chips.mt7601u.phy import (
+from wifang.chips.mt7601u import constants as C
+from wifang.chips.mt7601u.eeprom import MT7601UEepromParams
+from wifang.chips.mt7601u.mcu import MT7601UMcu
+from wifang.chips.mt7601u.phy import (
     BBP_CH14_REG,
     BBP_LNA_REGS,
     FREQ_PLAN,

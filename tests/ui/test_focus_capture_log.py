@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pytest
 
-from wifit3.models import AccessPoint
-from wifit3.persist.vault import HashlineSaveResult
-from wifit3.ui.app import WifiteApp
-from wifit3.watchers.ap_watcher import PmkidCaptured
-from wifit3.wlan.array import WlanArray
+from wifang.models import AccessPoint
+from wifang.persist.vault import HashlineSaveResult
+from wifang.ui.app import WifiteApp
+from wifang.watchers.ap_watcher import PmkidCaptured
+from wifang.wlan.array import WlanArray
 
 
 @pytest.mark.asyncio

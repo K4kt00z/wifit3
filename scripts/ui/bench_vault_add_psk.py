@@ -7,8 +7,8 @@ from textual import events
 from textual.widgets import Input
 
 from vault_bench import bssid_of, open_vault, painted, select, shown_state, terminal_size, wait_for
-from wifit3.ui.app import WifiteApp
-from wifit3.ui.vault.modals.add_credential import AddCredentialModal
+from wifang.ui.app import WifiteApp
+from wifang.ui.vault.modals.add_credential import AddCredentialModal
 
 PSK = "typed-in-password"
 

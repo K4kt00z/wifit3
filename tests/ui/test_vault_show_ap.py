@@ -2,10 +2,10 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-from wifit3.campaigns.campaign import Campaign
-from wifit3.models import AccessPoint
-from wifit3.ui.screens.vault_drawer import VaultDrawer
-from wifit3.ui.screens.vault_item import ShowApPressed, _ApStatePanel
+from wifang.campaigns.campaign import Campaign
+from wifang.models import AccessPoint
+from wifang.ui.screens.vault_drawer import VaultDrawer
+from wifang.ui.screens.vault_item import ShowApPressed, _ApStatePanel
 
 BSSID = "aa:bb:cc:dd:ee:01"
 

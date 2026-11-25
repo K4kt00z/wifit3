@@ -5,14 +5,14 @@ from typing import Sequence
 
 import pytest
 
-import wifit3.chips.rtl8187.probe as probe_mod
-import wifit3.chips.rtl8187.rtl8225 as rf
-from wifit3.chips.rtl8187.constants import (
+import wifang.chips.rtl8187.probe as probe_mod
+import wifang.chips.rtl8187.rtl8225 as rf
+from wifang.chips.rtl8187.constants import (
     HwRev,
     REG_GPIO0,
     REG_TX_CONF,
 )
-from wifit3.chips.rtl8187.rtl8225 import RfVariant
+from wifang.chips.rtl8187.rtl8225 import RfVariant
 
 
 class IdxRecordingTransport:
@@ -128,7 +128,7 @@ def test_probe_b_rfkill_mask_from_eeprom_select_gpio(monkeypatch, product_id, se
 
 
 def test_is_radio_enabled_uses_the_probed_mask():
-    from wifit3.chips.rtl8187.rfkill import is_radio_enabled
+    from wifang.chips.rtl8187.rfkill import is_radio_enabled
 
     t = IdxRecordingTransport({REG_GPIO0: 0xFF, REG_GPIO0 + 1: 0x04})
     assert is_radio_enabled(t, 0x4) is True
@@ -145,7 +145,7 @@ def test_rtl8187b_reg_table_matches_dev_c():
         pytest.skip("driver_sources/ is gitignored, absent in a clone")
     import re
 
-    from wifit3.chips.rtl8187.mac import rtl8187b_reg_table
+    from wifang.chips.rtl8187.mac import rtl8187b_reg_table
 
     src = _DEV_C.read_text()
     body = src[src.index("rtl8187b_reg_table[][3] = {"):src.index("static int rtl8187b_init_hw")]
@@ -162,7 +162,7 @@ def _anaparam_ops(on: bool) -> list[tuple]:
 
 
 def test_set_anaparam_b_writes_b_values_and_anaparam3a():
-    from wifit3.chips.rtl8187 import mac
+    from wifang.chips.rtl8187 import mac
 
     for on in (True, False):
         t = IdxRecordingTransport()
@@ -171,7 +171,7 @@ def test_set_anaparam_b_writes_b_values_and_anaparam3a():
 
 
 def test_rtl8187b_init_hw_op_order(monkeypatch):
-    from wifit3.chips.rtl8187 import mac
+    from wifang.chips.rtl8187 import mac
 
     monkeypatch.setattr(mac.time, "sleep", lambda *_a: None)
     t = IdxRecordingTransport()
@@ -219,7 +219,7 @@ def test_rtl8187b_init_hw_op_order(monkeypatch):
 
 
 def test_start_b_branch_writes_rx_conf_tx_agc_and_hw_seqnum_tx_conf():
-    from wifit3.chips.rtl8187 import mac
+    from wifang.chips.rtl8187 import mac
 
     t = IdxRecordingTransport({0xFF9C: 0xFF})
     rx_conf = mac.start(t, is_rtl8187b=True)
@@ -232,7 +232,7 @@ def test_start_b_branch_writes_rx_conf_tx_agc_and_hw_seqnum_tx_conf():
 
 
 def test_cold_bring_up_b_runs_rtl8187b_init_hw_then_start_then_monitor(monkeypatch):
-    from wifit3.chips.rtl8187 import mac
+    from wifang.chips.rtl8187 import mac
 
     calls: list[str] = []
     monkeypatch.setattr(mac, "init_hw", lambda t, rf_init: calls.append("init_hw"))
@@ -245,7 +245,7 @@ def test_cold_bring_up_b_runs_rtl8187b_init_hw_then_start_then_monitor(monkeypat
 
 
 def test_stop_b_uses_b_anaparam_off():
-    from wifit3.chips.rtl8187 import mac
+    from wifang.chips.rtl8187 import mac
 
     t = IdxRecordingTransport()
     mac.stop(t, lambda _t: None, is_rtl8187b=True)
@@ -258,7 +258,7 @@ def test_stop_b_uses_b_anaparam_off():
     (0, None),                                       # cmd_type 0: tx beacon interrupt
 ])
 def test_rtl8187b_status_cb_decodes_tx_close_descriptor(val, expected):
-    from wifit3.chips.rtl8187.tx import rtl8187b_status_cb
+    from wifang.chips.rtl8187.tx import rtl8187b_status_cb
 
     status = rtl8187b_status_cb(val.to_bytes(8, "little"))
     got = None if status is None else (status.pkt_rc, status.tok, status.seq_no)
@@ -329,7 +329,7 @@ def test_rtl8225z2_b_rf_set_tx_power(monkeypatch, hw_rev, hv, base, channel, cck
 
 
 def test_config_channel_on_z2_b_runs_the_b_tx_power_then_rf7(monkeypatch):
-    from wifit3.chips.rtl8187 import chan
+    from wifang.chips.rtl8187 import chan
 
     monkeypatch.setattr(chan.time, "sleep", lambda *_a: None)
     calls: list[tuple] = []
@@ -344,7 +344,7 @@ def test_config_channel_on_z2_b_runs_the_b_tx_power_then_rf7(monkeypatch):
 
 # ---- TX / RX (dev.c:227-412) -------------------------------------------------------------
 def _deauth() -> bytes:
-    from wifit3.chips.rtl8187.tx import build_deauth
+    from wifang.chips.rtl8187.tx import build_deauth
 
     return build_deauth(bytes.fromhex("020000000002"), bytes.fromhex("020000000001"))
 
@@ -352,7 +352,7 @@ def _deauth() -> bytes:
 def test_rtl8187b_tx_hdr_layout():
     import struct
 
-    from wifit3.chips.rtl8187.tx import build_rtl8187b_tx_hdr
+    from wifang.chips.rtl8187.tx import build_rtl8187b_tx_hdr
 
     hdr = build_rtl8187b_tx_hdr(26)
     assert len(hdr) == 32
@@ -367,7 +367,7 @@ def test_rtl8187b_tx_hdr_layout():
 
 
 def test_ieee80211_frame_duration_ofdm_branch():
-    from wifit3.chips.rtl8187.tx import ieee80211_frame_duration
+    from wifang.chips.rtl8187.tx import ieee80211_frame_duration
 
     # 54 Mbps, 100 B: 36 + 4 * ceil((16 + 8 * 104 + 6) * 10 / 2160) = 36 + 4 * 4
     assert ieee80211_frame_duration(100, 540, 1, False) == 52
@@ -391,7 +391,7 @@ def _qos_data(tid: int, four_addr: bool = False) -> bytes:
     (_qos_data(4, four_addr=True), 7),                # 4-addr: QoS control at 30
 ])
 def test_rtl8187b_tx_ep(frame, ep):
-    from wifit3.chips.rtl8187.tx import rtl8187b_tx_ep
+    from wifang.chips.rtl8187.tx import rtl8187b_tx_ep
 
     assert rtl8187b_tx_ep(frame) == ep
 
@@ -399,7 +399,7 @@ def test_rtl8187b_tx_ep(frame, ep):
 def test_inject_frame_b_writes_32_byte_header_to_the_frame_endpoint():
     from unittest.mock import MagicMock
 
-    from wifit3.chips.rtl8187.tx import inject_frame
+    from wifang.chips.rtl8187.tx import inject_frame
 
     dev = MagicMock()
     dev.write.side_effect = lambda ep, data, timeout: len(data)
@@ -413,7 +413,7 @@ def test_inject_frame_b_writes_32_byte_header_to_the_frame_endpoint():
 def test_parse_rx_urb_b_decodes_the_20_byte_trailer():
     import struct
 
-    from wifit3.chips.rtl8187.rx import parse_rx_urb
+    from wifang.chips.rtl8187.rx import parse_rx_urb
 
     body = bytes(range(30))
     hdr = struct.pack("<IQBBBBHbB", (len(body) + 4) | (3 << 20), 0x1122334455667788,
@@ -428,8 +428,8 @@ def test_parse_rx_urb_b_decodes_the_20_byte_trailer():
 def test_stamp_tx_seq_is_a_no_op_on_b():
     from unittest.mock import MagicMock
 
-    from wifit3.chips.rtl8187.driver import RTL8187Driver
-    from wifit3.chips.rtl8187.mac import ChipVariant
+    from wifang.chips.rtl8187.driver import RTL8187Driver
+    from wifang.chips.rtl8187.mac import ChipVariant
 
     d = RTL8187Driver(MagicMock())
     d.chip_variant = ChipVariant(hwver_raw=None, name="RTL8187BvE", is_rtl8187b=True,

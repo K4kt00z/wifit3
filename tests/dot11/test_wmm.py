@@ -1,9 +1,9 @@
 """WMM/QoS advertisement plumbing: vendor IE OUI 00-50-F2 type 2 -> BeaconPacket.wmm
 -> AccessPoint.wmm, needed for Beck-Tews to detect a QoS data channel."""
-from wifit3.dot11.packet import BeaconPacket
-from wifit3.dot11.parser import WlanFrameParser
-from wifit3.models import AccessPoint
-from wifit3.wlan.sink import WlanSink
+from wifang.dot11.packet import BeaconPacket
+from wifang.dot11.parser import WlanFrameParser
+from wifang.models import AccessPoint
+from wifang.wlan.sink import WlanSink
 
 from tests.frames import pkt
 

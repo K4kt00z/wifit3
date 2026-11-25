@@ -12,13 +12,13 @@ import pytest
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Input, Tree
 
-from wifit3.persist.config import Config
-from wifit3.persist.vault import Vault
-from wifit3.ui.path_picker import (
+from wifang.persist.config import Config
+from wifang.persist.vault import Vault
+from wifang.ui.path_picker import (
     CHECK_GLYPH, PathInput, PathPickerModal, _DirectoriesOnlyTree, _nearest_dir, picker_roots,
     relative_to_cwd,
 )
-from wifit3.ui.pref import PreferencesModal
+from wifang.ui.pref import PreferencesModal
 from tests.ui.wait_until import wait_until
 
 

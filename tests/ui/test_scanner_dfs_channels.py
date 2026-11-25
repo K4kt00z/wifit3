@@ -1,8 +1,8 @@
 """The Scanner keeps DFS channels out of the channel picker and the hop unless the DFS pref is on."""
 import pytest
 
-from wifit3.persist.config import Config
-from wifit3.ui.screens.scanner import ScannerView
+from wifang.persist.config import Config
+from wifang.ui.screens.scanner import ScannerView
 from tests.ui.test_scanner_filter import _FakeArray, _ScannerHost
 
 _CHANNELS = [1, 6, 36, 52, 100, 149]

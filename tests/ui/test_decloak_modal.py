@@ -7,11 +7,11 @@ import pytest
 from textual.app import App
 from textual.widgets import Checkbox, Input, Label, TextArea
 
-from wifit3.campaigns.decloak import DecloakCampaign, DecloakInput
-from wifit3.models import AccessPoint
-from wifit3.persist.config import Config
-from wifit3.wlan.array import WlanArray
-from wifit3.ui.screens.focus_v2.decloak_modal import (
+from wifang.campaigns.decloak import DecloakCampaign, DecloakInput
+from wifang.models import AccessPoint
+from wifang.persist.config import Config
+from wifang.wlan.array import WlanArray
+from wifang.ui.screens.focus_v2.decloak_modal import (
     DecloakInputModal,
     candidates_from_base,
     line_count,
@@ -315,7 +315,7 @@ async def test_a_long_wordlist_opens_truncated_and_the_buttons_move_it(tmp_path)
 
 
 async def test_pressing_the_chosen_truncation_again_lifts_it(tmp_path):
-    from wifit3.ui.screens.focus_v2.decloak_modal import _TruncateButton
+    from wifang.ui.screens.focus_v2.decloak_modal import _TruncateButton
 
     app = App()
     async with app.run_test() as pilot:
@@ -335,7 +335,7 @@ async def test_pressing_the_chosen_truncation_again_lifts_it(tmp_path):
 
 async def test_only_truncations_that_would_shorten_the_run_are_offered(tmp_path):
     """The count is set directly to walk the thresholds without paying for four wordlists."""
-    from wifit3.ui.screens.focus_v2.decloak_modal import _TruncateButton
+    from wifang.ui.screens.focus_v2.decloak_modal import _TruncateButton
 
     app = App()
     async with app.run_test() as pilot:
@@ -356,7 +356,7 @@ async def test_only_truncations_that_would_shorten_the_run_are_offered(tmp_path)
 
 
 async def test_only_the_chosen_truncation_button_is_primary(tmp_path):
-    from wifit3.ui.screens.focus_v2.decloak_modal import _TruncateButton
+    from wifang.ui.screens.focus_v2.decloak_modal import _TruncateButton
 
     app = App()
     async with app.run_test() as pilot:
